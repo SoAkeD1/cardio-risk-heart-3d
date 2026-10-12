@@ -9,3 +9,7 @@ node_modules/
 
 # review screenshots (scratch)
 artifacts/review/
+
+# secrets / local env
+.env
+.env.*
