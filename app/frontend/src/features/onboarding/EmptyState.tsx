@@ -7,7 +7,7 @@ import { loadExample } from "../patient/SampleMenu";
 export function EmptyState() {
   const { data } = useExamples();
   const health = useHealth();
-  if (!health.data)
+  if (!health.data && health.isError) // only after a failed check, not during the first ~100 ms
     return (
       <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center" data-testid="waiting-service">
         <span className="h-8 w-8 animate-spin rounded-full border-2 border-s3 border-t-accent" aria-hidden />
