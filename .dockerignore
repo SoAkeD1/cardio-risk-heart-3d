@@ -1,0 +1,9 @@
+node_modules
+**/node_modules
+.venv
+.git
+artifacts/cache
+app/frontend/dist
+*.zip
+backup
+blender/*.blend

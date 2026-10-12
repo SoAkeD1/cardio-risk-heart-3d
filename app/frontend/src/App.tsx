@@ -38,6 +38,19 @@ export default function App() {
   const [modelError, setModelError] = useState(false);
   const [viewerKey, setViewerKey] = useState(0);
   const webgl = useMemo(() => hasWebGL() && !new URLSearchParams(location.search).has("nowebgl"), []);
+  // the 3D stack (three.js + R3F, ~300 KB gz + model decode) starts once the dashboard has painted
+  const [mount3d, setMount3d] = useState(false);
+  const hasPrediction = useStore((s) => !!s.prediction);
+  useEffect(() => {
+    if (mount3d) return;
+    const go = () => setMount3d(true);
+    const ric = (window as unknown as { requestIdleCallback?: (f: () => void, o?: { timeout: number }) => number }).requestIdleCallback;
+    // opening a shared/sample link (?case=): let its first estimate paint before the 3D stack initialises
+    const waitingForCase = new URLSearchParams(location.search).has("case") && !hasPrediction;
+    const delay = waitingForCase ? 4000 : hasPrediction ? 250 : 400;
+    const t = setTimeout(() => (ric ? ric(go, { timeout: 1000 }) : go()), delay);
+    return () => clearTimeout(t);
+  }, [mount3d, hasPrediction]);
 
   useGlobalShortcuts({ onShortcuts: () => setShortcuts((o) => !o) });
   useEffect(() => installTestHooks(), []);
@@ -54,8 +67,8 @@ export default function App() {
   useEffect(() => {
     const id = new URLSearchParams(location.search).get("case");
     const e = examples.data?.examples.find((x) => x.id === id);
-    if (e && schema.data && useStore.getState().caseId !== id) loadExample(e);
-  }, [examples.data, schema.data]);
+    if (e && useStore.getState().caseId !== id) loadExample(e); // example features are complete: no need to wait for the schema
+  }, [examples.data]);
 
   // first visit: the tour (skippable, remembered)
   useEffect(() => {
@@ -65,7 +78,9 @@ export default function App() {
     }
   }, [ui.tourDone]);
 
-  const viewer = webgl ? (
+  const viewer = !mount3d ? (
+    <div className="canvas-bg h-full w-full" />
+  ) : webgl ? (
     <Suspense fallback={<div className="canvas-bg h-full w-full" />}>
       <Viewer
         key={viewerKey}

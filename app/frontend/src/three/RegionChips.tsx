@@ -1,7 +1,7 @@
 import { Html } from "@react-three/drei";
 import { ArrowDown, ArrowUp, Droplet } from "lucide-react";
 import { useStore } from "../state/store";
-import { worldPos } from "./registry";
+import { worldPos } from "./geom";
 
 /** Body mode: floating ↑/↓ chips at the top-3 contributing regions' anchors (+ the "Blood tests" HUD chip). */
 export function RegionChips() {

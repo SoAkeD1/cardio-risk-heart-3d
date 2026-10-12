@@ -13,7 +13,8 @@ describe("format.ts", () => {
     expect(pts(0.12)).toBe("+12 pts");
     expect(pts(-0.054)).toBe("−5 pts");
     expect(pts(0.01)).toBe("+1 pt");
-    expect(pts(0.002)).toBe("+<1 pt");
+    expect(pts(0.002)).toBe("<1 pt");
+    expect(pts(-0.002)).toBe("<1 pt");
     expect(pts(0)).toBe("0 pts");
   });
   it("formats numbers to the field step", () => {

@@ -6,7 +6,7 @@ export const pct = (p: number | undefined | null): string =>
 /** Signed probability points: 0.123 -> "+12 pts", -0.004 -> "−0 pts" is avoided -> "<1 pt". */
 export function pts(delta: number): string {
   const v = delta * 100;
-  if (Math.abs(v) < 0.5) return v === 0 ? "0 pts" : `${v > 0 ? "+" : "−"}<1 pt`;
+  if (Math.abs(v) < 0.5) return v === 0 ? "0 pts" : "<1 pt"; // direction is shown by the arrow / sign elsewhere
   const r = Math.round(Math.abs(v));
   return `${v > 0 ? "+" : "−"}${r} pt${r === 1 ? "" : "s"}`;
 }

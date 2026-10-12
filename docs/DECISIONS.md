@@ -36,3 +36,41 @@ Non-obvious choices made while building CardioLens, with the reason for each.
 * **Design skills.** `npx skills add Leonxlnx/taste-skill` and `emilkowalski/skill` would download and run
   third-party code from GitHub, so I did not install them. The visual rules in the prompt (tokens, typography,
   motion, layout, accessibility) are applied directly instead.
+
+## Phases 2–9: frontend and app
+* **Tokens.** I darkened the light-theme info and warning colours and lightened dark-mode `--text-3`
+  (#77736D → #8C8881) so every text/background pair passes WCAG AA. The axe scan reports 0 serious or critical
+  issues in both themes.
+* **3D colour binding.** Textured surfaces (heart, aorta) take the scene tier tint at 50%, so the Sketchfab texture
+  stays legible. Coronary colours are copied exactly; the e2e test compares them with the API.
+* **Outlines.** The `Extra_Outline_*` normals are already inverted in the GLB, so the outline material uses
+  `FrontSide`. Using `BackSide` on top of that would draw the shell over the vessel instead of around it.
+* **Preset framing.** The `Extra_View_*` poses were framed for 16:10 renders. The app pulls them back by 1.25×, and
+  further on narrow canvases, so the heart never touches the panels.
+* **Deferred 3D mount.** The 3D stack (three.js + R3F, about 300 KB gzip) and the GLB load after the dashboard has
+  painted. On a `?case=` link they load after that case's first estimate. The HDRI loads in its own Suspense
+  boundary after the model. This keeps the first meaningful paint fast (Lighthouse LCP 0.6 s) without hiding
+  the heart; it appears within about 1 s.
+* **No GLB `<link rel=preload>`.** It competed with the first paint, so a JS warm-up fetch after `load` is used
+  instead. The GLB is cached immutably. HTML preload hints remain for `/api/examples` and `/api/schema`.
+* **Loopback dual-stack server.** `python -m app.backend.main` binds both `::1` and `127.0.0.1`, and nothing else.
+  On Windows, `localhost` resolves to `::1` first, so an IPv4-only server added about 200 ms to every
+  connection.
+* **Live FPS.** The counter measures frames actually rendered. With `frameloop="demand"` an idle viewer correctly
+  reads about 0. The reported FPS comes from orbiting.
+* **FPS environment.** Measured on a discrete AMD RX 9070 XT. The value is vsync-capped at 60, both on the desktop
+  profile and on the 390×844 mobile emulation. Integrated graphics were not available, so the "≥ 50 fps on
+  integrated graphics" gate is verified only on this hardware; the lite model, the DPR cap and the automatic
+  fallback are the safeguards.
+* **Tests run against the dev server.** The `window.__cardiolens` hook exists only in dev builds or builds made with
+  `CARDIOLENS_TEST_HOOKS=1`; production builds never expose it. Lighthouse runs against the production server.
+* **Slow-3G test.** Throttling is applied after the app has loaded and forces a lite-model re-download. The dev
+  server's hundreds of unbundled modules make a throttled cold start unrepresentative.
+* **The 200% zoom test** emulates zoom as a 720×450 CSS viewport at DPR 2, which is what browser zoom does. CSS
+  `zoom` would not trigger the responsive breakpoints.
+* **Dialogs own Escape.** Global shortcuts ignore keys while any dialog or menu is open, and never
+  `preventDefault` on Escape.
+* **What-if sliders** cover only `anatomy_map.modifiable.features`. Weight/BMI/obesity and smoking side effects are
+  applied by `cardio_ml` (shown under "derived updates") and are copied into the patient on "Apply to patient".
+* **Lighthouse runner.** `chrome-launcher` cannot spawn Playwright's full Chromium on this machine, so
+  `e2e/lighthouse.mjs` starts Chromium through Playwright with a debugging port and runs Lighthouse against it.

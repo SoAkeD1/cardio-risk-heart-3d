@@ -197,6 +197,8 @@ test("keyboard only: skip link, samples menu, vessel select, model card", async 
   await page.getByTestId("open-model-card").focus();
   await page.keyboard.press("Enter");
   await expect(page.getByTestId("metrics-table")).toBeVisible();
+  // the dialog's focus trap / Escape listener are installed in an effect: wait until focus is inside it
+  await page.waitForFunction(() => !!document.activeElement?.closest('[role="dialog"]'));
   await page.keyboard.press("Escape");
   await expect(page.getByTestId("metrics-table")).toHaveCount(0);
 });

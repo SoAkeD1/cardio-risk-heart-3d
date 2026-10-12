@@ -7,7 +7,8 @@
     <meta name="theme-color" content="#0F1012" />
     <title>CardioLens: see where cardiac risk lives</title>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="preload" href="/models/heart.glb" as="fetch" type="model/gltf-binary" crossorigin />
+    <link rel="preload" href="/api/examples" as="fetch" crossorigin />
+    <link rel="preload" href="/api/schema" as="fetch" crossorigin />
     <script>
       try {
         var p = JSON.parse(localStorage.getItem("cardiolens.prefs.v1") || "{}");

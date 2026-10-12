@@ -1,13 +1,73 @@
-# Track A: CAD and per-vessel stenosis risk (ML pipeline, Steps 1–4)
+# CardioLens: see where cardiac risk lives
 
-Multimodal AI Hackathon 2026 · Cardiovascular Risk Visualization & Prediction.
+Multimodal AI Hackathon 2026 · Track A · Cardiovascular Risk Visualization & Prediction.
 
-This pipeline predicts **overall CAD** (`Cath`) and **stenosis of the LAD, LCX and RCA** from routine clinical data.
-It uses calibrated probabilities and SHAP/LIME explanations in clinical-feature language. Its outputs
-(`artifacts/`) feed the later 3D heart and dashboard. This repo contains no UI, API or 3D code.
+Enter routine clinical data and see **calibrated CAD and per-artery (LAD / LCX / RCA) stenosis risk on an
+interactive 3D heart**, with the reasons why and what-if exploration. Decision support and education only.
+
+![CardioLens desktop](artifacts/figures/app_desktop_dark.png)
 
 **Dataset:** Alizadehsani R., Roshanzamir M., Sani Z. *Extension of Z-Alizadeh Sani*. UCI ML Repository, id 411.
 <https://archive.ics.uci.edu/dataset/411/extention+of+z> (DOI 10.24432/C5Q31M).
+
+## Run the app
+**In the Claude desktop app (no terminal knowledge needed):** open this folder in Claude and ask:
+
+> run python scripts/dev.py
+
+Claude starts the server and the web app and your browser opens at <http://localhost:5173>. Click
+**Sample patients** and pick one. To stop, ask Claude to stop it (or press Ctrl+C in the terminal).
+
+**Requirements (one-time):** Python 3.11 with the project venv (`pip install -r requirements.txt` and
+`pip install -e .`) and Node.js 20+. `scripts/dev.py` installs the web packages on first run.
+
+| Command | What it does |
+|---|---|
+| `python scripts/dev.py` | development: FastAPI on :8000 + Vite on :5173, opens the browser |
+| `python scripts/build.py` then `python -m app.backend.main` | production: one server at <http://localhost:8000> |
+| `docker build -t cardiolens . && docker run -p 8000:8000 cardiolens` | the same, in a container (for judges) |
+
+Screenshots: [desktop dark](artifacts/figures/app_desktop_dark.png) ·
+[desktop light](artifacts/figures/app_desktop_light.png) · [tablet](artifacts/figures/app_tablet_dark.png) ·
+[mobile](artifacts/figures/app_mobile_dark.png) · [body mode](artifacts/figures/app_body_mode.png) ·
+[territories](artifacts/figures/app_territories.png) · [what-if](artifacts/figures/app_whatif.png) ·
+[model card](artifacts/figures/app_modelcard.png) · [PDF report](artifacts/figures/app_report.pdf)
+
+## Problem statement → where it is met
+| PS ref | Requirement | Where it's met |
+|---|---|---|
+| 1a–e | Models, leakage rule, metrics | Steps 1–4 (`cardio_ml/`, `artifacts/metrics.json`); surfaced in the **Model card** (hold-out metrics with 95% CIs, nested CV, calibration); the API rejects label columns (400) |
+| 2a | Interactive 3D torso/heart (R3F) | `app/frontend/src/three/` (React Three Fiber viewer, heart + body mode) |
+| 2b | LAD/LCX/RCA colours update from probabilities | `useSceneBinding.ts` copies `scene_state` colours (e2e: equal to the API ±1/255) |
+| 2c | Rotate / zoom / select → vessel risk detail | OrbitControls, picking + tooltips, fly-to anchors, vessel cards (two-way selection) |
+| 3a | CAD status + vessel probabilities beside the canvas | Right panel: risk summary + vessel cards |
+| 3b | Interpretable breakdown (SHAP) | "Why?" section: SHAP waterfall for CAD / LAD / LCX / RCA |
+| 3c | Measurements + relative contribution | Physiological breakdown (6 groups) + sortable measurement table with typical ranges |
+| 4a | Open-source meshes | Sketchfab "Realistic Human Heart" (CC BY 4.0), credited in the UI, model card, PDF and GLB |
+| 5 | Visible disclaimer | Persistent, non-dismissible strip; every PDF page; model card |
+| Tech | No dedicated GPU needed | lite model (auto on low-memory/touch), performance mode, demand frame loop |
+| Tech | Extensible | schema-driven UI, `anatomy_map`-driven 3D, model registry in `cardio_ml` |
+| Tech | Consistent correspondence | mesh names / colours only from `scene_state` + `anatomy_map` |
+
+## Architecture
+```mermaid
+flowchart LR
+  subgraph Browser
+    UI[React UI · Zustand · TanStack Query] -->|/api| API
+    UI -->|scene_state| R3F[R3F viewer]
+    R3F --> GLB[(heart.glb / heart_lite.glb)]
+  end
+  subgraph Server[FastAPI]
+    API[routers] --> SVC[services.py] --> ML[cardio_ml: predict · explain · scene_state · what-if]
+    ML --> ART[(artifacts: models · thresholds · anatomy_map)]
+  end
+```
+See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), the demo plan in [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md)
+and every non-obvious choice in [`docs/DECISIONS.md`](docs/DECISIONS.md).
+
+## ML pipeline (Steps 1–4)
+The pipeline predicts **overall CAD** (`Cath`) and **stenosis of the LAD, LCX and RCA** from routine clinical
+data, with calibrated probabilities and SHAP/LIME explanations in clinical-feature language.
 
 ## Layout
 ```
@@ -137,8 +197,11 @@ See [`artifacts/STEP6_ASSET.md`](artifacts/STEP6_ASSET.md) for the asset notes.
 * **Lighting:** "Studio Small 09" HDRI by Poly Haven (https://polyhaven.com/a/studio_small_09), CC0. It is used for
   lighting only and is not shipped inside the GLBs.
 * **Coronary tubes, territories, body and organs:** original procedural geometry, CC0.
+* **Data:** Z-Alizadeh Sani extension (UCI ML Repository, id 411), CC BY 4.0.
 * **Libraries:**
-  * `three.js` (MIT), used only by the preview page.
+  * App: React, React Three Fiber, drei, three.js, Zustand, TanStack Query, Radix UI, lucide-react, jsPDF,
+    Tailwind CSS (all MIT), Inter and JetBrains Mono fonts (SIL OFL 1.1), FastAPI, Uvicorn, Pydantic (MIT/BSD).
+  * ML: scikit-learn (BSD-3), XGBoost / LightGBM / CatBoost (Apache-2.0 / MIT), SHAP (MIT), LIME (BSD-2).
   * `glTF-Transform` (MIT) and the Draco encoder (Apache-2.0), used only at build time.
 
 ## Artifacts

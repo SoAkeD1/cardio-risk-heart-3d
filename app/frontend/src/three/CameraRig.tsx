@@ -5,7 +5,8 @@ import * as THREE from "three";
 import type { OrbitControls as OrbitImpl } from "three-stdlib";
 import { prefersReducedMotion } from "../lib/device";
 import { useStore, type Preset } from "../state/store";
-import { reg, viewTarget, worldPos, useModelStatus } from "./registry";
+import { reg, useModelStatus } from "./registry";
+import { viewTarget, worldPos } from "./geom";
 
 const FLY_MS = 600;
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);

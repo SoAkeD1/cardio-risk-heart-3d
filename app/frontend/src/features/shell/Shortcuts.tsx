@@ -30,6 +30,8 @@ export function useGlobalShortcuts({ onShortcuts }: { onShortcuts: () => void })
     const on = (e: KeyboardEvent) => {
       const t = e.target as HTMLElement | null;
       if (e.ctrlKey || e.metaKey || e.altKey) return;
+      // dialogs / menus own Escape and their keys: never compete with them
+      if (document.querySelector('[role="dialog"], [role="menu"]')) return;
       if (t && (t.closest("input, textarea, select, [contenteditable=true], [role=slider], [role=dialog]") !== null)) return;
       const s = useStore.getState();
       const k = e.key;
@@ -47,8 +49,10 @@ export function useGlobalShortcuts({ onShortcuts }: { onShortcuts: () => void })
       else if (k === "r" || k === "R") s.requestFly({ preset: s.view.mode === "body" ? "body" : s.view.preset });
       else if (k === "f" || k === "F") toggleFullscreen();
       else if (k === "?") onShortcuts();
-      else if (k === "Escape") s.select(undefined);
-      else return;
+      else if (k === "Escape") {
+        s.select(undefined);
+        return; // no preventDefault: Escape keeps its native meaning
+      } else return;
       e.preventDefault();
     };
     window.addEventListener("keydown", on);

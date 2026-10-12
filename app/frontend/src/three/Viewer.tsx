@@ -16,7 +16,8 @@ import { HeartModel, MODEL_URL } from "./HeartModel";
 import { Legend } from "./Legend";
 import { Picking } from "./Picking";
 import { RegionChips } from "./RegionChips";
-import { reg, useModelStatus, worldPos } from "./registry";
+import { reg, useModelStatus } from "./registry";
+import { worldPos } from "./geom";
 import { Tooltip3D } from "./Tooltip3D";
 
 class ModelBoundary extends Component<{ onError: () => void; children: ReactNode }, { failed: boolean }> {
@@ -124,7 +125,9 @@ function WhatIfChip() {
 
 /** Focusable mirrors of the 3D vessels (keyboard path + screen readers). */
 function VesselButtons({ compact }: { compact: boolean }) {
-  const scene = useStore((s) => s.prediction?.scene);
+  const scene = useStore((s) =>
+    s.whatIf.showOnHeart && s.whatIf.result && !s.whatIf.peek ? s.whatIf.result.scene_after : s.prediction?.scene,
+  );
   const sel = useStore((s) => s.selection.target);
   const select = useStore((s) => s.select);
   const fly = useStore((s) => s.requestFly);
@@ -217,10 +220,15 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
         >
           <ModelBoundary onError={onModelError}>
             <Suspense fallback={null}>
-              <SceneEnvironment look={look} />
               <HeartModel url={lite ? MODEL_URL.lite : MODEL_URL.full} />
               <RegionChips />
             </Suspense>
+            {/* HDRI decode + PMREM in its own boundary, after the model is on screen (splits the long tasks) */}
+            {loaded && (
+              <Suspense fallback={<hemisphereLight args={["#f6f2ee", "#3a3a3a", 1.2]} />}>
+                <SceneEnvironment look={look} />
+              </Suspense>
+            )}
           </ModelBoundary>
           <CameraRig />
           <Picking />

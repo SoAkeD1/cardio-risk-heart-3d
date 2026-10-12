@@ -36,10 +36,23 @@ export default defineConfig({
     chunkSizeWarningLimit: 1200,
     rollupOptions: {
       output: {
-        manualChunks: {
-          three: ["three"],
-          r3f: ["@react-three/fiber", "@react-three/drei"],
-          react: ["react", "react-dom"],
+        // path-based (not the object form, which would also pull shared deps like zustand into the 3D chunk and
+        // make the entry depend on three.js): the 3D stack only loads with the lazy Viewer
+        manualChunks(raw: string) {
+          const id = raw.split("\\").join("/");
+          const nm = (pkgs: string) => new RegExp("/node_modules/(" + pkgs + ")/").test(id);
+          if (id.includes("vite/preload-helper") || id.includes("commonjsHelpers")) return "react"; // tiny runtime helpers
+          if (!id.includes("/node_modules/")) return undefined;
+          if (nm("three")) return "three";
+          if (
+            nm(
+              "@react-three/[^/]+|three-stdlib|three-mesh-bvh|maath|camera-controls|@monogrid/[^/]+|troika-[^/]+|meshline|stats-gl|suspend-react|its-fine|react-reconciler|@use-gesture/[^/]+|detect-gpu|hls[.]js|glsl-noise|@mediapipe/[^/]+|tunnel-rat|utility-types|lamina|three-[^/]+",
+            )
+          )
+            return "r3f";
+          if (nm("jspdf|html2canvas|canvg|dompurify|fflate|core-js|rgbcolor|stackblur-canvas|svg-pathdata")) return "pdf";
+          if (nm("react|react-dom|scheduler")) return "react";
+          return "vendor"; // everything else shared (radix, zustand, tanstack, lucide...) -> one vendor chunk
         },
       },
     },

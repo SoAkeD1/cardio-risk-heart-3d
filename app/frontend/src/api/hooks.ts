@@ -36,6 +36,8 @@ export function usePredictionSync() {
   const patient = useStore((s) => s.patient);
   const hasPatient = useStore((s) => s.hasPatient);
   const focus = useStore((s) => s.explainTarget);
+  const caseId = useStore((s) => s.caseId);
+  const lastCase = useRef<string | undefined>(undefined);
   const latest = useRef(new LatestOnly());
   const mutation = useMutation({
     mutationFn: ({ features, focus, signal }: { features: Features; focus: Target; signal: AbortSignal }) =>
@@ -46,6 +48,9 @@ export function usePredictionSync() {
   useEffect(() => {
     if (!hasPatient || !Object.keys(patient).length) return;
     const st = useStore.getState();
+    // a freshly loaded sample is one deliberate action: send it at once; typing / dragging is debounced
+    const immediate = !!caseId && caseId !== lastCase.current;
+    lastCase.current = caseId;
     const timer = setTimeout(async () => {
       const signal = latest.current.next();
       st.setPending(true);
@@ -65,9 +70,9 @@ export function usePredictionSync() {
       } finally {
         if (!signal.aborted) st.setPending(false);
       }
-    }, DEBOUNCE_MS);
+    }, immediate ? 0 : DEBOUNCE_MS);
     return () => clearTimeout(timer);
-  }, [patient, hasPatient, focus, mutateAsync]);
+  }, [patient, hasPatient, focus, caseId, mutateAsync]);
 
   useEffect(() => () => latest.current.abort(), []);
 }

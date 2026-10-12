@@ -95,7 +95,7 @@ def _mount_spa(app: FastAPI, dist: Path) -> None:
     index = dist / "index.html"
     immutable = {"Cache-Control": "public, max-age=31536000, immutable"}
 
-    @app.get("/{path:path}", include_in_schema=False)
+    @app.api_route("/{path:path}", methods=["GET", "HEAD"], include_in_schema=False)
     async def spa(path: str):
         if path.startswith("api/"):
             return _err(404, "not_found", "Unknown API route.")
@@ -107,8 +107,38 @@ def _mount_spa(app: FastAPI, dist: Path) -> None:
         return FileResponse(index, headers={"Cache-Control": "no-cache"})
 
 
+if __name__ == "__main__":                    # `python -m app.backend.main` = the production single server
+    import os
+    os.environ.setdefault("CARDIOLENS_ENV", "prod")
+
 app = create_app()
 
-if __name__ == "__main__":
+def _serve(port: int = 8000) -> None:
+    """Production entry. Listens on BOTH loopback addresses (::1 and 127.0.0.1, never other interfaces), so
+    http://localhost:8000 connects instantly whichever address the OS resolves first (on Windows an IPv4-only
+    server costs ~200 ms per connection while ::1 is tried and refused)."""
+    import asyncio
+    import socket
+
     import uvicorn
-    uvicorn.run("app.backend.main:app", host="127.0.0.1", port=8000, log_level="info")
+
+    socks = []
+    for fam, host in ((socket.AF_INET6, "::1"), (socket.AF_INET, "127.0.0.1")):
+        try:
+            sk = socket.socket(fam, socket.SOCK_STREAM)
+            if fam == socket.AF_INET6:
+                sk.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+            sk.bind((host, port))
+            sk.set_inheritable(True)
+            socks.append(sk)
+        except OSError as e:
+            log.warning("could not bind %s:%s (%s)", host, port, e)
+    if not socks:
+        raise SystemExit(f"Port {port} is busy - stop the other server and try again.")
+    server = uvicorn.Server(uvicorn.Config(app, log_level="info"))
+    print(f"CardioLens running at http://localhost:{port}  (Ctrl+C to stop)")
+    asyncio.run(server.serve(sockets=socks))
+
+
+if __name__ == "__main__":
+    _serve()

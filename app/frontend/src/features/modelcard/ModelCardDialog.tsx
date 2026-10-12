@@ -104,7 +104,7 @@ export default function ModelCardDialog({ open, onOpenChange }: { open: boolean;
           <ul className="list-inside list-disc space-y-1">
             {c.targets.map((t) => (
               <li key={t.key}>
-                <span className="text-t1">{t.label}</span>: decision threshold {Math.round(t.threshold * 100)}% ({t.threshold_rule.toLowerCase()})
+                <span className="text-t1">{t.label}</span>: decision threshold {Math.round(t.threshold * 100)}% ({t.threshold_rule})
               </li>
             ))}
           </ul>
