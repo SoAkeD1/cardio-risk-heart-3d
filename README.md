@@ -95,25 +95,51 @@ A.validate_glb_names("heart.glb")                      # Step 6 asset gate -> {"
   snapshots, what-if, latency, the disclaimer, the glb validator and the no-hard-coding check. If a change to
   the scene state is intended, refresh the snapshots with `UPDATE_SNAPSHOTS=1`.
 
-## Rebuild the 3D asset (Step 6)
-Requires Blender 5.x (tested on 5.2.2 LTS). The asset is fully procedural, so no downloads are needed.
+## Rebuild the 3D asset (Step 6 / 6B)
+Requirements:
+* Blender 5.x (tested on 5.2.2 LTS).
+* Node 18 or newer, then `npm install` once. This installs `@gltf-transform/cli`, which does the Draco and WebP
+  compression.
+* The source model in `assets_src/sketchfab_heart/`, and the HDRI in `assets_src/hdri/`.
+
 ```bash
 .venv\Scripts\python blender/make_all.py
 ```
-This builds `artifacts/heart.glb`, `artifacts/heart_lite.glb` and `blender/heart_source.blend`, renders
-`artifacts/figures/heart_*.png`, `body_front.png`, `territories_demo.png` and `lite_vs_full.png`, re-imports and
-checks both files (`blender/check_glb.py`), and runs `validate_glb_names()`. If Blender is elsewhere, add
-`--blender <path>`. The bare build command is:
-```bash
-blender -b --factory-startup -P blender/build_heart.py -- --out artifacts/heart.glb --lite artifacts/heart_lite.glb
-```
+This builds `artifacts/heart.glb`, `artifacts/heart_lite.glb`, `blender/heart_source.blend` and
+`artifacts/viewer_look.json`. It renders both looks (`artifacts/figures/heart_*.png`, `*_clinical.png`,
+`territories_demo*.png`, `body_front*.png`, `lite_vs_full.png`, `compare_sketchfab_vs_ours.png`, `src_*.png`). It
+then re-imports and checks both files (`blender/check_glb.py`) and runs `validate_glb_names()`.
+
+If Blender is installed elsewhere, add `--blender <path>`. Add `--heart-source procedural` to rebuild the earlier
+fully procedural CC0 heart; the Step 6 originals are also kept in `backup/step6_procedural/`.
+
 To run the web smoke test:
 ```bash
 .venv\Scripts\python blender/serve_preview.py
 ```
-Then open <http://localhost:8765/blender/preview.html>. The page provides orbit controls, Heart/Body modes, a
-territory toggle, a click test on the hit proxies and `bench()` in the console. See
-[`artifacts/STEP6_ASSET.md`](artifacts/STEP6_ASSET.md) for the asset notes.
+Then open <http://localhost:8765/blender/preview.html>. Add `?save=1` to write `artifacts/figures/web_preview.png`.
+
+The page includes:
+* the three.js settings from `viewer_look.json`
+* a Realistic ↔ Clinical toggle, via `KHR_materials_variants`
+* nearest-hit picking over the hit proxies and the myocardium
+* the LAD outline and glow demo
+* Heart/Body and territory toggles
+* an FPS counter
+
+See [`artifacts/STEP6_ASSET.md`](artifacts/STEP6_ASSET.md) for the asset notes.
+
+## Credits
+* **Heart model:** This work is based on "Realistic Human Heart" (https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089) by neshallads (https://sketchfab.com/neshallads) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+  *Modifications:* re-aligned, re-scaled, split into parts, coronary tubes and territories added, clinical
+  texture variant added. The same text is embedded in both GLBs (`asset.extras.attribution`) and in
+  `anatomy_map.json → asset.sources`.
+* **Lighting:** "Studio Small 09" HDRI by Poly Haven (https://polyhaven.com/a/studio_small_09), CC0. It is used for
+  lighting only and is not shipped inside the GLBs.
+* **Coronary tubes, territories, body and organs:** original procedural geometry, CC0.
+* **Libraries:**
+  * `three.js` (MIT), used only by the preview page.
+  * `glTF-Transform` (MIT) and the Draco encoder (Apache-2.0), used only at build time.
 
 ## Artifacts
 | file | content |

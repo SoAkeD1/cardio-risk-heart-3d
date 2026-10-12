@@ -408,15 +408,32 @@
     "max_triangles": 150000,
     "max_file_mb": 10,
     "compression": "KHR_draco_mesh_compression",
-    "materials": "exactly 1 material per mesh; base colour set at runtime; no baked colours or textures on coronary meshes",
+    "materials": "exactly 1 material per mesh; coronary/territory/helper colours set at runtime; Heart_Myocardium and Aorta keep the source PBR textures (WebP) with a KHR_materials_variants 'clinical' variant",
     "sources": [
+      {
+        "name": "Realistic Human Heart",
+        "url": "https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089",
+        "license": "CC BY 4.0",
+        "author": "neshallads (https://sketchfab.com/neshallads)",
+        "attribution": "This work is based on \"Realistic Human Heart\" (https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089) by neshallads (https://sketchfab.com/neshallads) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+        "modifications": "re-aligned, re-scaled, split into parts, coronary tubes and territories added, clinical texture variant added.",
+        "used_for": "Heart_Myocardium, Aorta (default --heart-source sketchfab)"
+      },
       {
         "name": "Procedurally generated in this repo",
         "url": "blender/build_heart.py",
         "license": "CC0 1.0 (public domain dedication)",
         "author": "Track A team",
         "attribution": "none required",
-        "notes": "Parametric heart surface, swept coronary tubes, lofted body; no third-party meshes used."
+        "used_for": "coronary tubes, territories, body shell, organs, aorta extension; whole heart with --heart-source procedural"
+      },
+      {
+        "name": "Studio Small 09 (HDRI, render/preview lighting only)",
+        "url": "https://polyhaven.com/a/studio_small_09",
+        "license": "CC0",
+        "author": "Poly Haven",
+        "attribution": "none required (credited in README)",
+        "used_for": "lighting only, not in the .glb"
       }
     ],
     "candidate_open_sources_not_used": [

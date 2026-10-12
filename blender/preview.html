@@ -5,21 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Heart Asset Preview</title>
 <style>
-  :root { --bg-top: #f4f1ed; --bg-bottom: #d8d3cd; --ink: #3a3530; --panel: rgba(255,255,255,.82); }
-  html, body { margin: 0; height: 100%; background: linear-gradient(var(--bg-top), var(--bg-bottom)); color: var(--ink);
-    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  :root { --center: #3A3A3A; --edge: #1E1E1E; --ink: #ECE7E1; --panel: rgba(20,20,20,.72); --line: #5a5550; }
+  html, body { margin: 0; height: 100%; color: var(--ink); overflow: hidden;
+    background: radial-gradient(circle at 50% 50%, var(--center) 0%, var(--edge) 75%);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; }
   #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
   #ui { position: fixed; top: 12px; left: 12px; background: var(--panel); border-radius: 10px; padding: 10px 12px;
-    box-shadow: 0 2px 12px rgba(0,0,0,.08); max-width: min(360px, calc(100vw - 48px)); }
-  #ui button { margin: 2px 4px 2px 0; padding: 4px 9px; border: 1px solid #c9c2b8; background: #fff; border-radius: 6px;
-    cursor: pointer; color: var(--ink); }
-  #ui button.on { background: #3a3530; color: #fff; border-color: #3a3530; }
+    max-width: min(380px, calc(100vw - 48px)); }
+  #ui button { margin: 2px 4px 2px 0; padding: 4px 9px; border: 1px solid var(--line); background: transparent;
+    border-radius: 6px; cursor: pointer; color: var(--ink); }
+  #ui button.on { background: var(--ink); color: #1E1E1E; border-color: var(--ink); }
   #log { margin-top: 6px; white-space: pre-wrap; font: 12px/1.35 ui-monospace, Consolas, monospace; }
+  #fps { position: fixed; top: 12px; right: 12px; background: var(--panel); border-radius: 8px; padding: 6px 10px;
+    font: 12px ui-monospace, Consolas, monospace; }
+  #credit { position: fixed; bottom: 8px; left: 12px; right: 12px; font-size: 11px; opacity: .7; }
+  #credit a { color: inherit; }
 </style>
 <script type="importmap">
 { "imports": {
-    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+    "three": "https://unpkg.com/three@0.170.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.170.0/examples/jsm/" } }
 </script>
 </head>
 <body>
@@ -28,41 +33,70 @@
   <div><b>Track A asset preview</b> (smoke test, not the app)</div>
   <div>
     <button id="bFull" class="on">heart.glb</button><button id="bLite">heart_lite.glb</button>
+  </div>
+  <div>
+    <button id="bReal" class="on">Realistic</button><button id="bClin">Clinical</button>
     <button id="bHeart" class="on">Heart</button><button id="bBody">Body</button>
-    <button id="bTerr">Territories</button>
+    <button id="bTerr">Territories</button><button id="bDemo" class="on">LAD flag demo</button>
   </div>
   <div id="log">loading…</div>
 </div>
+<div id="fps">– fps</div>
+<div id="credit">Heart based on "Realistic Human Heart" by
+  <a href="https://sketchfab.com/neshallads">neshallads</a>
+  (<a href="https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089">Sketchfab</a>),
+  <a href="http://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>; modified. HDRI: Poly Haven (CC0).</div>
 <script type="module">
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { KTX2Loader } from "three/addons/loaders/KTX2Loader.js";
+import { RGBELoader } from "three/addons/loaders/RGBELoader.js";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
+const CDN = "https://unpkg.com/three@0.170.0/examples/jsm/libs/";
 const params = new URLSearchParams(location.search);
-const logEl = document.getElementById("log");
+const logEl = document.getElementById("log"), fpsEl = document.getElementById("fps");
 const lines = [];
 const log = (s) => { lines.push(s); logEl.textContent = lines.slice(-14).join("\n"); console.log(s); };
-// Demo risk colours = cardio_ml.anatomy.color_for(0.85 / 0.40 / 0.15)
+// Demo risk colours = cardio_ml.anatomy.color_for(0.85 / 0.40 / 0.15); LAD is above its threshold -> flagged
 const DEMO = { Coronary_LAD: "#AD3222", Coronary_LCX: "#EF974B", Coronary_RCA: "#F1CB99" };
+
+const look = await (await fetch("../artifacts/viewer_look.json")).json();
+document.documentElement.style.setProperty("--center", look.background.center);
+document.documentElement.style.setProperty("--edge", look.background.edge);
 
 const canvas = document.getElementById("c");
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
 renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(35, 1, 0.005, 50);
+renderer.outputColorSpace = THREE.SRGBColorSpace;                       // look.renderer.output_color_space
+renderer.toneMapping = THREE.ACESFilmicToneMapping;                     // look.renderer.tone_mapping
+renderer.toneMappingExposure = look.renderer.exposure;
+renderer.shadowMap.enabled = !!look.renderer.shadows;
+const scene = new THREE.Scene();                                        // transparent: CSS gradient behind
+const camera = new THREE.PerspectiveCamera(look.camera.vfov_deg, 1, look.camera.near, look.camera.far);
+scene.add(camera);
 const controls = new OrbitControls(camera, canvas);
 controls.enableDamping = true;
-// soft studio lighting: key + fill + rim + ambient
-scene.add(new THREE.HemisphereLight(0xf6f2ee, 0xc9c2b8, 1.1));
-const key = new THREE.DirectionalLight(0xfff4ea, 1.6); key.position.set(-1, 1.2, 1.2); scene.add(key);
-const fill = new THREE.DirectionalLight(0xeef2ff, 0.55); fill.position.set(1.2, 0.2, 0.9); scene.add(fill);
-const rim = new THREE.DirectionalLight(0xffffff, 0.9); rim.position.set(0.3, 1, -1.4); scene.add(rim);
+for (const L of look.lights) {                                          // camera-relative key + rim
+  const d = new THREE.DirectionalLight(L.color, L.three_intensity);
+  d.position.set(...L.direction);
+  d.target.position.set(0, 0, -0.4);
+  camera.add(d, d.target);
+}
+new RGBELoader().load("../" + look.environment.hdri, (hdr) => {
+  const pm = new THREE.PMREMGenerator(renderer);
+  scene.environment = pm.fromEquirectangular(hdr).texture;
+  scene.environmentIntensity = look.environment.intensity;
+  hdr.dispose(); pm.dispose();
+  log(`environment: ${look.environment.name} (${look.environment.license})`);
+});
 
-const draco = new DRACOLoader().setDecoderPath("https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/");
-const loader = new GLTFLoader().setDRACOLoader(draco);
-let root = null, nodes = {}, mode = "heart", showTerr = false;
+const draco = new DRACOLoader().setDecoderPath(CDN + "draco/gltf/");
+const ktx2 = new KTX2Loader().setTranscoderPath(CDN + "basis/").detectSupport(renderer);
+const loader = new GLTFLoader().setDRACOLoader(draco).setKTX2Loader(ktx2);
+let root = null, gltfRef = null, nodes = {}, mode = "heart", showTerr = false, look_ = "realistic", demo = true;
+const baseMats = new Map();                                             // mesh -> default material
 
 function resize() {
   const w = innerWidth, h = innerHeight;
@@ -82,12 +116,9 @@ function applyView(name) {             // Extra_View_* : position = camera, loca
 
 function setMode(m) {
   mode = m;
-  for (const [n, o] of Object.entries(nodes)) {
-    if (n === "Body") o.visible = (m === "body");
-  }
+  if (nodes.Body) nodes.Body.visible = (m === "body");
   applyView(m === "body" ? "Extra_View_Body" : "Extra_View_Front");
-  document.getElementById("bHeart").classList.toggle("on", m === "heart");
-  document.getElementById("bBody").classList.toggle("on", m === "body");
+  bHeart.classList.toggle("on", m === "heart"); bBody.classList.toggle("on", m === "body");
 }
 
 function setTerritories(on) {
@@ -98,80 +129,136 @@ function setTerritories(on) {
     t.material.color.set(DEMO["Coronary_" + k]); t.material.opacity = 0.35;
     t.material.depthWrite = false; t.material.polygonOffset = true; t.material.polygonOffsetFactor = -1;
   }
-  document.getElementById("bTerr").classList.toggle("on", on);
+  bTerr.classList.toggle("on", on);
+}
+
+// KHR_materials_variants: three.js has no built-in handler, so read the mappings from the parser JSON and
+// swap materials resolved through parser.getDependency("material", i)
+async function setLook(name) {
+  look_ = name;
+  bReal.classList.toggle("on", name === "realistic"); bClin.classList.toggle("on", name === "clinical");
+  if (!gltfRef) return;
+  const parser = gltfRef.parser, json = parser.json;
+  const variants = (json.extensions?.KHR_materials_variants?.variants || []).map((v) => v.name);
+  const vi = variants.indexOf(name);
+  const jobs = [];
+  root.traverse((o) => {
+    if (!o.isMesh) return;
+    const a = parser.associations.get(o);
+    if (!a || a.meshes === undefined) return;
+    const prim = json.meshes[a.meshes].primitives[a.primitives ?? 0];
+    const maps = prim.extensions?.KHR_materials_variants?.mappings || [];
+    const m = maps.find((mp) => mp.variants.includes(vi));
+    if (m) jobs.push(parser.getDependency("material", m.material).then((mat) => { o.material = mat; }));
+    else if (baseMats.has(o)) o.material = baseMats.get(o);
+  });
+  await Promise.all(jobs);
+  applyDemo();
+  log(`look: ${name} (variants: ${variants.join(", ") || "none"})`);
+}
+
+const flagged = ["LAD"];                                // LAD 0.85 is above its threshold in the demo
+function applyDemo() {
+  for (const [n, c] of Object.entries(DEMO)) {
+    const o = nodes[n]; if (!o) continue;
+    o.material = o.material.clone();
+    o.material.color.set(c);
+    o.material.emissive = new THREE.Color(c);
+    o.material.emissiveIntensity = 0;
+  }
+  for (const k of ["LAD", "LCX", "RCA"]) {
+    const ol = nodes["Extra_Outline_" + k]; if (!ol) continue;
+    ol.material = ol.material.clone();
+    ol.material.color.set(0xffffff);
+    ol.material.transparent = true;
+    ol.material.opacity = demo && flagged.includes(k) ? 0.95 : 0;
+    ol.material.side = THREE.FrontSide;                 // normals are already inverted in the file -> inverted hull
+    ol.visible = demo && flagged.includes(k);
+  }
 }
 
 function load(file) {
   if (root) { scene.remove(root); root = null; }
   const t0 = performance.now();
-  loader.load(file, (gltf) => {
-    root = gltf.scene; scene.add(root); nodes = {};
+  loader.load(file, async (gltf) => {
+    gltfRef = gltf; root = gltf.scene; scene.add(root); nodes = {}; baseMats.clear();
     let tris = 0;
     root.traverse((o) => {
       nodes[o.name] = o;
       if (o.isMesh) {
+        baseMats.set(o, o.material);
         tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3;
         if (o.name.startsWith("Extra_Hit_")) { o.material.transparent = true; o.material.opacity = 0; o.material.depthWrite = false; }
         if (o.name === "Torso_Shell") { o.material.depthWrite = false; o.renderOrder = 2; }
-        if (DEMO[o.name]) o.material.color.set(DEMO[o.name]);
       }
     });
-    log(`${file}: loaded in ${(performance.now() - t0).toFixed(0)} ms, ${tris.toLocaleString()} triangles`);
+    log(`${file.split("/").pop()}: ${(performance.now() - t0).toFixed(0)} ms, ${tris.toLocaleString()} triangles`);
     setTerritories(false);
     setMode(mode);
-    requestAnimationFrame(() => setTimeout(() => { clickTest(); measureFps(file); }, 400));
+    await setLook(look_);
+    setTimeout(() => {
+      clickTest(); bench(120, file);
+      if (params.get("save") && file.endsWith("heart.glb")) setTimeout(saveShot, 300);
+      measureFps(file);
+    }, 400);
   }, undefined, (e) => log("ERROR loading " + file + ": " + e.message));
 }
 
+// picking: hit proxies AND the myocardium are raycast together; the nearest hit wins
 const ray = new THREE.Raycaster();
 function pick(ndc) {
   ray.setFromCamera(ndc, camera);
-  const hits = ray.intersectObjects(root.children, true).filter((h) => h.object.visible);
-  const hit = hits.find((h) => h.object.name.startsWith("Extra_Hit_"));
-  return hit ? hit.object.name.replace("Extra_Hit_", "").toLowerCase() : null;
+  const targets = ["Extra_Hit_LAD", "Extra_Hit_LCX", "Extra_Hit_RCA", "Heart_Myocardium"].map((n) => nodes[n]).filter(Boolean);
+  const h = ray.intersectObjects(targets, false)[0];      // sorted by distance
+  if (!h) return null;
+  return h.object.name.startsWith("Extra_Hit_") ? h.object.name.replace("Extra_Hit_", "").toLowerCase() : "myocardium";
 }
 canvas.addEventListener("pointerdown", (e) => {
   const ndc = new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
-  log("click -> " + (pick(ndc) || "(no vessel)"));
+  log("click -> " + (pick(ndc) || "(background)"));
 });
-function clickTest() {                   // synthetic click on the middle of each hit proxy
+function clickTest() {                   // synthetic click on the front-most point of each hit proxy + mid-heart
   const res = [];
   for (const k of ["LAD", "LCX", "RCA"]) {
     const h = nodes["Extra_Hit_" + k]; if (!h) continue;
-    const pos = h.geometry.attributes.position;
-    // click the proxy's front-most point (what a user can actually see/click; Draco reorders vertices)
-    let best = null, bestD = Infinity;
-    const v = new THREE.Vector3();
-    for (let i = 0; i < pos.count; i++) {
+    // try the proxy's 40 camera-nearest vertices (away from the bifurcation the vessel itself must win)
+    const pos = h.geometry.attributes.position, v = new THREE.Vector3(), pts = [];
+    for (let i = 0; i < pos.count; i += 3) {
       v.fromBufferAttribute(pos, i).applyMatrix4(h.matrixWorld);
-      const d = v.distanceTo(camera.position);
-      if (d < bestD) { bestD = d; best = v.clone(); }
+      pts.push([v.distanceTo(camera.position), v.clone()]);
     }
-    const p = best.project(camera);
-    res.push(`${k}->${pick(new THREE.Vector2(p.x, p.y)) || "miss"}`);
+    pts.sort((a, b) => a[0] - b[0]);
+    let got = "miss";
+    for (const [, q] of pts.slice(0, 40)) {
+      const p = q.clone().project(camera), r = pick(new THREE.Vector2(p.x, p.y));
+      if (r === k.toLowerCase()) { got = r; break; }
+      if (got === "miss" && r) got = r;
+    }
+    res.push(`${k}->${got}`);
   }
-  log("hit-proxy click test (front view): " + res.join(", "));
+  log("click test (front view): " + res.join(", "));
+  window.__clicks = res;
 }
 
-let frames = 0, fpsStart = 0, fpsFile = null, fpsDone = null;
+let frames = 0, fpsStart = 0, fpsDone = null, winFrames = 0, winStart = performance.now();
 function measureFps(file) {
-  frames = 0; fpsStart = performance.now(); fpsFile = file; controls.autoRotate = true; controls.autoRotateSpeed = 4;
+  frames = 0; fpsStart = performance.now(); controls.autoRotate = true; controls.autoRotateSpeed = 4;
   fpsDone = () => {
     const fps = frames / ((performance.now() - fpsStart) / 1000);
     controls.autoRotate = false;
-    log(`${file}: ${fps.toFixed(1)} fps over 5 s auto-rotate (${innerWidth}x${innerHeight} @${renderer.getPixelRatio()}x)`);
+    if (frames >= 30) log(`${file.split("/").pop()}: ${fps.toFixed(1)} fps over 5 s auto-rotate (live)`);
+    else log("live fps n/a: requestAnimationFrame is throttled in this tab (see bench)");
     window.__fps = window.__fps || {}; window.__fps[file] = fps;
-    applyView(mode === "body" ? "Extra_View_Body" : "Extra_View_Front");
-    if (params.get("save") && file.endsWith("heart.glb")) setTimeout(saveShot, 300);
+    setMode(mode);
   };
 }
-function bench(n = 150) {               // synchronous render + gl.finish(): independent of rAF throttling
-  const gl = renderer.getContext();
-  const r = camera.position.distanceTo(controls.target), t = controls.target;
-  const t0 = performance.now();
+// synchronous render + gl.finish() around the heart: independent of rAF throttling in background tabs
+function bench(n = 120, file = "") {
+  const gl = renderer.getContext(), t = controls.target.clone();
+  const r = camera.position.distanceTo(t), y = camera.position.y, t0 = performance.now();
   for (let i = 0; i < n; i++) {
     const a = i / n * Math.PI * 2;
-    camera.position.set(t.x + r * Math.sin(a), camera.position.y, t.z + r * Math.cos(a));
+    camera.position.set(t.x + r * Math.sin(a), y, t.z + r * Math.cos(a));
     camera.lookAt(t);
     renderer.render(scene, camera);
     gl.finish();
@@ -179,34 +266,54 @@ function bench(n = 150) {               // synchronous render + gl.finish(): ind
   const ms = (performance.now() - t0) / n;
   const info = gl.getExtension("WEBGL_debug_renderer_info");
   const gpu = info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : "unknown GPU";
-  applyView(mode === "body" ? "Extra_View_Body" : "Extra_View_Front");
-  log(`bench: ${ms.toFixed(2)} ms/frame -> ~${(1000 / ms).toFixed(0)} fps (${n} frames, ${gpu})`);
-  window.__bench = { ms, fps: 1000 / ms, gpu };
-  return window.__bench;
+  setMode(mode);
+  fpsEl.textContent = `bench ${(1000 / ms).toFixed(0)} fps (${ms.toFixed(2)} ms/frame)`;
+  log(`${file.split("/").pop()} bench: ${ms.toFixed(2)} ms/frame -> ~${(1000 / ms).toFixed(0)} fps (${gpu})`);
+  window.__bench = window.__bench || {}; window.__bench[file] = { ms, fps: 1000 / ms, gpu };
+  return window.__bench[file];
 }
 window.bench = bench;
-window.clickTest = () => { clickTest(); return lines[lines.length - 1]; };
+window.clickTest = () => { clickTest(); return window.__clicks; };
+window.setLook = setLook;
 window.saveShot = () => saveShot();
-function saveShot() {
-  scene.background = new THREE.Color(0xe8e4df);     // the CSS gradient is not part of the canvas
+function saveShot() {                     // composite the CSS radial gradient + WebGL canvas, POST to serve_preview.py
   renderer.render(scene, camera);
-  scene.background = null;
-  canvas.toBlob((b) => fetch("/save?name=web_preview.png", { method: "POST", body: b })
+  const w = canvas.width, h = canvas.height, out = document.createElement("canvas");
+  out.width = w; out.height = h;
+  const g = out.getContext("2d");
+  const grad = g.createRadialGradient(w / 2, h / 2, 0, w / 2, h / 2, Math.hypot(w, h) / 2 * look.background.radius);
+  grad.addColorStop(0, look.background.center); grad.addColorStop(1, look.background.edge);
+  g.fillStyle = grad; g.fillRect(0, 0, w, h);
+  g.drawImage(canvas, 0, 0);
+  g.fillStyle = "rgba(236,231,225,.9)"; g.font = `${Math.round(13 * renderer.getPixelRatio())}px ui-monospace, Consolas, monospace`;
+  g.fillText(`${look_} look · ${fpsEl.textContent} · ${lines.filter((l) => l.startsWith("click test")).pop() || ""}`, 16, h - 16);
+  out.toBlob((b) => fetch("/save?name=web_preview.png", { method: "POST", body: b })
     .then((r) => log("screenshot saved: " + r.status)).catch((e) => log("save failed " + e)));
 }
 
+const clock = new THREE.Clock();
 renderer.setAnimationLoop(() => {
   controls.update();
+  const lad = nodes.Coronary_LAD;                       // flagged-vessel glow pulse
+  if (lad && lad.material.emissive) lad.material.emissiveIntensity = demo ? 0.25 + 0.25 * Math.sin(clock.getElapsedTime() * 3) : 0;
   renderer.render(scene, camera);
-  if (fpsDone) { frames++; if (performance.now() - fpsStart > 5000) { const f = fpsDone; fpsDone = null; f(); } }
+  winFrames++;
+  const now = performance.now();
+  if (now - winStart > 2000 && winFrames <= 5) { winFrames = 0; winStart = now; }
+  if (now - winStart > 500 && winFrames > 5) { fpsEl.textContent = `${(winFrames * 1000 / (now - winStart)).toFixed(0)} fps (live)`; winFrames = 0; winStart = now; }
+  if (fpsDone) { frames++; if (now - fpsStart > 5000) { const f = fpsDone; fpsDone = null; f(); } }
 });
 
 const FULL = "../artifacts/heart.glb", LITE = "../artifacts/heart_lite.glb";
-document.getElementById("bFull").onclick = () => { load(FULL); bFull.classList.add("on"); bLite.classList.remove("on"); };
-document.getElementById("bLite").onclick = () => { load(LITE); bLite.classList.add("on"); bFull.classList.remove("on"); };
-document.getElementById("bHeart").onclick = () => setMode("heart");
-document.getElementById("bBody").onclick = () => setMode("body");
-document.getElementById("bTerr").onclick = () => setTerritories(!showTerr);
+bFull.onclick = () => { load(FULL); bFull.classList.add("on"); bLite.classList.remove("on"); };
+bLite.onclick = () => { load(LITE); bLite.classList.add("on"); bFull.classList.remove("on"); };
+bReal.onclick = () => setLook("realistic");
+bClin.onclick = () => setLook("clinical");
+bHeart.onclick = () => setMode("heart");
+bBody.onclick = () => setMode("body");
+bTerr.onclick = () => setTerritories(!showTerr);
+bDemo.onclick = () => { demo = !demo; bDemo.classList.toggle("on", demo); applyDemo(); };
+if (params.get("look") === "clinical") look_ = "clinical";
 load(params.get("file") === "lite" ? LITE : FULL);
 </script>
 </body>

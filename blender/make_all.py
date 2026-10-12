@@ -3,10 +3,12 @@
     python blender/make_all.py [--blender "C:/Program Files/Blender Foundation/Blender 5.2/blender.exe"]
 
 1. demo risk colours from cardio_ml.anatomy.color_for (LAD 0.85, LCX 0.40, RCA 0.15)
-2. blender/build_heart.py  -> artifacts/heart.glb, heart_lite.glb, blender/heart_source.blend, renders
-3. blender/check_glb.py    -> re-import + contract / anatomy checks
+2. blender/build_heart.py  -> artifacts/heart.glb, heart_lite.glb, blender/heart_source.blend, viewer_look.json,
+                              Cycles renders in both looks (realistic + *_clinical), src_*.png
+   (--heart-source sketchfab [default] | procedural; needs node + `npm install` for gltf-transform)
+3. blender/check_glb.py    -> re-import + contract / anatomy / texture / attribution checks
 4. cardio_ml.anatomy.validate_glb_names on both files
-5. artifacts/figures/lite_vs_full.png
+5. artifacts/figures/lite_vs_full.png and compare_sketchfab_vs_ours.png
 """
 from __future__ import annotations
 
@@ -32,6 +34,7 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--blender", default=shutil.which("blender") or DEFAULT_BLENDER)
     ap.add_argument("--no-render", action="store_true")
+    ap.add_argument("--heart-source", choices=("sketchfab", "procedural"), default="sketchfab")
     a = ap.parse_args()
     if not Path(a.blender).exists():
         sys.exit(f"Blender not found at {a.blender}; pass --blender <path to blender.exe>")
@@ -40,7 +43,8 @@ def main():
     demo.update({f"{k}_flag": p >= thr[k]["threshold"] for k, p in DEMO_PROBS.items()})
     figs = ROOT / "artifacts" / "figures"
     cmd = [a.blender, "-b", "--factory-startup", "-P", str(ROOT / "blender" / "build_heart.py"), "--",
-           "--out", str(ROOT / "artifacts" / "heart.glb"), "--lite", str(ROOT / "artifacts" / "heart_lite.glb")]
+           "--out", str(ROOT / "artifacts" / "heart.glb"), "--lite", str(ROOT / "artifacts" / "heart_lite.glb"),
+           "--heart-source", a.heart_source]
     if not a.no_render:
         cmd += ["--renders", str(figs), "--demo-colors", json.dumps(demo)]
     subprocess.run(cmd, check=True)
@@ -62,6 +66,16 @@ def main():
         fig.tight_layout()
         fig.savefig(figs / "lite_vs_full.png", dpi=110, bbox_inches="tight", pad_inches=0.15)
         lite_png.unlink()
+    ours = figs / "_ours_front_for_compare.png"
+    ref = ROOT / "assets_src" / "sketchfab_heart" / "reference" / "01_front.jpg"
+    if ours.exists() and ref.exists():
+        fig, axes = plt.subplots(1, 2, figsize=(10, 6))
+        for ax, (img, title) in zip(axes, ((ref, "Sketchfab reference 01_front"), (ours, "ours (realistic)"))):
+            ax.imshow(mpimg.imread(img))
+            ax.set_title(title)
+            ax.axis("off")
+        fig.tight_layout()
+        fig.savefig(figs / "compare_sketchfab_vs_ours.png", dpi=100, bbox_inches="tight")
     sys.exit(chk.returncode)
 
 

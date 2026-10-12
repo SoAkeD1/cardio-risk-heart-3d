@@ -24,7 +24,9 @@ MAX_BEND_DEG = 35.0
 MIN_ISLAND_TRIS = 50
 CONTRACT_PREFIX = ("Coronary_", "Territory_", "Organ_", "Heart_", "Aorta", "Torso_", "Extra_Hit_")
 BUDGET = {"heart.glb": (150_000, 10.0), "heart_lite.glb": (60_000, 4.0)}
-TRANSLUCENT = ("Torso_Shell", "Territory_", "Extra_Hit_")
+TRANSLUCENT = ("Torso_Shell", "Territory_", "Extra_Hit_", "Extra_Outline_")
+TEX_SIZE = {"heart.glb": 2048, "heart_lite.glb": 1024}
+SKETCHFAB = next((s_ for s_ in AMAP["asset"]["sources"] if s_["name"] == "Realistic Human Heart"), None)
 
 
 def glb_json(path):
@@ -56,8 +58,15 @@ def inside(tree, p, d=Vector((0.0123, 0.0071, 1.0)).normalized()):
 
 
 def island_tris(ob):
-    """Triangle count of every connected mesh island."""
+    """Triangle count of every connected mesh island (vertices duplicated at glTF UV/normal seams are welded
+    by position first, so seams are not mistaken for separate islands)."""
     me = ob.data
+    co = np.empty(len(me.vertices) * 3)
+    me.vertices.foreach_get("co", co)
+    key = {}
+    canon = []
+    for i, p in enumerate(np.round(co.reshape(-1, 3), 6)):
+        canon.append(key.setdefault(tuple(p), i))
     parent = list(range(len(me.vertices)))
 
     def find(a):
@@ -67,6 +76,10 @@ def island_tris(ob):
         return a
     for e in me.edges:
         a, b = find(e.vertices[0]), find(e.vertices[1])
+        if a != b:
+            parent[a] = b
+    for i, c in enumerate(canon):
+        a, b = find(i), find(c)
         if a != b:
             parent[a] = b
     me.calc_loop_triangles()
@@ -97,6 +110,10 @@ def quat_rotate(q, v):           # glTF quaternion (x, y, z, w)
     return 2 * u.dot(v) * u + (w * w - u.dot(u)) * v + 2 * w * np.cross(u, v)
 
 
+def nodes_by_name(gj):
+    return {n.get("name"): n for n in gj["nodes"]}
+
+
 def check(path: Path) -> bool:
     ok = True
     res = []
@@ -111,7 +128,23 @@ def check(path: Path) -> bool:
     size_mb = path.stat().st_size / 1e6
     max_tris, max_mb = BUDGET.get(path.name, (150_000, 10.0))
     report("file size", size_mb <= max_mb, f"{size_mb:.2f} MB (<= {max_mb})")
-    report("Draco compression", "KHR_draco_mesh_compression" in gj.get("extensionsUsed", []))
+    used = gj.get("extensionsUsed", [])
+    report("Draco compression", "KHR_draco_mesh_compression" in used)
+    textured = bool(gj.get("images"))
+    if textured:
+        report("compressed textures (WebP/KTX2)", ("EXT_texture_webp" in used or "KHR_texture_basisu" in used)
+               and all(i.get("mimeType") in ("image/webp", "image/ktx2") for i in gj["images"]),
+               ", ".join(f"{i.get('name')}:{i.get('mimeType')}" for i in gj["images"]))
+        variants = gj.get("extensions", {}).get("KHR_materials_variants", {}).get("variants", [])
+        names = [v["name"] for v in variants]
+        clinical_file = path.with_name("heart_clinical.glb").exists()
+        mats = gj.get("materials", [])
+        hm = gj["meshes"][nodes_by_name(gj)["Heart_Myocardium"]["mesh"]]["primitives"][0]
+        default_ok = mats[hm["material"]]["name"] == "MAT_Heart_Myocardium"
+        report("looks: KHR_materials_variants realistic(default)+clinical (or heart_clinical.glb)",
+               ("realistic" in names and "clinical" in names and default_ok) or clinical_file, f"variants {names}")
+        attr = gj.get("asset", {}).get("extras", {}).get("attribution")
+        report("CC BY attribution in asset.extras (exact text)", SKETCHFAB is not None and attr == SKETCHFAB["attribution"])
     # materials per mesh + alpha modes (raw glTF)
     mats = gj.get("materials", [])
     multi = [m["name"] for m in gj["meshes"] if len({p.get("material") for p in m["primitives"]}) != 1]
@@ -119,8 +152,11 @@ def check(path: Path) -> bool:
     blend_ok = all(mats[m["primitives"][0]["material"]].get("alphaMode") == "BLEND"
                    for m in gj["meshes"] if m["name"].startswith(TRANSLUCENT))
     report("translucent materials alphaMode BLEND", blend_ok)
-    tex = gj.get("textures", []) or gj.get("images", [])
-    report("no image textures", not tex)
+    textured_mats = {i for i, m in enumerate(gj.get("materials", []))
+                     if any(k in json.dumps(m) for k in ("baseColorTexture", "normalTexture", "metallicRoughnessTexture"))}
+    tex_meshes = sorted({m["name"] for m in gj["meshes"] for p_ in m["primitives"] if p_.get("material") in textured_mats})
+    report("textures only on Heart_Myocardium / Aorta (none on coronaries, territories, helpers)",
+           set(tex_meshes) <= {"Heart_Myocardium", "Aorta"}, ", ".join(tex_meshes) or "none")
     # Y-up: the torso's tallest extent must be along glTF +Y
     nodes = {n.get("name"): n for n in gj["nodes"]}
     tm = gj["meshes"][nodes["Torso_Shell"]["mesh"]]["primitives"][0]["attributes"]["POSITION"]
@@ -186,20 +222,50 @@ def check(path: Path) -> bool:
     hv = verts(meshes["Heart_Myocardium"])
     c = hv.mean(0)
     report("heart centroid at origin", np.linalg.norm(c) < 0.001, f"{np.round(c * 1000, 3).tolist()} mm")
+    if textured:
+        imgs = [im for im in bpy.data.images if "baseColor" in im.name and "clinical" not in im.name]
+        sz = max(imgs[0].size) if imgs else 0
+        report("realistic textures resized only (base colour size)", sz == TEX_SIZE.get(path.name, sz), f"{sz}px")
+    # outlines: same centreline, normals inverted (face normals point toward the vessel axis)
+    cl_all = {}
+    for n in [k for k in nodes if k and k.startswith("Coronary_")]:
+        lines = json.loads(nodes[n].get("extras", {}).get("centerlines_gltf", "[]"))
+        cl_all[n] = [np.array([[x, -z, y] for x, y, z in L]) for L in lines]     # glTF Y-up -> Blender Z-up
+    for k in ("LAD", "LCX", "RCA"):
+        ob = meshes.get(f"Extra_Outline_{k}")
+        if ob is None:
+            report(f"Extra_Outline_{k} present", False)
+            continue
+        V = verts(ob)
+        C = cl_all[f"Coronary_{k}"][0]
+        inward = 0
+        polys = ob.data.polygons
+        for poly in list(polys)[:: max(1, len(polys) // 300)]:
+            pc = np.array(poly.center)
+            q = C[np.argmin(np.linalg.norm(C - pc, axis=1))]
+            inward += np.dot(np.array(poly.normal), q - pc) > 0
+        frac = inward / len(list(polys)[:: max(1, len(polys) // 300)])
+        report(f"Extra_Outline_{k}: inverted normals, alpha 0", frac > 0.9, f"{frac:.0%} faces point inward")
     groups = {n: obs[n] for n in ("Heart", "Body") if n in obs}
     report("Heart/Body groups", len(groups) == 2 and all(o.parent in groups.values() for n, o in meshes.items()))
 
     # ---- anatomy (Blender Z-up after import: anterior -Y, left +X, superior +Z)
-    low = hv[hv[:, 2] < c[2]]
-    apex = low[np.argmax(np.linalg.norm(low - c, axis=1))]
+    a_gl = nodes["Heart_Myocardium"].get("extras", {}).get("apex_gltf")
+    apex = np.array([a_gl[0], -a_gl[2], a_gl[1]]) if a_gl else hv[np.argmin(hv[:, 2])]
     d = (apex - c) / np.linalg.norm(apex - c)
-    report("apex points left-anterior-inferior", d[0] > 0.2 and d[1] < -0.2 and d[2] < -0.3, np.round(d, 2).tolist())
+    on_surface = bvh(meshes["Heart_Myocardium"]).find_nearest(Vector(apex))[3] < 0.001
+    extreme = (apex - c) @ d >= np.percentile((hv - c) @ d, 99.5)
+    report("apex landmark: on the heart, the extreme point along its axis, pointing left-anterior-inferior",
+           on_surface and extreme and d[0] > 0.2 and d[1] < -0.2 and d[2] < -0.3, np.round(d, 2).tolist())
     lad, lcx, rca = (verts(meshes[f"Coronary_{k}"]) - c for k in ("LAD", "LCX", "RCA"))
+    cl_end = {n: L[0][-1] for n, L in cl_all.items()}
     report("LAD on the anterior surface", np.mean(lad[:, 1] < 0.01) > 0.8, f"{np.mean(lad[:, 1] < 0.01):.0%} anterior")
     report("LCX lateral -> posterior", lcx[:, 0].mean() > 0 and lcx[:, 1].max() > 0.015,
            f"mean x {lcx[:, 0].mean() * 100:.1f} cm, max y {lcx[:, 1].max() * 100:.1f} cm")
-    report("RCA right -> posterior", rca[:, 0].min() < -0.03 and rca[:, 1].max() > 0.015,
-           f"min x {rca[:, 0].min() * 100:.1f} cm, max y {rca[:, 1].max() * 100:.1f} cm")
+    rca_end = cl_end["Coronary_RCA"] - c
+    report("RCA right -> posterior/diaphragmatic (crux, PDA)", rca[:, 0].min() < -0.012 and
+           (rca_end[1] > 0.004 or rca_end[2] < -0.02),
+           f"min x {rca[:, 0].min() * 100:.1f} cm, end (y {rca_end[1] * 100:.1f}, z {rca_end[2] * 100:.1f}) cm")
     hb = bvh(meshes["Heart_Myocardium"])
     ab = bvh(meshes["Aorta"])                         # coronaries originate from the aortic root
     for k in ("LAD", "LCX", "RCA", "LM", "Branches"):
@@ -207,6 +273,17 @@ def check(path: Path) -> bool:
         dist = np.array([min(hb.find_nearest(Vector(p))[3], ab.find_nearest(Vector(p))[3]) for p in v[::3]]) * 1000
         report(f"Coronary_{k} hugs the epicardium / aortic root", np.percentile(dist, 99) < 6.0,
                f"vertex distance p1-p99 {np.percentile(dist, 1):.1f}-{np.percentile(dist, 99):.1f} mm")
+    ab_ = bvh(meshes["Aorta"])
+    for n, lines in cl_all.items():                  # centreline 1-4 mm above the NEW heart surface
+        d_all = []
+        for L in lines:
+            for q in L:
+                if ab_.find_nearest(Vector(q))[3] > 0.008:          # skip the aortic origin (leaves the aorta)
+                    d_all.append(hb.find_nearest(Vector(q))[3] * 1000)
+        d_all = np.array(d_all)
+        ok_ = (np.percentile(d_all, 2) >= 1.0) and (np.percentile(d_all, 98) <= 4.0)
+        report(f"{n} centreline 1-4 mm above the heart", ok_,
+               f"p2-p98 {np.percentile(d_all, 2):.2f}-{np.percentile(d_all, 98):.2f} mm (max {d_all.max():.1f})")
     for k in ("LAD", "LCX", "RCA"):
         v = verts(meshes[f"Territory_{k}"])
         dist = np.array([hb.find_nearest(Vector(p))[3] for p in v[::4]]) * 1000
@@ -258,6 +335,16 @@ def main():
                 print(f"build report [{v}]: territory gaps {r[v]['territory_gap_fraction']:.1%}, overlaps "
                       f"{r[v]['territory_overlap_fraction']:.1%}; centreline-to-myocardium (mm) "
                       + ", ".join(f"{k} {x['min_mm']}-{x['max_mm']}" for k, x in r[v]['centreline_to_myocardium'].items()))
+    if rep.exists():
+        r = json.loads(rep.read_text())
+        for v in ("full", "lite"):
+            if v in r:
+                x = r[v]
+                ok_gap = x.get("territory_gap_fraction", 1) == 0 and x.get("territory_param_gap_fraction", 0) == 0
+                ok_ovl = x.get("territory_overlap_fraction", 1) == 0 and x.get("territory_param_overlap_fraction", 0) == 0
+                print(f"  [{'PASS' if ok_gap and ok_ovl else 'FAIL'}] build report [{v}]: territories no gaps / no overlap")
+                if not (ok_gap and ok_ovl):
+                    sys.exit(1)
     results = [check(p) for p in paths]
     sys.exit(0 if all(results) else 1)
 

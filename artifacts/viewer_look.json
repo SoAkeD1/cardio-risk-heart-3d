@@ -1,0 +1,63 @@
+{
+ "description": "Presentation settings shared by the Cycles renders (build_heart.py) and blender/preview.html; matches the Sketchfab viewer reference (assets_src/sketchfab_heart/reference).",
+ "background": {
+  "type": "radial-gradient",
+  "center": "#3A3A3A",
+  "edge": "#1E1E1E",
+  "radius": 0.75
+ },
+ "environment": {
+  "hdri": "assets_src/hdri/studio_small_09_1k.hdr",
+  "name": "Studio Small 09",
+  "source": "https://polyhaven.com/a/studio_small_09",
+  "author": "Poly Haven",
+  "license": "CC0",
+  "intensity": 1.0,
+  "visible_as_background": false
+ },
+ "lights": [
+  {
+   "name": "key",
+   "space": "camera",
+   "direction": [
+    -0.55,
+    0.62,
+    0.56
+   ],
+   "color": "#FFF4EA",
+   "three_intensity": 2.2,
+   "cycles_irradiance": 4.5,
+   "size_rel": 0.6,
+   "note": "soft key from upper-front-left -> wet specular highlights"
+  },
+  {
+   "name": "rim",
+   "space": "camera",
+   "direction": [
+    0.35,
+    0.5,
+    -0.79
+   ],
+   "color": "#FFFFFF",
+   "three_intensity": 1.6,
+   "cycles_irradiance": 3.5,
+   "size_rel": 0.5,
+   "note": "rim from behind"
+  }
+ ],
+ "renderer": {
+  "tone_mapping": "ACESFilmic",
+  "exposure": 1.0,
+  "output_color_space": "sRGB",
+  "shadows": false,
+  "ambient_occlusion": "off by default (SAO only if fps allows)"
+ },
+ "camera": {
+  "vfov_deg": 35,
+  "near": 0.005,
+  "far": 50
+ },
+ "blender": {
+  "view_transform": "ACES 2.0"
+ }
+}

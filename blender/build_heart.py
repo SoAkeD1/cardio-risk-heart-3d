@@ -8,9 +8,13 @@ One-command rebuild (headless, reproducible):
 Modelling frame (Blender, Z-up): patient anterior = -Y, patient left = +X, superior = +Z, metres.
 The glTF export converts to Y-up (anterior -> +Z, facing a default three.js camera).
 
-Geometry is 100 % procedural (CC0). Contract names, colours and roles are read from
-artifacts/anatomy_map.json at runtime. Nothing is shaped or placed from patient data;
-Region RWMA is never used as a coordinate.
+Heart source (--heart-source):
+  sketchfab (default) "Realistic Human Heart" by neshallads, CC BY 4.0 (assets_src/sketchfab_heart): aligned,
+             scaled, split into Heart_Myocardium + Aorta, coronary tubes traced onto the painted vessel lines
+             (blender/sketchfab_heart.py, blender/vessel_trace.py); Realistic + Clinical looks.
+  procedural the Step 6 CC0 parametric heart (kept for reproducibility / fallback).
+Body, organs, territories, anchors, views and all contract names come from artifacts/anatomy_map.json.
+Nothing is shaped or placed from patient data; Region RWMA is never used as a coordinate.
 """
 from __future__ import annotations
 
@@ -28,7 +32,10 @@ from mathutils.bvhtree import BVHTree
 
 # =============================================================================== PARAMETERS
 ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 MAP_PATH = ROOT / "artifacts" / "anatomy_map.json"
+LOOK_PATH = ROOT / "artifacts" / "viewer_look.json"
+CACHE = ROOT / "artifacts" / "cache"
 
 HEART_CENTROID_BODY = np.array([0.015, 0.0, 1.30])   # heart centroid in the body frame (floor z = 0)
 LONG_AXIS = np.array([0.55, -0.45, -0.70])            # base -> apex (left, anterior, inferior)
@@ -38,6 +45,9 @@ GROOVE_DEPTH, GROOVE_WIDTH = 0.0030, 0.0060           # interventricular / AV gr
 AV_GROOVE_Z = 0.030
 VESSEL_OFFSET = 0.0019                                # centreline above epicardium
 VESSEL_R = {"main": (0.0022, 0.0014), "lm": (0.0027, 0.0025), "branch": (0.0012, 0.0008)}
+# Sketchfab heart: radii follow the painted vessels (~10-20 % thicker than the measured 2.76 mm painted LAD);
+# the procedural spec radii above read as cables on the realistic texture (see STEP6_ASSET.md).
+VESSEL_R_SKETCHFAB = {"main": (0.0018, 0.0013), "lm": (0.0020, 0.0019), "branch": (0.0011, 0.0008)}
 HIT_R = 0.006
 TERRITORY_OFFSET = 0.0010
 TERRITORY_Z = (-0.050, 0.025)                         # apical-cap boundary, top (below AV groove)
@@ -50,10 +60,10 @@ TERRITORY_FEATHER = 0.003                             # vertex-alpha feather wid
 AO_STRENGTH = 0.20                                    # vertex-colour AO (heart, aorta, torso only)
 
 QUALITY = {
-    "full": dict(heart_voxel=0.0011, heart_tris=25000, param_n=(144, 110), vessel_segs=12, vessel_step=0.0016,
+    "full": dict(tex_size=2048, src_heart_tris=None, heart_voxel=0.0011, heart_tris=25000, param_n=(144, 110), vessel_segs=12, vessel_step=0.0016,
                  aorta_segs=32, aorta_step=0.004, terr_dtheta=2.0, terr_dz=0.0015, body_voxel=0.0055,
                  body_tris=20000, organ_voxel=0.0028, organ_tris=5000, ao_rays=14),
-    "lite": dict(heart_voxel=0.0015, heart_tris=10000, param_n=(96, 72), vessel_segs=8, vessel_step=0.0032,
+    "lite": dict(tex_size=1024, src_heart_tris=11000, heart_voxel=0.0015, heart_tris=10000, param_n=(96, 72), vessel_segs=8, vessel_step=0.0032,
                  aorta_segs=16, aorta_step=0.008, terr_dtheta=4.0, terr_dz=0.003, body_voxel=0.008,
                  body_tris=8000, organ_voxel=0.004, organ_tris=2000, ao_rays=8),
 }
@@ -62,13 +72,32 @@ QUALITY = {
 PALETTE = {
     "Heart_Myocardium": dict(color="#D9A79A", rough=0.55, sheen=0.25),
     "Territory": dict(color="#FFFFFF", rough=0.6, alpha=0.35),
-    "Coronary": dict(color="#C9C2B8", rough=0.40),
+    "Coronary": dict(color="#C9C2B8", rough=0.30),
     "Organ_Lungs": dict(color="#E8C4C0", rough=0.6), "Organ_Kidneys": dict(color="#C98B7E", rough=0.6),
     "Organ_Pancreas": dict(color="#E3C79B", rough=0.6), "Organ_Thyroid": dict(color="#D4A08F", rough=0.6),
     "Organ_Brain": dict(color="#E6CFC8", rough=0.6), "Organ_Legs": dict(color="#DCC7BC", rough=0.6),
     "Torso_Shell": dict(rough=0.30, alpha=0.18), "Aorta": dict(rough=0.50),
 }
 RENDER = dict(samples=64, res=(1600, 1000), vfov_deg=35.0, margin=1.15)
+VIEWER_LOOK = {
+    "description": "Presentation settings shared by the Cycles renders (build_heart.py) and blender/preview.html; "
+                   "matches the Sketchfab viewer reference (assets_src/sketchfab_heart/reference).",
+    "background": {"type": "radial-gradient", "center": "#3A3A3A", "edge": "#1E1E1E", "radius": 0.75},
+    "environment": {"hdri": "assets_src/hdri/studio_small_09_1k.hdr", "name": "Studio Small 09",
+                    "source": "https://polyhaven.com/a/studio_small_09", "author": "Poly Haven",
+                    "license": "CC0", "intensity": 1.0, "visible_as_background": False},
+    "lights": [
+        {"name": "key", "space": "camera", "direction": [-0.55, 0.62, 0.56], "color": "#FFF4EA",
+         "three_intensity": 2.2, "cycles_irradiance": 4.5, "size_rel": 0.6,
+         "note": "soft key from upper-front-left -> wet specular highlights"},
+        {"name": "rim", "space": "camera", "direction": [0.35, 0.50, -0.79], "color": "#FFFFFF",
+         "three_intensity": 1.6, "cycles_irradiance": 3.5, "size_rel": 0.5, "note": "rim from behind"}],
+    "renderer": {"tone_mapping": "ACESFilmic", "exposure": 1.0, "output_color_space": "sRGB",
+                 "shadows": False, "ambient_occlusion": "off by default (SAO only if fps allows)"},
+    "camera": {"vfov_deg": 35, "near": 0.005, "far": 50},
+}
+OUTLINE_EXTRA = 0.0006                                 # Extra_Outline_* = vessel tube + 0.6 mm, inverted normals
+CLINICAL = dict(desaturate=0.55, tone="#D9A79A", tone_mix=0.45, roughness=0.65, normal_scale=0.4)
 
 # =============================================================================== small helpers
 def unit(v):
@@ -352,6 +381,35 @@ def finish(ob, voxel=None, smooth_iter=0, smooth_factor=0.5, target_tris=None, r
     return ob
 
 
+def drop_small_islands(ob, min_tris=50):
+    """Delete connected pieces smaller than `min_tris` triangles (stray Boolean / remesh fragments)."""
+    import bmesh
+    bm = bmesh.new()
+    bm.from_mesh(ob.data)
+    bm.faces.ensure_lookup_table()
+    seen, kill = set(), []
+    for f in bm.faces:
+        if f.index in seen:
+            continue
+        stack, comp = [f], []
+        seen.add(f.index)
+        while stack:
+            g = stack.pop()
+            comp.append(g)
+            for e in g.edges:
+                for h in e.link_faces:
+                    if h.index not in seen:
+                        seen.add(h.index)
+                        stack.append(h)
+        if sum(len(g.verts) - 2 for g in comp) < min_tris:
+            kill += comp
+    if kill:
+        bmesh.ops.delete(bm, geom=kill, context="FACES")
+    bm.to_mesh(ob.data)
+    bm.free()
+    ob.data.update()
+
+
 def verts_of(ob):
     a = np.empty(len(ob.data.vertices) * 3)
     ob.data.vertices.foreach_get("co", a)
@@ -431,28 +489,84 @@ def hermite(p0, p1, m0, m1, n):
             + (-2 * t ** 3 + 3 * t ** 2) * p1 + (t ** 3 - t ** 2) * m1)
 
 
-def limit_bends(P, bvh, offset, fixed=(), target=BEND_TARGET_DEG, chord=BEND_CHORD, iters=80):
-    """Locally relax (and re-snap) the centreline wherever a bend exceeds `target` degrees, on both the
-    native segments and ~4 mm chords. Fixed points (e.g. the aortic exit) are never moved."""
+FULL_HEART_BVH = None                                  # set per build: whole myocardium (incl. pulmonary trunk)
+
+
+def limit_bends(P, bvh, offset, fixed=(), target=BEND_TARGET_DEG, chord=BEND_CHORD, iters=400, band=(0.0013, 0.0032),
+                band_from=1):
+    """Relax the centreline wherever a bend exceeds `target` degrees (native segments and ~4 mm chords).
+    Relaxation does NOT re-snap every step (on a real mesh the AV groove is a sharp crease and snapping both
+    sides re-creates the kink); afterwards points are only pushed back into the surface-offset band."""
     P = np.array(P, float)
     fixed = set(i % len(P) for i in fixed) | {0}
     step = np.median(np.linalg.norm(np.diff(P, axis=0), axis=1))
     w = max(1, int(round(chord / step)))
-    for _ in range(iters):
+
+    def bad_set(P):
         a1 = bend_angles(P)
         a2 = bend_angles(P, chord)
         bad = set((np.where(a1 > target)[0] + 1).tolist())
         bad |= {j for i in np.where(a2 > target)[0] for j in range(i, i + 2 * w + 1)}
-        bad = {i for b in bad for i in range(b - 2, b + 3) if 0 < i < len(P) - 1 and i not in fixed}
-        if not bad:
+        return {i for b in bad for i in range(b - 2, b + 3) if 0 < i < len(P) - 1 and i not in fixed}
+
+    for _outer in range(6):
+        for _ in range(iters):
+            bad = bad_set(P)
+            if not bad:
+                break
+            Q = P.copy()
+            for i in bad:
+                Q[i] = 0.4 * P[i] + 0.3 * (P[i - 1] + P[i + 1])
+            P = Q
+        moved = False
+        for i in range(max(1, band_from), len(P)):      # keep the 1.3-3.2 mm offset band (on the heart only)
+            if i in fixed:
+                continue
+            loc, n = smooth_normal(bvh, P[i], 0.004)
+            d = float(np.dot(P[i] - loc, n))
+            target_pt = None
+            if d < band[0] or inside(bvh, P[i]):
+                target_pt = loc + n * offset
+            elif d > band[1]:
+                target_pt = loc + n * band[1]
+            if target_pt is not None and np.linalg.norm(target_pt - P[i]) < 0.004:   # never teleport
+                P[i] = target_pt
+                moved = True
+        if not moved and not bad_set(P):
             break
-        Q = P.copy()
-        for i in bad:
-            Q[i] = 0.4 * P[i] + 0.3 * (P[i - 1] + P[i + 1])
-        for i in bad:
-            loc, n = smooth_normal(bvh, Q[i], 0.004)
-            Q[i] = loc + n * offset
-        P = Q
+    # uniform re-spacing (relaxation/pushes can bunch points), then a final bends-only relaxation
+    head = P[0].copy()
+    P = resample(P, step)
+    P[0] = head
+    # alternate bends-only relaxation with a bounded projection into the 1.3-3.2 mm band; clearance is also
+    # checked against the whole myocardium (pulmonary trunk included) so no vessel sinks into a great vessel
+    for _round in range(24):
+        for _ in range(iters):
+            bad = bad_set(P)
+            if not bad:
+                break
+            Q = P.copy()
+            for i in bad:
+                Q[i] = 0.4 * P[i] + 0.3 * (P[i - 1] + P[i + 1])
+            P = Q
+        moved = 0
+        for i in range(max(1, band_from), len(P)):
+            loc, n = smooth_normal(bvh, P[i], 0.004)
+            d = float(np.dot(P[i] - loc, n))
+            if d > band[1]:
+                P[i] = P[i] - n * min(d - (band[1] - 0.0003), 0.003)
+                moved += 1
+            elif d < band[0] or inside(bvh, P[i]):
+                P[i] = loc + n * offset
+                moved += 1
+            if FULL_HEART_BVH is not None:
+                loc2, _, _, d2 = FULL_HEART_BVH.find_nearest(Vector(P[i]))
+                if d2 < 0.0014 or inside(FULL_HEART_BVH, P[i]):
+                    _, n2 = smooth_normal(FULL_HEART_BVH, P[i], 0.003)
+                    P[i] = np.array(loc2) + n2 * 0.0017
+                    moved += 1
+        if not moved and not bad_set(P):
+            break
     return P
 
 
@@ -522,15 +636,39 @@ def bake_ao(ob, bvh, max_dist, rays, strength, min_dist=0.0015):
 
 # =============================================================================== builders
 class Builder:
-    def __init__(self, amap, q, variant):
-        self.amap, self.q, self.variant = amap, q, variant
+    def __init__(self, amap, q, variant, source="sketchfab"):
+        self.amap, self.q, self.variant, self.source = amap, q, variant, source
         self.coll = bpy.context.scene.collection
         self.objs = {}
-        self.report = {"variant": variant}
+        self.report = {"variant": variant, "heart_source": source}
         self.frame = HeartFrame(HEART_CENTROID_BODY)
+        self.z_apex, self.terr_z = Z_APEX, TERRITORY_Z
+        self.chambers = None
+
+    def surf(self, th, zp):
+        """Epicardial surface point at (theta deg, z'): parametric (procedural) or ray-cast onto the chambers
+        of the Sketchfab heart (pulmonary trunk / great vessels excluded)."""
+        if self.source == "procedural":
+            return surface(self.frame, th, zp)
+        th, zp = np.broadcast_arrays(np.asarray(th, float), np.asarray(zp, float))
+        out = np.empty(th.shape + (3,))
+        D = self.frame.dirs(th)
+        for idx in np.ndindex(th.shape):
+            d, o = D[idx], self.frame.c + zp[idx] * self.frame.ez
+            loc, _, _, _ = self.surf_bvh.ray_cast(Vector(o + d * 0.25), Vector(-d), 0.26)
+            if loc is None:
+                loc = self.surf_bvh.find_nearest(Vector(o + d * 0.03))[0]
+            out[idx] = loc
+        return out
+
+    @property
+    def apex_point(self):
+        return self.frame.c + Z_APEX * self.frame.ez if self.source == "procedural" else self._apex_pt
 
     # ---------------------------------------------------------------- heart
     def build_heart(self):
+        if self.source == "sketchfab":
+            return self.build_heart_sketchfab()
         q, fr = self.q, self.frame
         parts = [ventricle_mesh(fr, *q["param_n"])]
         # auricles (small ear-shaped blobs) + pulmonary trunk, blended by voxel remesh + smoothing;
@@ -557,8 +695,40 @@ class Builder:
         self.heart_bvh = bvh_of(ob)
         log("heart tris", tri_count(ob))
 
+    def build_heart_sketchfab(self):
+        import sketchfab_heart as SH
+        sh = SH.SketchfabHeart(LONG_AXIS, HEART_CENTROID_BODY, self.coll, log).load().align().remember_cap()
+        sh.seams(HeartFrame(sh.vent_centroid))
+        parts = sh.split()
+        sh.refine()
+        sh.seam_tz(HeartFrame(sh.vent_centroid))
+        sh.aorta_geometry()
+        heart = parts["Heart_Myocardium"]
+        if self.q["src_heart_tris"] and tri_count(heart) > self.q["src_heart_tris"]:
+            m = heart.modifiers.new("decimate", "DECIMATE")         # UV-preserving collapse (lite only)
+            m.ratio = self.q["src_heart_tris"] / tri_count(heart)
+            m.use_collapse_triangulate = True
+            apply_modifiers(heart)
+        heart.data.shade_smooth()
+        self.objs["Heart_Myocardium"] = heart
+        self.sf, self.chambers = sh, sh.chambers
+        self.frame = HeartFrame(sh.vent_centroid)
+        self.surf_bvh = bvh_of(self.chambers)
+        self.heart_bvh = self.surf_bvh                # vessels / territories / anchors use the chamber surface
+        global FULL_HEART_BVH
+        FULL_HEART_BVH = bvh_of(heart)
+        C = verts_of(self.chambers)
+        proj = (C - self.frame.c) @ self.frame.ez
+        self.z_apex = float(proj.min())
+        self._apex_pt = C[int(np.argmin(proj))]
+        self.apex_landmark = sh.apex_world
+        self.report.update(sh.report)
+        log("sketchfab heart tris", tri_count(heart))
+
     # ---------------------------------------------------------------- aorta
     def build_aorta(self):
+        if self.source == "sketchfab":
+            return self.build_aorta_sketchfab()
         fr, q = self.frame, self.q
         V = verts_of(self.objs["Heart_Myocardium"])
         root = fr.point(-160, 0.060, 0.008)          # aortic root: right of the pulmonary trunk
@@ -597,6 +767,31 @@ class Builder:
         ob = new_obj("Aorta", v, f, self.coll)
         self.objs["Aorta"] = ob
         self.aorta_bvh = bvh_of(ob)
+        self.root_path, self.root_r = P, R
+        self.arch_top = P[np.argmax(P[:, 2])] + np.array([0, 0, R[np.argmax(P[:, 2])]])
+        log("aorta tris", tri_count(ob))
+
+    def build_aorta_sketchfab(self):
+        sh, q = self.sf, self.q
+        sh.extend_aorta(self.objs["Heart_Myocardium"], tube, catmull_rom, resample, segs=q["aorta_segs"],
+                        step=q["aorta_step"])
+        ob = sh.parts["Aorta"]
+        ob.name = ob.data.name = "Aorta"
+        self.objs["Aorta"] = ob
+        self.aorta_bvh = bvh_of(ob)
+        self.root_path, self.root_r = sh.root_path, sh.root_r
+        self.aorta_path = np.vstack([sh.root_path, sh.desc_path])
+        self.aorta_r = np.concatenate([sh.root_r, sh.desc_r])
+        A = verts_of(ob)
+        self.arch_top = A[np.argmax(A[:, 2])]
+        # arch apex: highest horizontal slice that is still the arch tube (wider than the 3 branch stubs)
+        apex_z = None
+        for z in np.arange(A[:, 2].max(), A[:, 2].min(), -0.001):
+            sl = A[np.abs(A[:, 2] - z) < 0.0008]
+            if len(sl) > 10 and np.linalg.norm(sl[:, :2].max(0) - sl[:, :2].min(0)) > 0.035:
+                apex_z = z
+                break
+        self.report["arch_outer_apex_z"] = round(float(apex_z), 4) if apex_z else None
         log("aorta tris", tri_count(ob))
 
     # ---------------------------------------------------------------- coronaries
@@ -604,7 +799,7 @@ class Builder:
         """Centreline through surface control points (theta, z'). `start` is a fixed first point (parent
         vessel or aortic sinus); `lead` are extra fixed points after it (radial exit from the aorta)."""
         fr, step, bvh = self.frame, self.q["vessel_step"], self.heart_bvh
-        pts = [surface(fr, t, z) for t, z in ctrl_tz]
+        pts = [self.surf(t, z) for t, z in ctrl_tz]
         if not lead:
             P = resample(catmull_rom(np.array(([start] if start is not None else []) + pts)), step)
             fixed = [0] if start is not None else []
@@ -630,27 +825,191 @@ class Builder:
                 P = np.vstack([H[:-1], Ps[j:]])
                 score = max(bend_angles(P).max(), bend_angles(P, BEND_CHORD).max())
                 if score < best_score:
-                    best, best_score = P, score
+                    best, best_score, n_lead = P, score, len(H) - 1
             if best_score <= BEND_TARGET_DEG:
                 break
         if best is None:                                      # fall back to the plain snapped path
-            best = np.vstack([S0, Ps])
+            best, n_lead = np.vstack([S0, Ps]), 1
+        # final relaxation over the whole vessel; the surface band applies only from where it lies on the heart
+        return limit_bends(best, bvh, VESSEL_OFFSET, fixed=[0], band_from=n_lead)
+
+    def ostium(self, target, r_vessel):
+        """Sinus (inside the aortic wall) + radial exit on the first root ring whose wall point on this
+        vessel's side is clear of the heart, so the vessel never grazes or tunnels through tissue."""
+        aP, aR = self.root_path, self.root_r
+        for i in range(1, len(aP) - 1):
+            axis = unit(aP[min(i + 1, len(aP) - 1)] - aP[max(i - 1, 0)])
+            d = target - aP[i]
+            d = unit(d - d.dot(axis) * axis)
+            exit_ = aP[i] + d * (aR[i] + r_vessel + 0.0015)
+            if not inside(self.heart_bvh, exit_) and self.heart_bvh.find_nearest(Vector(exit_))[3] > 0.0015:
+                return aP[i] + d * aR[i] * 0.85, exit_
+        raise RuntimeError("no clear ostium on the aortic root")
+
+    def _coronary_paths_sketchfab(self):
+        """Trace the painted coronary lines on the chamber surface, then build centrelines through them."""
+        from vessel_trace import Unwrap, path_strength, support_smooth, vesselness
+        fr, mm = self.frame, 1e-3
+        th, zs, rgb, hit, ok = self.sf.unwrap(self.chambers, fr, self.z_apex + 0.001, self.z_apex + 0.135)
+        U = Unwrap(th, zs, vesselness(rgb, ok), ok)
+        tr = {}
+
+        def smooth(name, t, z, along):
+            st = path_strength(U, t, z)
+            t2, z2 = support_smooth(t, z, st, along=along)
+            tr[name] = (t2, z2, float(np.mean(st)))
+            return t2, z2
+        # anatomical windows from the source grooves (chamber-island seams)
+        sm = self.sf.seam
+        rvlv_t, rvlv_z = sm["LV|RV"]
+        ant = rvlv_t < 60                                      # anterior IV groove part of the RV|LV seam
+        pos = ~ant
+        aivg = lambda z: float(np.interp(z, rvlv_z[ant], rvlv_t[ant]))            # noqa: E731
+        pt = np.where(rvlv_t[pos] < 0, rvlv_t[pos] + 360, rvlv_t[pos])
+        pivg = lambda z: float(np.interp(z, rvlv_z[pos], pt))                     # noqa: E731
+        ra_rv_z = float(np.median(sm["RA|RV"][1])) if "RA|RV" in sm else 0.036
+        top = float(rvlv_z[ant].max())
+        self.report["grooves"] = {
+            "anterior_IVG_theta_top_apex": [round(aivg(top), 1), round(aivg(self.z_apex + 0.004), 1)],
+            "posterior_IVG_theta_top_apex": [round(pivg(float(rvlv_z[pos].max())), 1), round(pivg(self.z_apex + 0.004), 1)],
+            "right_AV_groove_zmm": round(ra_rv_z * 1000, 1)}
+        # LAD = the painted anterior descending vessel: strongest minimum-cost path over the anterior face
+        # (theta -140..-30, pure anterior = -90) from the base to the apex. The RV/LV modelling seam is NOT
+        # used here because the artist painted the LAD on the anterior face, not on that seam.
+        z_bif = min(top, 0.016)                         # below the pulmonary-trunk / LV crease
+        lad_t, lad_z = smooth("LAD", *U.trace_vertical(z_bif, self.z_apex + 0.004, -90,
+                                                       lambda z: (-140, -30), start_tol=35), "z")
+        lcx_t, lcx_z = smooth("LCX", *U.trace_horizontal(lad_t[0], 115, z_bif, lambda t: (0.012, 0.042),
+                                                         start_tol=0.006), "t")
+        rca_start = aivg(top) - 30
+        rca_t, rca_z = smooth("RCA", *U.trace_horizontal(rca_start, pivg(ra_rv_z) - 360, ra_rv_z,
+                                                         lambda t: (ra_rv_z - 0.010, ra_rv_z + 0.010),
+                                                         start_tol=0.006), "t")
+        pda_t, pda_z = smooth("PDA", *U.trace_vertical(rca_z[-1], self.z_apex + 0.012, rca_t[-1] + 360,
+                                                       lambda z: (pivg(z) - 18, pivg(z) + 18), start_tol=6), "z")
+
+        def at(ts, zz, key, val):
+            i = int(np.argmin(np.abs((zz if key == "z" else ts) - val)))
+            return ts[i], zz[i]
+        br = {}
+        for name, z0, z1 in (("D1", 0.010, -0.020), ("D2", -0.006, -0.030)):
+            t0 = at(lad_t, lad_z, "z", z0)[0]
+            br[name] = smooth(name, *U.trace_vertical(z0, z1, t0, lambda z, t0=t0: (t0 + 3, t0 + 60), start_tol=3), "z")
+        for name, t0 in (("OM1", 35), ("OM2", 70)):
+            z0 = at(lcx_t, lcx_z, "t", t0)[1]
+            br[name] = smooth(name, *U.trace_vertical(z0, -0.014, t0, lambda z, t0=t0: (t0 - 25, t0 + 25),
+                                                      start_tol=3), "z")
+        t_am = -150
+        z0 = at(rca_t, rca_z, "t", t_am)[1]
+        br["AM"] = smooth("AM", *U.trace_vertical(z0, -0.014, t_am, lambda z: (t_am - 25, t_am + 25), start_tol=3), "z")
+        # RCA | LAD follows the traced LAD itself (a strip on its RV side), not the RV/LV modelling seam, so the
+        # anterior septum / anterior wall under the painted LAD always belong to the LAD territory
+        o = np.argsort(lad_z)
+        self.terr_bounds = dict(lad_lcx=aivg(0.0) + 55, lcx_rca=pivg(0.0) - 70, rca_lad=aivg(0.0) - 30,
+                                lad_path=(np.asarray(lad_z)[o], np.asarray(lad_t)[o]))
+        self.report["painted_line_strength"] = {k: round(v[2], 3) for k, v in tr.items()}
+        # painted LAD width (FWHM across theta) -> tubes ~10 % thicker than the painted line
+        widths = []
+        for t, z in list(zip(lad_t, lad_z))[::6]:
+            r = np.linalg.norm(self.surf(t, z) - (fr.c + z * fr.ez))
+            prof = np.array([U.v[U.row(z), U.col(t + dt)] for dt in np.arange(-6, 6.01, 0.5)])
+            if prof.max() > 0.3:
+                widths.append((prof > prof.max() / 2).sum() * 0.5 * np.pi / 180 * r)
+        painted_w = float(np.median(widths)) if widths else 0.0
+        self.report["painted_lad_width_mm"] = round(painted_w * 1000, 2)
+        self.vessel_scale = max(1.0, 1.1 * painted_w / 2 / VESSEL_R["main"][0])
+
+        def ctrl(ts, zz, every=0.003):                   # sub-sample a trace to ~3 mm control points
+            P = self.surf(ts, zz)
+            keep, acc = [0], 0.0
+            for i in range(1, len(P)):
+                acc += np.linalg.norm(P[i] - P[i - 1])
+                if acc >= every:
+                    keep.append(i)
+                    acc = 0.0
+            if keep[-1] != len(P) - 1:
+                keep.append(len(P) - 1)
+            return [(float(ts[i]), float(zz[i])) for i in keep]
+        # LAD wraps ~1 cm around the apex onto the inferior wall
+        za = self.z_apex
+        lad_ctrl = ctrl(lad_t, lad_z) + [(lad_t[-1], za + 0.002), (lad_t[-1] + 180, za + 0.003),
+                                         (lad_t[-1] + 180, za + 0.008)]
+        bif_tz = lad_ctrl[0]
+        loc, n = smooth_normal(self.heart_bvh, self.surf(*bif_tz), 0.004)
+        bif = loc + n * VESSEL_OFFSET
+        lad = self._surface_path(lad_ctrl[1:], start=bif)
+        lcx = self._surface_path(ctrl(lcx_t, lcx_z)[1:], start=bif)
+        lm = self._left_main(bif, lad, lcx)
+        rca_c = ctrl(rca_t, rca_z) + ctrl(pda_t, pda_z)[1:]
+        right_sinus, right_exit = self.ostium(self.surf(*rca_c[0]), VESSEL_R["main"][0])
+        # surface bridge from the right ostium down to where the painted RCA begins (keeps the vessel on the
+        # heart instead of spanning the gap in the air)
+        th_e, z_e = (float(x) for x in fr.local(right_exit))
+        t1, z1 = rca_c[0]
+        dth = ((t1 - th_e + 180) % 360) - 180
+        n_b = max(2, int(abs(dth) / 8))
+        bridge = [(th_e + dth * k / (n_b + 1), z_e - 0.003 + (z1 - z_e + 0.003) * k / (n_b + 1))
+                  for k in range(1, n_b + 1)]
+        rca = self._surface_path(bridge + rca_c, start=right_sinus, lead=[right_exit])
+        self.report["rca_bridge_points"] = len(bridge)
+        paths = {"lm": lm, "lad": lad, "lcx": lcx, "rca": rca}
+        branches = []
+        for name, parent in (("D1", lad), ("D2", lad), ("OM1", lcx), ("OM2", lcx), ("AM", rca)):
+            t, z = br[name]
+            c = ctrl(t, z)
+            i = int(np.argmin(np.linalg.norm(parent - self.surf(*c[0]), axis=1)))
+            branches.append(self._surface_path(c[1:], start=parent[i]))
+        self.av_z = float(np.median(np.concatenate([lcx_z[len(lcx_z) // 3:], rca_z])))
+        base_z = float((fr.c + self.av_z * fr.ez)[2])                     # heart base = AV-groove plane centre
+        r_arch = float(self.sf.arch_end[2])
+        if self.report.get("arch_outer_apex_z") is not None:
+            self.report["arch_apex_above_heart_base_cm"] = round((self.report["arch_outer_apex_z"] - r_arch - base_z) * 100, 2)
+        dp, dr = self.sf.desc_path, self.sf.desc_r
+        FH = FULL_HEART_BVH
+        clear = [(-1.0 if inside(FH, p) else 1.0) * FH.find_nearest(Vector(p))[3] - r for p, r in zip(dp, dr)]
+        start = int(np.argmax(np.array(clear) > 0))
+        self.report["aorta_min_clearance_from_heart_mm"] = round(float(min(clear[start:])) * 1000, 2)
+        self.trace_debug = dict(th=th, zs=zs, rgb=rgb, traces={k: (v[0], v[1]) for k, v in tr.items()})
+        CACHE.mkdir(parents=True, exist_ok=True)                    # debug / documentation figure input
+        np.savez_compressed(CACHE / f"trace_{self.variant}.npz", th=th, zs=zs, rgb=rgb, v=U.v,
+                            **{f"tr_{k}": np.vstack([v[0], v[1]]) for k, v in tr.items()},
+                            **{f"seam_{k.replace('|', '_')}": np.vstack(v) for k, v in self.sf.seam.items()})
+        return paths, branches
+
+    def _left_main(self, bif, lad, lcx):
+        """Short smooth LM: leaves the left sinus radially and arrives at the bifurcation along the bisector
+        of the LAD / LCX starting directions; candidates that clip the heart (incl. pulmonary trunk) are
+        rejected and the smoothest one is kept."""
+        step = min(self.q["vessel_step"], 0.0018)          # the short LM is sampled finely in both variants
+        sinus, exit_ = self.ostium(bif, VESSEL_R["lm"][0])
+        radial = unit(exit_ - sinus)
+        t_end = unit(unit(lad[min(3, len(lad) - 1)] - lad[0]) + unit(lcx[min(3, len(lcx) - 1)] - lcx[0]))
+        L = float(np.linalg.norm(bif - sinus))
+        bvhs = [self.heart_bvh] + ([FULL_HEART_BVH] if FULL_HEART_BVH is not None else [])
+        best, best_score = None, np.inf
+        for m0 in (0.3, 0.5, 0.7, 0.9, 1.1, 1.4):
+            for m1 in (0.2, 0.4, 0.6, 0.8, 1.0, 1.3):
+                H = hermite(sinus, bif, radial * L * m0, t_end * L * m1, max(5, int(L / step) + 1))
+                free = [q for q in H[2:-1] if self.aorta_bvh.find_nearest(Vector(q))[3] > 0.004]
+                clip = sum(any(inside(bv, q) or bv.find_nearest(Vector(q))[3] < 0.0013 for bv in bvhs)
+                           for q in free)
+                clip += sum(min(bv.find_nearest(Vector(q))[3] for bv in bvhs) > 0.0036 for q in free
+                            if self.aorta_bvh.find_nearest(Vector(q))[3] > 0.008)          # floating
+                P = np.vstack([H, lad[1:3]])                    # judge the bend into the LAD too
+                score = max(bend_angles(P).max(), bend_angles(P, BEND_CHORD).max()) + 40 * clip
+                if score < best_score:
+                    best, best_score = H, score
+        self.report["lm_length_mm"] = round(L * 1000, 1)
+        # relaxation-only pass (no surface pushes) to take the last degrees off; endpoints stay pinned
+        best = limit_bends(best, self.heart_bvh, VESSEL_OFFSET, fixed=[0, len(best) - 1], band_from=len(best) + 1)
+        best[-1] = bif
         return best
 
-    def build_coronaries(self):
-        fr, q = self.frame, self.q
-        aP, aR = self.aorta_path, self.aorta_r
-        def ostium(target, r_vessel):
-            """Sinus (inside the aortic wall) + radial exit on the first root ring whose wall point on this
-            vessel's side is clear of the heart, so the vessel never grazes or tunnels through tissue."""
-            for i in range(2, len(aP) - 2):
-                axis = unit(aP[i + 1] - aP[i - 1])
-                d = target - aP[i]
-                d = unit(d - d.dot(axis) * axis)
-                exit_ = aP[i] + d * (aR[i] + r_vessel + 0.0015)
-                if not inside(self.heart_bvh, exit_) and self.heart_bvh.find_nearest(Vector(exit_))[3] > 0.0015:
-                    return aP[i] + d * aR[i] * 0.85, exit_
-            raise RuntimeError("no clear ostium on the aortic root")
+    def _coronary_paths_procedural(self):
+        fr = self.frame
+        self.vessel_scale = 1.0
+        surface = lambda _fr, t, z: self.surf(t, z)          # noqa: E731
+        ostium = self.ostium
         left_sinus, left_exit = ostium(surface(fr, -28, 0.050), VESSEL_R["lm"][0])
         right_sinus, right_exit = ostium(surface(fr, -150, 0.042), VESSEL_R["main"][0])
         bif_tz = (-28, 0.050)
@@ -679,22 +1038,41 @@ class Builder:
             branch(lcx, (42, AV_GROOVE_Z), [(46, 0.012), (51, -0.008), (55, -0.026)]),
             branch(rca, (-176, AV_GROOVE_Z), [(-173, 0.012), (-169, -0.008), (-166, -0.028)]),
         ]
+        self.av_z = AV_GROOVE_Z
+        return paths, branches
+
+    def build_coronaries(self):
+        fr, q = self.frame, self.q
+        paths, branches = (self._coronary_paths_sketchfab() if self.source == "sketchfab"
+                           else self._coronary_paths_procedural())
+        lm, lad, lcx, rca = paths["lm"], paths["lad"], paths["lcx"], paths["rca"]
         segs = q["vessel_segs"]
+        k = self.vessel_scale
+        VR = VESSEL_R_SKETCHFAB if self.source == "sketchfab" else VESSEL_R
 
         def taper(P, r0, r1):
-            return np.linspace(r0, r1, len(P))
+            return np.linspace(r0 * k, r1 * k, len(P))
+        radii = {"lm": taper(lm, *VR["lm"]), "lad": taper(lad, *VR["main"]),
+                 "lcx": taper(lcx, *VR["main"]), "rca": taper(rca, *VR["main"])}
         tubes = {
-            "Coronary_LM": tube(paths["lm"], taper(lm, *VESSEL_R["lm"]), segs),
-            "Coronary_LAD": tube(lad, taper(lad, *VESSEL_R["main"]), segs),
-            "Coronary_LCX": tube(lcx, taper(lcx, *VESSEL_R["main"]), segs),
-            "Coronary_RCA": tube(rca, taper(rca, *VESSEL_R["main"]), segs),
-            "Coronary_Branches": merge(*[tube(b, taper(b, *VESSEL_R["branch"]), max(6, segs - 2)) for b in branches]),
+            "Coronary_LM": tube(lm, radii["lm"], segs),
+            "Coronary_LAD": tube(lad, radii["lad"], segs),
+            "Coronary_LCX": tube(lcx, radii["lcx"], segs),
+            "Coronary_RCA": tube(rca, radii["rca"], segs),
+            "Coronary_Branches": merge(*[tube(b, taper(b, *VR["branch"]), max(6, segs - 2)) for b in branches]),
         }
         for name, (v, f) in tubes.items():
             self.objs[name] = new_obj(name, v, f, self.coll)
         for key in ("lad", "lcx", "rca"):
             v, f = tube(paths[key], HIT_R, 6, caps=True, cap_rings=2)
             self.objs[f"Extra_Hit_{key.upper()}"] = new_obj(f"Extra_Hit_{key.upper()}", v, f, self.coll)
+            # outline shell: same centreline, +0.6 mm, inverted normals (front faces culled -> silhouette)
+            v, f = tube(paths[key], radii[key] + OUTLINE_EXTRA, segs, caps=True, cap_rings=2)
+            ob = new_obj(f"Extra_Outline_{key.upper()}", v, f, self.coll)
+            ob.data.flip_normals()
+            ob.data.update()
+            self.objs[f"Extra_Outline_{key.upper()}"] = ob
+        self.report["vessel_radius_scale"] = round(float(k), 3)
         self.paths = paths
         self.branch_paths = branches
         # centreline distance to the myocardium (report)
@@ -714,13 +1092,23 @@ class Builder:
     # ---------------------------------------------------------------- territories
     def build_territories(self):
         fr, q = self.frame, self.q
-        zc, zt = TERRITORY_Z
+        if self.source == "sketchfab":                     # re-derived on this ventricle surface
+            self.terr_z = (self.z_apex + 0.015, self.av_z - 0.006)
+        zc, zt = self.terr_z
+        surface = lambda _fr, t, z: self.surf(t, z)          # noqa: E731
         nz = max(4, int((zt - zc) / q["terr_dz"]))
         zs = np.linspace(zc, zt, nz)
         s = (zs - zc) / (zt - zc)
-        b_ant = -18 + 4 * s            # LAD | LCX (anterolateral)
-        b_post = 52 + 18 * s           # LCX | RCA (posterolateral)
-        b_right = -105 - 10 * s        # RCA | LAD (right ventricle / anterior septum)
+        tb = getattr(self, "terr_bounds", None)
+        if tb:                                       # re-derived from this heart's grooves (AHA, right-dominant)
+            b_ant = tb["lad_lcx"] + 4 * s            # LAD | LCX: anterolateral LV wall
+            b_post = tb["lcx_rca"] + 8 * s           # LCX | RCA: inferolateral, short of the posterior IVG
+            b_right = np.interp(zs, *tb["lad_path"]) - 15   # RCA | LAD: 15 deg on the RV side of the LAD
+        else:
+            b_ant = -18 + 4 * s            # LAD | LCX (anterolateral)
+            b_post = 52 + 18 * s           # LCX | RCA (posterolateral)
+            b_right = -105 - 10 * s        # RCA | LAD (right ventricle / anterior septum)
+        self.terr_b = (b_ant, b_post, b_right, zs)
         spans = {"lad": (b_right, b_ant), "lcx": (b_ant, b_post), "rca": (b_post, b_right + 360)}
 
         def patch(t0, t1):
@@ -733,10 +1121,11 @@ class Builder:
 
         def cap():
             n_t = int(360 / q["terr_dtheta"])
-            zc_s = np.linspace(Z_APEX + 0.0015, zc, max(3, int((zc - Z_APEX) / q["terr_dz"])))
+            za = self.z_apex
+            zc_s = np.linspace(za + 0.0015, zc, max(3, int((zc - za) / q["terr_dz"])))
             th = np.linspace(0, 360, n_t, endpoint=False)
             grid = np.array([[surface(fr, t, z) for t in th] for z in zc_s]).reshape(-1, 3)
-            V = np.vstack([grid, fr.c + Z_APEX * fr.ez])
+            V = np.vstack([grid, self.apex_point])
             pole = len(V) - 1
             F = [(i * n_t + k, (i + 1) * n_t + k, (i + 1) * n_t + (k + 1) % n_t, i * n_t + (k + 1) % n_t)
                  for i in range(len(zc_s) - 1) for k in range(n_t)]
@@ -747,7 +1136,7 @@ class Builder:
             v, f = patch(t0, t1)
             if key == "lad":
                 v, f = merge((v, f), cap())
-            v = np.array([(lambda r: r[0] + r[1] * TERRITORY_OFFSET)(smooth_normal(self.heart_bvh, p, 0.004))
+            v = np.array([(lambda r: r[0] + r[1] * TERRITORY_OFFSET)(smooth_normal(self.heart_bvh, p, 0.0015))
                           for p in v])
             name = f"Territory_{key.upper()}"
             ob = new_obj(name, v, f, self.coll, outward=False)
@@ -759,8 +1148,11 @@ class Builder:
                 me.update()
             self.objs[name] = ob
         self.feather_territories()
-        self.report["territory_boundaries_deg"] = {"lad|lcx": [-18, -14], "lcx|rca": [52, 70], "rca|lad": [-105, -115],
-                                                   "apical_cap_below_zp": zc}
+        self.report["territory_boundaries_deg"] = {"lad|lcx": [round(float(b_ant[0]), 1), round(float(b_ant[-1]), 1)],
+                                                   "lcx|rca": [round(float(b_post[0]), 1), round(float(b_post[-1]), 1)],
+                                                   "rca|lad": [round(float(b_right[0]), 1), round(float(b_right[-1]), 1)],
+                                                   "apical_cap_below_zp": round(float(zc), 4),
+                                                   "top_zp": round(float(zt), 4)}
 
     def feather_territories(self, width=TERRITORY_FEATHER):
         """Vertex-alpha feather (exported as COLOR_0 alpha): fade to 0 at outer edges and to 0.5 at
@@ -794,9 +1186,9 @@ class Builder:
             k_other = kd(np.vstack([bpts[m] for m in names if m != n]))
             shared = np.array([k_other.find(Vector(p))[2] < 0.0012 for p in own])
             outer = own[~shared]
-            if n == "Territory_LAD" and len(outer):      # internal seam between the LAD patch and apical cap
-                k_self = kd(outer)
-                outer = outer[[len(k_self.find_range(Vector(p), 0.0012)) <= 2 for p in outer]]
+            if n == "Territory_LAD" and len(outer):      # internal seam between the LAD patch and apical cap (z' = zc)
+                zp = (outer - self.frame.c) @ self.frame.ez
+                outer = outer[np.abs(zp - self.terr_z[0]) > 0.0015]
             k_out = kd(outer) if len(outer) else None
             k_sh = kd(own[shared]) if shared.any() else None
             V = verts_of(self.objs[n])
@@ -893,12 +1285,37 @@ class Builder:
                 self.boolean(ob, src, margin * scale, "DIFFERENCE")
             finish(ob, voxel=q["organ_voxel"], smooth_iter=smooth_iter if rnd == 0 else 1)
         finish(ob, target_tris=q["organ_tris"])
+        drop_small_islands(ob, 50)
         self.objs[name] = ob
         log(name, "tris", tri_count(ob))
         return ob
 
+    def solid_cutters(self):
+        """The Sketchfab heart is an open, double-sided shell: a voxel-remeshed copy would be a thin skin, not a
+        solid. Organs are therefore cleared against the convex hull of heart + arch and a tube around the
+        descending-aorta extension (both closed)."""
+        import bmesh
+        H = verts_of(self.objs["Heart_Myocardium"])
+        A = verts_of(self.objs["Aorta"])
+        arch = A[A[:, 2] > H[:, 2].min() + 0.5 * (H[:, 2].max() - H[:, 2].min())]
+        pts = np.vstack([H, arch])
+        bm = bmesh.new()
+        for p in pts:
+            bm.verts.new(p)
+        bmesh.ops.convex_hull(bm, input=bm.verts)
+        me = bpy.data.meshes.new("Extra_tmp_hull")
+        bm.to_mesh(me)
+        bm.free()
+        hull = bpy.data.objects.new("Extra_tmp_hull", me)
+        self.coll.objects.link(hull)
+        hull.data.update()
+        v, f = tube(self.sf.desc_path, self.sf.desc_r, 24, caps=True, cap_rings=2)
+        desc = new_obj("Extra_tmp_desc_cut", v, f, self.coll)
+        return [hull, desc]
+
     def build_organs(self):
-        obst = [self.objs["Heart_Myocardium"], self.objs["Aorta"]]
+        cutters = self.solid_cutters() if self.source == "sketchfab" else []
+        obst = list(cutters) or [self.objs["Heart_Myocardium"], self.objs["Aorta"]]   # copy: organs get appended
         lungs = []
         for sx, c, r in ((1, (0.095, 0.018, 1.300), (0.064, 0.090, 0.135)),
                          (-1, (-0.090, 0.018, 1.305), (0.068, 0.092, 0.140))):
@@ -941,6 +1358,8 @@ class Builder:
             legs.append(tube(leg, 0.62 * np.interp(t, [0, 0.12, 0.48, 0.62, 0.86, 1],
                                                     [0.082, 0.083, 0.056, 0.058, 0.040, 0.036]), 24))
         self.organ("Organ_Legs", legs, [], shell_margin=0.008)
+        for c in cutters:
+            bpy.data.objects.remove(c)
 
     # ---------------------------------------------------------------- anchors + views
     def anchor_point(self, obj_name, direction=(0, -1, 0), from_point=None, offset=0.03):
@@ -963,8 +1382,7 @@ class Builder:
             _, n = smooth_normal(self.heart_bvh, mid, 0.005)
             A[f"Anchor_{key.upper()}"] = mid + n * 0.03
         A["Anchor_Heart"] = self.anchor_point("Heart_Myocardium", (0.2, -1, 0.1))
-        top = self.aorta_path[np.argmax(self.aorta_path[:, 2])]
-        A["Anchor_Vessels"] = top + np.array([0, 0, AORTA_R[0] + 0.03])
+        A["Anchor_Vessels"] = self.arch_top + np.array([0, 0, 0.03])
         k = int(np.argmin(np.abs(self.aorta_path[:, 2] - (HEART_CENTROID_BODY[2] - 0.02)) +
                           (self.aorta_path[:, 1] < 0.02)))
         A["Anchor_Blood"] = self.aorta_path[k] + np.array([0.0, 0, 0]) + unit([1.0, 0.6, 0]) * (self.aorta_r[k] + 0.03)
@@ -994,7 +1412,7 @@ class Builder:
     def finalise(self):
         amap = self.amap
         offset = -verts_of(self.objs["Heart_Myocardium"]).mean(0)       # centroid -> origin
-        for ob in self.objs.values():
+        for ob in list(self.objs.values()) + ([self.chambers] if self.chambers else []):
             set_verts(ob, verts_of(ob) + offset)
         self.anchors = {k: v + offset for k, v in self.anchors.items()}
         self.views = {k: (c + offset, r, d) for k, (c, r, d) in self.views.items()}
@@ -1019,6 +1437,7 @@ class Builder:
                 roles.setdefault(m, dict(key=r["region"], role="region", display_name=r["display_name"]))
         for k in ("LAD", "LCX", "RCA"):
             roles[f"Extra_Hit_{k}"] = dict(key=k.lower(), role="hit", display_name=f"{k} hit proxy")
+            roles[f"Extra_Outline_{k}"] = dict(key=k.lower(), role="outline", display_name=f"{k} outline")
         neutral_hex = {m: ns["color"] for ns in amap["neutral_structures"] for m in ns["mesh_names"]}
 
         # materials (one Principled BSDF per mesh, MAT_<MeshName>)
@@ -1031,6 +1450,11 @@ class Builder:
                 mat = material(f"MAT_{name}", p["color"], p["rough"], alpha=p["alpha"], cull=False)
             elif name.startswith("Extra_Hit_"):
                 mat = material(f"MAT_{name}", "#FFFFFF", 1.0, alpha=0.0)
+            elif name.startswith("Extra_Outline_"):
+                mat = material(f"MAT_{name}", "#FFF6E8", 1.0, alpha=0.0, cull=True)
+            elif self.source == "sketchfab" and name in ("Heart_Myocardium", "Aorta"):
+                mat = ob.active_material.copy()            # original Sketchfab material values + textures
+                mat.name = f"MAT_{name}"
             elif name == "Torso_Shell":
                 p = PALETTE["Torso_Shell"]
                 mat = material(f"MAT_{name}", neutral_hex[name], p["rough"], alpha=p["alpha"], vcol=True)
@@ -1046,6 +1470,11 @@ class Builder:
             for k, v in roles.get(name, {}).items():
                 ob[k] = v
 
+        apex_lm = getattr(self, "apex_landmark", None)
+        apex_lm = self.apex_point if apex_lm is None else apex_lm + offset
+        self.objs["Heart_Myocardium"]["apex_gltf"] = [round(float(apex_lm[0]), 5), round(float(apex_lm[2]), 5),
+                                                    round(float(-apex_lm[1]), 5)]
+
         def gl(P):                                        # Blender Z-up -> glTF Y-up, 0.1 mm precision
             return [[round(float(x), 4), round(float(z), 4), round(float(-y), 4)] for x, y, z in P]
         cl = {"Coronary_LAD": [gl(self.paths["lad"])], "Coronary_LCX": [gl(self.paths["lcx"])],
@@ -1057,7 +1486,10 @@ class Builder:
         # vertex-colour AO on heart, aorta, torso only (never on coronaries)
         if AO_STRENGTH > 0:
             t0 = time.time()
-            for n, dist in (("Heart_Myocardium", 0.025), ("Aorta", 0.03), ("Torso_Shell", 0.12)):
+            ao = [("Torso_Shell", 0.12)]
+            if self.source == "procedural":                # the Sketchfab textures already carry their shading
+                ao += [("Heart_Myocardium", 0.025), ("Aorta", 0.03)]
+            for n, dist in ao:
                 bake_ao(self.objs[n], bvh_of(self.objs[n]), dist, self.q["ao_rays"], AO_STRENGTH)
             log(f"AO baked in {time.time() - t0:.1f}s")
 
@@ -1112,19 +1544,56 @@ class Builder:
         # territory coverage: rays from ventricular surface points along the normal
         terr = {k: bvh_of(self.objs[f"Territory_{k.upper()}"]) for k in ("lad", "lcx", "rca")}
         rng = np.random.default_rng(1)
-        pts = surface(self.frame_final, rng.uniform(-180, 180, 1500),
-                      rng.uniform(Z_APEX + 0.004, TERRITORY_Z[1] - 0.002, 1500))
+        th_s = rng.uniform(-180, 180, 1500)
+        z_s = rng.uniform(self.z_apex + 0.004, self.terr_z[1] - 0.002, 1500)
+        pts = self.surf(th_s, z_s)
+        # exclude samples that fall into openings of the source mesh (great-vessel orifices under the pulmonary
+        # trunk): their ray lands far inside the ring (radius < 75 % of the ring median at that height)
+        rad = np.linalg.norm((pts - self.frame.c) - np.outer((pts - self.frame.c) @ self.frame.ez, self.frame.ez), axis=1)
+        zbin = np.round(z_s / 0.002).astype(int)
+        med = {zb: np.median(rad[zbin == zb]) for zb in np.unique(zbin)}
+        on_surface = np.array([r >= 0.75 * med[zb] for r, zb in zip(rad, zbin)])
+        rep["territory_samples_in_openings"] = int((~on_surface).sum())
+        th_s, z_s, pts = th_s[on_surface], z_s[on_surface], pts[on_surface]
         counts = []
         for p in pts:
-            loc, n = smooth_normal(self.heart_bvh_final, p, 0.004)
+            loc, n = smooth_normal(self.heart_bvh_final, p, 0.0015)
             hits = 0
             for b in terr.values():
                 h = b.ray_cast(Vector(loc - n * 0.002), Vector(n), 0.006)
                 hits += h[0] is not None
             counts.append(hits)
         counts = np.array(counts)
-        rep["territory_gap_fraction"] = round(float((counts == 0).mean()), 4)
+        # second look with a long two-sided ray: separates real holes from sheets passing under an overhang
+        long_hits = []
+        for p, c in zip(pts, counts):
+            if c:
+                continue
+            loc, n = smooth_normal(self.heart_bvh_final, p, 0.0015)
+            hit = any(b.ray_cast(Vector(loc - n * 0.012), Vector(n), 0.024)[0] is not None for b in terr.values())
+            long_hits.append(hit)
+        rep["territory_gap_long_ray_resolved"] = int(sum(long_hits))
+        # exact coverage in (theta, z') parameter space (the patches share their boundary curves)
+        zc, zt = self.terr_z
+        ba, bp, br_, zs_b = self.terr_b
+        z_g = np.linspace(self.z_apex, zt, 200)
+        b_ant = np.interp(z_g, zs_b, ba)[:, None]
+        b_post = np.interp(z_g, zs_b, bp)[:, None]
+        b_right = np.interp(z_g, zs_b, br_)[:, None]
+        th_g, z_g = np.meshgrid(np.linspace(-180, 180, 721), z_g)
+        t = th_g
+        tt = np.where(t < b_right, t + 360, t)                    # continuous theta starting at b_right
+        lad = ((tt >= b_right) & (tt < b_ant)) | (z_g < zc)
+        lcx = (tt >= b_ant) & (tt < b_post) & (z_g >= zc)
+        rca = (tt >= b_post) & (tt < b_right + 360) & (z_g >= zc)
+        n_cov = lad.astype(int) + lcx + rca
+        rep["territory_param_gap_fraction"] = float((n_cov == 0).mean())
+        rep["territory_param_overlap_fraction"] = float((n_cov > 1).mean())
+        rep["territory_gap_fraction_short_ray"] = round(float((counts == 0).mean()), 4)
+        rep["territory_gap_fraction"] = round(float(((counts == 0).sum() - sum(long_hits)) / len(counts)), 4)
         rep["territory_overlap_fraction"] = round(float((counts > 1).mean()), 4)
+        rep["territory_gap_samples_theta_zmm"] = [[round(float(t), 1), round(float(z) * 1000, 1)]
+                                                 for t, z, c in zip(th_s, z_s, counts) if c == 0][:12]
         return rep
 
 
@@ -1133,39 +1602,78 @@ def reset_scene():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
 
-def patch_glb_alpha(path):
-    """Force alphaMode BLEND on the alpha-0 hit-proxy materials (the exporter emits MASK for alpha 0)."""
-    import struct
-    data = bytearray(path.read_bytes())
-    jlen = struct.unpack_from("<I", data, 12)[0]
-    gj = json.loads(bytes(data[20:20 + jlen]))
-    for m in gj.get("materials", []):
-        if m.get("name", "").startswith("MAT_Extra_Hit_"):
-            m["alphaMode"] = "BLEND"
-            m.pop("alphaCutoff", None)
-    js = json.dumps(gj, separators=(",", ":")).encode()
-    js += b" " * ((4 - len(js) % 4) % 4)
-    rest = data[20 + jlen:]
-    out = struct.pack("<4sII", b"glTF", 2, 12 + 8 + len(js) + len(rest)) + struct.pack("<I4s", len(js), b"JSON") + js + rest
-    path.write_bytes(out)
+def make_clinical_texture(b):
+    """Clinical variant base colour: painted vessel lines softened (dark thin lines replaced by the local
+    average), saturation -55 %, lifted toward a warm muted tissue tone. Realistic textures are untouched."""
+    from vessel_trace import box_blur
+    mat = b.objs["Heart_Myocardium"].active_material
+    img = next(n.image for n in mat.node_tree.nodes if n.type == "TEX_IMAGE" and "baseColor" in n.image.name)
+    W, H = img.size
+    px = np.empty(W * H * 4, np.float32)
+    img.pixels.foreach_get(px)
+    px = px.reshape(H, W, 4).astype(np.float64)
+    rgb = px[:, :, :3]
+    blur = np.stack([box_blur(rgb[:, :, k], 6, 6) for k in range(3)], -1)
+    L, Lb = rgb.mean(2), blur.mean(2)
+    m = box_blur(np.clip((Lb - L - 0.015) / 0.06, 0, 1), 2, 2)[:, :, None]
+    rgb = rgb * (1 - m) + blur * m
+    gray = rgb.mean(2, keepdims=True)
+    rgb = gray + (1 - CLINICAL["desaturate"]) * (rgb - gray)
+    tone = np.array(hex_rgb(CLINICAL["tone"]))
+    rgb = (1 - CLINICAL["tone_mix"]) * rgb + CLINICAL["tone_mix"] * tone
+    out = np.concatenate([np.clip(rgb, 0, 1), np.ones((H, W, 1))], -1).astype(np.float32)
+    clin = bpy.data.images.new("Heart_Tex_baseColor_clinical", W, H)
+    clin.pixels.foreach_set(out.ravel())
+    CACHE.mkdir(parents=True, exist_ok=True)
+    clin.filepath_raw = str(CACHE / "clinical_baseColor.png")
+    clin.file_format = "PNG"
+    clin.save()
+    b.clinical_image = clin
+    return CACHE / "clinical_baseColor.png"
 
 
-def export(path):
+def export(path, b):
+    """Blender -> raw glb (PNG textures, no compression) -> gltf_post.mjs (variants, attribution, alpha) ->
+    `npx gltf-transform resize | webp | draco` -> final glb."""
+    import shutil
+    import subprocess
     path.parent.mkdir(parents=True, exist_ok=True)
+    CACHE.mkdir(parents=True, exist_ok=True)
+    raw = CACHE / f"_raw_{path.stem}.glb"
     bpy.ops.export_scene.gltf(
-        filepath=str(path), export_format="GLB", export_yup=True, export_apply=True, export_extras=True,
+        filepath=str(raw), export_format="GLB", export_yup=True, export_apply=True, export_extras=True,
         export_vertex_color="ACTIVE", export_cameras=False, export_lights=False, use_selection=False,
-        export_draco_mesh_compression_enable=True, export_draco_mesh_compression_level=6,
-        export_draco_position_quantization=14, export_draco_normal_quantization=10,
-        export_draco_color_quantization=8)
-    patch_glb_alpha(path)
+        export_image_format="AUTO", export_draco_mesh_compression_enable=False)
+    if b.source == "sketchfab":
+        import sketchfab_heart as SH
+        clinical = str(make_clinical_texture(b) if not getattr(b, "clinical_image", None)
+                       else CACHE / "clinical_baseColor.png")
+        attribution, mods = SH.ATTRIBUTION, SH.MODIFICATIONS
+    else:
+        clinical, attribution, mods = "", "Procedurally generated in this repo (blender/build_heart.py), CC0", ""
+    npx = shutil.which("npx.cmd") or shutil.which("npx") or "npx"
+    node = shutil.which("node") or "node"
+    t1, t2, t3 = (CACHE / f"_{k}_{path.stem}.glb" for k in ("v", "r", "w"))
+    steps = [[node, str(ROOT / "blender" / "gltf_post.mjs"), str(raw), str(t1), clinical, attribution, mods]]
+    if b.source == "sketchfab":
+        steps += [[npx, "gltf-transform", "resize", str(t1), str(t2), "--width", str(b.q["tex_size"]),
+                   "--height", str(b.q["tex_size"])],
+                  [npx, "gltf-transform", "webp", str(t2), str(t3), "--quality", "90"]]
+    else:
+        t3 = t1
+    steps += [[npx, "gltf-transform", "draco", str(t3), str(path), "--quantize-position", "14",
+               "--quantize-normal", "10", "--quantize-color", "8", "--quantize-texcoord", "12"]]
+    for cmd in steps:
+        r = subprocess.run(cmd, cwd=str(ROOT), capture_output=True, text=True)
+        if r.returncode != 0:
+            raise RuntimeError(f"{' '.join(cmd[:3])} failed:\n{r.stdout}\n{r.stderr}")
     log("exported", path, f"{path.stat().st_size / 1e6:.2f} MB")
 
 
-def build_variant(amap, variant):
+def build_variant(amap, variant, source="sketchfab"):
     reset_scene()
     q = QUALITY[variant]
-    b = Builder(amap, q, variant)
+    b = Builder(amap, q, variant, source)
     t0 = time.time()
     b.build_heart()
     b.build_aorta()
@@ -1176,42 +1684,73 @@ def build_variant(amap, variant):
     b.build_anchors()
     b.finalise()
     b.frame_final = HeartFrame(b.frame.c + b.offset)
-    b.heart_bvh_final = bvh_of(b.objs["Heart_Myocardium"])
+    b.frame = b.frame_final
+    if b.chambers is not None:
+        b.surf_bvh = bvh_of(b.chambers)
+        b.heart_bvh_final = b.surf_bvh
+    else:
+        b.heart_bvh_final = bvh_of(b.objs["Heart_Myocardium"])
     b.anatomy_checks()
+    if b.chambers is not None:                        # helper surface is never exported
+        bpy.data.objects.remove(b.chambers)
+        b.chambers = None
     log(f"{variant} built in {time.time() - t0:.0f}s, {b.report['triangles_total']} triangles")
     return b
 
 
 # ------------------------------------------------------------------------------- renders
-def setup_render():
+def setup_render(res=None):
+    """Cycles with the shared viewer look: charcoal radial background for camera rays, CC0 studio HDRI for
+    lighting/reflections, ACES-style view transform."""
     sc = bpy.context.scene
+    look = VIEWER_LOOK
     sc.render.engine = "CYCLES"
     sc.cycles.device = "CPU"
     sc.cycles.samples = RENDER["samples"]
     sc.cycles.use_denoising = True
-    sc.render.resolution_x, sc.render.resolution_y = RENDER["res"]
-    sc.render.film_transparent = False
-    sc.view_settings.view_transform = "Standard"
+    sc.render.resolution_x, sc.render.resolution_y = res or RENDER["res"]
+    sc.render.film_transparent = True              # background composited afterwards (untone-mapped, like CSS)
+    used = None
+    for vt in ("ACES 2.0", "ACES 1.3", "ACES", "AgX"):      # ACES if this Blender build has it, else AgX
+        try:
+            sc.view_settings.view_transform = vt
+            used = vt
+            break
+        except TypeError:
+            continue
     sc.view_settings.look = "None"
+    sc.view_settings.exposure = 0.0
+    look.setdefault("blender", {})["view_transform"] = used
     world = bpy.data.worlds.new("Extra_World")
     sc.world = world
     world.use_nodes = True
     nt = world.node_tree
     nt.nodes.clear()
     out = nt.nodes.new("ShaderNodeOutputWorld")
-    tc = nt.nodes.new("ShaderNodeTexCoord")
-    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
-    ramp = nt.nodes.new("ShaderNodeValToRGB")
-    ramp.color_ramp.elements[0].color = list(srgb_to_lin(hex_rgb("#D8D3CD"))) + [1]
-    ramp.color_ramp.elements[1].color = list(srgb_to_lin(hex_rgb("#F4F1ED"))) + [1]
-    bg_cam = nt.nodes.new("ShaderNodeBackground")
+    env = nt.nodes.new("ShaderNodeTexEnvironment")
+    env.image = bpy.data.images.load(str(ROOT / look["environment"]["hdri"]), check_existing=True)
     bg_light = nt.nodes.new("ShaderNodeBackground")
-    bg_light.inputs["Color"].default_value = list(srgb_to_lin(hex_rgb("#EEEAE5"))) + [1]
-    bg_light.inputs["Strength"].default_value = 0.55
+    bg_light.inputs["Strength"].default_value = look["environment"]["intensity"]
+    nt.links.new(env.outputs["Color"], bg_light.inputs["Color"])
+    tc = nt.nodes.new("ShaderNodeTexCoord")
+    sub = nt.nodes.new("ShaderNodeVectorMath")
+    sub.operation = "SUBTRACT"
+    sub.inputs[1].default_value = (0.5, 0.5, 0.0)
+    ln = nt.nodes.new("ShaderNodeVectorMath")
+    ln.operation = "LENGTH"
+    sc_ = nt.nodes.new("ShaderNodeMath")
+    sc_.operation = "DIVIDE"
+    sc_.inputs[1].default_value = look["background"]["radius"]
+    ramp = nt.nodes.new("ShaderNodeValToRGB")
+    ramp.color_ramp.elements[0].color = list(srgb_to_lin(hex_rgb(look["background"]["center"]))) + [1]
+    ramp.color_ramp.elements[1].color = list(srgb_to_lin(hex_rgb(look["background"]["edge"]))) + [1]
+    bg_cam = nt.nodes.new("ShaderNodeBackground")
     lp = nt.nodes.new("ShaderNodeLightPath")
     mix = nt.nodes.new("ShaderNodeMixShader")
-    nt.links.new(tc.outputs["Window"], sep.inputs[0])
-    nt.links.new(sep.outputs["Y"], ramp.inputs["Fac"])
+    nt.links.new(tc.outputs["Window"], sub.inputs[0])
+    nt.links.new(sub.outputs[0], ln.inputs[0])
+    nt.links.new(ln.outputs["Value"], sc_.inputs[0])
+    nt.links.new(sc_.outputs[0], ramp.inputs["Fac"])
     nt.links.new(ramp.outputs["Color"], bg_cam.inputs["Color"])
     nt.links.new(lp.outputs["Is Camera Ray"], mix.inputs["Fac"])
     nt.links.new(bg_light.outputs[0], mix.inputs[1])
@@ -1235,14 +1774,13 @@ def place_rig(pos, target, up, scale):
     bpy.context.scene.camera = cam
     d = np.linalg.norm(pos - target)
     back = -fwd
-    for name, offs, energy, size, color in (
-            ("key", -0.8 * right + 0.9 * u + 0.6 * back, 10.0, 0.9, "#FFF4EA"),
-            ("fill", 1.0 * right + 0.1 * u + 0.7 * back, 3.5, 1.4, "#EEF2FF"),
-            ("rim", 0.3 * right + 0.7 * u - 1.0 * back, 7.0, 0.7, "#FFFFFF")):
+    for L in VIEWER_LOOK["lights"]:                     # camera-space directions (x right, y up, z to viewer)
+        name, (dx, dy, dz) = L["name"], L["direction"]
+        offs = dx * right + dy * u + dz * back
         ld = bpy.data.lights.new(f"Extra_Render_{name}", "AREA")
-        ld.size = size * d
-        ld.energy = energy * (1.1 * d) ** 2 * scale          # ~constant irradiance at the subject
-        ld.color = hex_rgb(color)
+        ld.size = L["size_rel"] * d
+        ld.energy = L["cycles_irradiance"] * (1.1 * d) ** 2 * scale     # ~constant irradiance at the subject
+        ld.color = hex_rgb(L["color"])
         lo = bpy.data.objects.new(f"Extra_Render_{name}", ld)
         bpy.context.scene.collection.objects.link(lo)
         lp = target + unit(offs) * d * 1.1
@@ -1254,7 +1792,7 @@ def place_rig(pos, target, up, scale):
 
 def visibility(b, body=False, territories=False):
     for name, ob in b.objs.items():
-        hidden = name.startswith("Extra_Hit_")
+        hidden = name.startswith(("Extra_Hit_", "Extra_Outline_"))
         if name.startswith("Territory_"):
             hidden = not territories
         if name == "Torso_Shell" or name.startswith("Organ_"):
@@ -1262,10 +1800,34 @@ def visibility(b, body=False, territories=False):
         ob.hide_render = hidden
 
 
+def composite_background(path):
+    """Alpha-composite the render over the viewer_look radial gradient (exact sRGB colours)."""
+    img = bpy.data.images.load(str(path), check_existing=False)
+    W, H = img.size
+    px = np.empty(W * H * 4, np.float32)
+    img.pixels.foreach_get(px)
+    px = px.reshape(H, W, 4)
+    bg = VIEWER_LOOK["background"]
+    yy, xx = np.mgrid[0:H, 0:W]
+    r = np.sqrt(((xx - W / 2) / W) ** 2 + ((yy - H / 2) / W) ** 2) / bg["radius"]
+    t = np.clip(r, 0, 1)[..., None]
+    grad = (1 - t) * np.array(hex_rgb(bg["center"])) + t * np.array(hex_rgb(bg["edge"]))
+    a = px[..., 3:4]
+    px[..., :3] = px[..., :3] * a + grad * (1 - a)
+    px[..., 3] = 1.0
+    img.pixels.foreach_set(px.ravel())
+    img.filepath_raw = str(path)
+    img.file_format = "PNG"
+    img.save()
+    bpy.data.images.remove(img)
+
+
 def render(path):
     bpy.context.scene.render.filepath = str(path)
     t0 = time.time()
     bpy.ops.render.render(write_still=True)
+    if bpy.context.scene.render.film_transparent:
+        composite_background(path)
     log("rendered", path.name, f"{time.time() - t0:.0f}s")
 
 
@@ -1278,47 +1840,169 @@ def set_color(ob, hex_color, emission=0.0):
         bsdf.inputs["Emission Strength"].default_value = emission
 
 
+def set_look(b, look):
+    """Realistic = original Sketchfab materials. Clinical = clinical base colour, roughness 0.65, normal 0.4
+    (the same values gltf_post.mjs writes into the KHR_materials_variants 'clinical' variant)."""
+    if b.source != "sketchfab":
+        return
+    if not hasattr(b, "look_mats"):
+        b.look_mats = {}
+        for n in ("Heart_Myocardium", "Aorta"):
+            real = b.objs[n].active_material
+            clin = real.copy()
+            clin.name = f"{real.name}_clinical"
+            nt = clin.node_tree
+            bsdf = next(x for x in nt.nodes if x.type == "BSDF_PRINCIPLED")
+            for node in nt.nodes:
+                if node.type == "TEX_IMAGE" and "baseColor" in node.image.name:
+                    node.image = b.clinical_image
+                if node.type == "NORMAL_MAP":
+                    node.inputs["Strength"].default_value = CLINICAL["normal_scale"]
+            for sock in ("Roughness", "Metallic"):
+                for link in list(bsdf.inputs[sock].links):
+                    nt.links.remove(link)
+            bsdf.inputs["Roughness"].default_value = CLINICAL["roughness"]
+            bsdf.inputs["Metallic"].default_value = 0.0
+            b.look_mats[n] = {"realistic": real, "clinical": clin}
+    for n, mats in b.look_mats.items():
+        b.objs[n].material_slots[0].material = mats[look]
+
+
+def outline_material(hex_color):
+    """Cycles stand-in for the app's outline: the inverted shell shows only where it extends past the vessel
+    (front-facing = transparent, back-facing = emissive)."""
+    m = bpy.data.materials.new("Extra_Render_outline")
+    m.use_nodes = True
+    nt = m.node_tree
+    nt.nodes.clear()
+    o = nt.nodes.new("ShaderNodeOutputMaterial")
+    em = nt.nodes.new("ShaderNodeEmission")
+    em.inputs["Color"].default_value = list(srgb_to_lin(hex_rgb(hex_color))) + [1]
+    em.inputs["Strength"].default_value = 2.5
+    tr = nt.nodes.new("ShaderNodeBsdfTransparent")
+    geo = nt.nodes.new("ShaderNodeNewGeometry")
+    mix = nt.nodes.new("ShaderNodeMixShader")
+    nt.links.new(geo.outputs["Backfacing"], mix.inputs["Fac"])
+    nt.links.new(em.outputs[0], mix.inputs[1])
+    nt.links.new(tr.outputs[0], mix.inputs[2])
+    nt.links.new(mix.outputs[0], o.inputs["Surface"])
+    return m
+
+
 def do_renders(b, out_dir, demo_colors, lite=False):
     setup_render()
     out_dir.mkdir(parents=True, exist_ok=True)
     if lite:
-        visibility(b)
-        pos, c, up = b.view_poses["Extra_View_Front"]
-        place_rig(pos, c, up, 1.0)
-        render(out_dir / "_lite_front.png")
-        return
-    for view, fname in (("Extra_View_Front", "heart_front.png"), ("Extra_View_Left", "heart_left.png"),
-                        ("Extra_View_Posterior", "heart_posterior.png")):
-        visibility(b)
-        place_rig(*b.view_poses[view], 1.0)
-        render(out_dir / fname)
-    visibility(b, body=True)
-    place_rig(*b.view_poses["Extra_View_Body"], 1.0)
-    render(out_dir / "body_front.png")
-    if demo_colors:
-        for key in ("lad", "lcx", "rca"):
-            set_color(b.objs[f"Coronary_{key.upper()}"], demo_colors[key], 0.6 if demo_colors.get(f"{key}_flag") else 0)
+        set_look(b, "realistic")
         visibility(b)
         place_rig(*b.view_poses["Extra_View_Front"], 1.0)
-        render(out_dir / "heart_demo_risk.png")
-        for key in ("lad", "lcx", "rca"):
-            ob = b.objs[f"Territory_{key.upper()}"]
-            set_color(ob, demo_colors[key])
-            nt = ob.active_material.node_tree
-            vc = nt.nodes.new("ShaderNodeVertexColor")
-            vc.layer_name = "Col"
-            mul = nt.nodes.new("ShaderNodeMath")
-            mul.operation = "MULTIPLY"
-            mul.inputs[1].default_value = PALETTE["Territory"]["alpha"]
-            nt.links.new(vc.outputs["Alpha"], mul.inputs[0])
-            nt.links.new(mul.outputs[0], nt.nodes["Principled BSDF"].inputs["Alpha"])
-        visibility(b, territories=True)
-        render(out_dir / "territories_demo.png")
-        # restore neutral base colours in the saved scene
-        for key in ("lad", "lcx", "rca"):
-            set_color(b.objs[f"Coronary_{key.upper()}"], PALETTE["Coronary"]["color"])
-            set_color(b.objs[f"Territory_{key.upper()}"], PALETTE["Territory"]["color"])
+        render(out_dir / "_lite_front.png")
+        return
+    looks = ("realistic", "clinical") if b.source == "sketchfab" else ("realistic",)
+    for look in looks:
+        sfx = "" if look == "realistic" else "_clinical"
+        set_look(b, look)
+        for view, fname in (("Extra_View_Front", "heart_front"), ("Extra_View_Left", "heart_left"),
+                            ("Extra_View_Posterior", "heart_posterior")):
+            visibility(b)
+            place_rig(*b.view_poses[view], 1.0)
+            render(out_dir / f"{fname}{sfx}.png")
+        visibility(b, body=True)
+        place_rig(*b.view_poses["Extra_View_Body"], 1.0)
+        render(out_dir / f"body_front{sfx}.png")
+        if demo_colors:
+            saved = {}
+            for key in ("lad", "lcx", "rca"):
+                ob = b.objs[f"Coronary_{key.upper()}"]
+                flag = demo_colors.get(f"{key}_flag")
+                set_color(ob, demo_colors[key], 0.8 if flag else 0)
+                if flag:                                   # flagged: glow + outline
+                    ol = b.objs[f"Extra_Outline_{key.upper()}"]
+                    saved[ol.name] = ol.material_slots[0].material
+                    ol.material_slots[0].material = outline_material("#FFF3E0")
+            visibility(b)
+            for name in saved:
+                b.objs[name].hide_render = False
+            place_rig(*b.view_poses["Extra_View_Front"], 1.0)
+            render(out_dir / f"heart_demo_risk{sfx}.png")
+            for name, m in saved.items():
+                b.objs[name].material_slots[0].material = m
+            for key in ("lad", "lcx", "rca"):
+                ob = b.objs[f"Territory_{key.upper()}"]
+                set_color(ob, demo_colors[key])
+                nt = ob.active_material.node_tree
+                if not any(n.type == "VERTEX_COLOR" for n in nt.nodes):
+                    vc = nt.nodes.new("ShaderNodeVertexColor")
+                    vc.layer_name = "Col"
+                    mul = nt.nodes.new("ShaderNodeMath")
+                    mul.operation = "MULTIPLY"
+                    mul.inputs[1].default_value = PALETTE["Territory"]["alpha"]
+                    nt.links.new(vc.outputs["Alpha"], mul.inputs[0])
+                    nt.links.new(mul.outputs[0], nt.nodes["Principled BSDF"].inputs["Alpha"])
+            visibility(b, territories=True)
+            render(out_dir / f"territories_demo{sfx}.png")
+            for key in ("lad", "lcx", "rca"):                # restore neutral base colours
+                set_color(b.objs[f"Coronary_{key.upper()}"], PALETTE["Coronary"]["color"])
+                bsdf = b.objs[f"Coronary_{key.upper()}"].active_material.node_tree.nodes["Principled BSDF"]
+                bsdf.inputs["Emission Strength"].default_value = 0.0
+                set_color(b.objs[f"Territory_{key.upper()}"], PALETTE["Territory"]["color"])
+    set_look(b, "realistic")
+    if b.source == "sketchfab":
+        render_compare(b, out_dir)
     visibility(b)
+
+
+def render_compare(b, out_dir):
+    """Our realistic heart from the Sketchfab default front view (same viewing direction relative to the
+    model, same portrait framing as reference/01_front.jpg) -> composed next to the reference by make_all."""
+    R = b.sf.R
+    d = unit(R @ np.array([0, -1.0, 0.10]))
+    up = unit(R @ np.array([0, 0, 1.0]))
+    hv = np.vstack([verts_of(b.objs["Heart_Myocardium"]), verts_of(b.objs["Aorta"])])
+    hv = hv[hv[:, 2] > np.percentile(verts_of(b.objs["Heart_Myocardium"])[:, 2], 0)]    # heart + arch region
+    c = (hv.min(0) + hv.max(0)) / 2
+    r = np.percentile(np.linalg.norm(verts_of(b.objs["Heart_Myocardium"]) - c, axis=1), 99.5)
+    dist = r * 1.12 / math.tan(math.radians(RENDER["vfov_deg"]) / 2)
+    setup_render(res=(800, 898))
+    visibility(b)
+    place_rig(c + d * dist, c, up, 1.0)
+    render(out_dir / "_ours_front_for_compare.png")
+    setup_render()
+
+
+def render_source_views(out_dir):
+    """6 orthographic views of the untouched source model -> artifacts/figures/src_*.png (inspection)."""
+    import sketchfab_heart as SH
+    reset_scene()
+    bpy.ops.import_scene.gltf(filepath=str(SH.SRC_GLTF))
+    sc = bpy.context.scene
+    sc.render.engine = "BLENDER_EEVEE"
+    sc.render.resolution_x = sc.render.resolution_y = 700
+    sc.view_settings.view_transform = "Standard"
+    w = bpy.data.worlds.new("w")
+    sc.world = w
+    w.use_nodes = True
+    w.node_tree.nodes["Background"].inputs[0].default_value = (0.25, 0.25, 0.25, 1)
+    w.node_tree.nodes["Background"].inputs[1].default_value = 1.5
+    cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam"))
+    sc.collection.objects.link(cam)
+    sc.camera = cam
+    cam.data.type, cam.data.ortho_scale = "ORTHO", 1.8
+    sun = bpy.data.objects.new("sun", bpy.data.lights.new("sun", "SUN"))
+    sun.data.energy = 3
+    sc.collection.objects.link(sun)
+    for name, dv in {"front": (0, -1, 0), "back": (0, 1, 0), "left": (1, 0, 0), "right": (-1, 0, 0),
+                     "top": (0, 0, 1), "bottom": (0, 0, -1)}.items():
+        pos = np.array(dv, float) * 3
+        f = unit(-pos)
+        upv = np.array([0, 1.0, 0]) if abs(f[2]) > 0.99 else np.array([0, 0, 1.0])
+        rr = unit(np.cross(f, upv))
+        uu = np.cross(rr, f)
+        M = Matrix.Translation(Vector(pos)) @ Matrix(np.stack([rr, uu, -f], 1).tolist()).to_4x4()
+        cam.matrix_world = M
+        sun.matrix_world = Matrix.Translation(Vector(pos + np.array([0.5, 0, 0.5]))) @ M.to_3x3().to_4x4()
+        sc.render.filepath = str(out_dir / f"src_{name}.png")
+        bpy.ops.render.render(write_still=True)
 
 
 # =============================================================================== main
@@ -1331,6 +2015,7 @@ def main():
     ap.add_argument("--renders", default="")
     ap.add_argument("--demo-colors", default="")
     ap.add_argument("--report", default=str(ROOT / "artifacts" / "asset_build_report.json"))
+    ap.add_argument("--heart-source", choices=("sketchfab", "procedural"), default="sketchfab")
     a = ap.parse_args(argv)
     for k in ("out", "lite", "blend", "renders", "report"):          # Blender resolves relative paths oddly
         if getattr(a, k):
@@ -1338,13 +2023,16 @@ def main():
     amap = json.loads(MAP_PATH.read_text(encoding="utf-8"))
     demo = json.loads(a.demo_colors) if a.demo_colors else {}
     reports = {}
-    b = build_variant(amap, "lite")
-    export(Path(a.lite))
+    LOOK_PATH.write_text(json.dumps(VIEWER_LOOK, indent=1), encoding="utf-8")
+    if a.renders and a.heart_source == "sketchfab":
+        render_source_views(Path(a.renders))
+    b = build_variant(amap, "lite", a.heart_source)
+    export(Path(a.lite), b)
     reports["lite"] = b.report
     if a.renders:
         do_renders(b, Path(a.renders), demo, lite=True)
-    b = build_variant(amap, "full")
-    export(Path(a.out))
+    b = build_variant(amap, "full", a.heart_source)
+    export(Path(a.out), b)
     reports["full"] = b.report
     if a.renders:
         do_renders(b, Path(a.renders), demo)
@@ -1352,7 +2040,8 @@ def main():
         reports.setdefault("anchors", {})[k] = [round(float(x), 4) for x in v]
     Path(a.blend).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.wm.save_as_mainfile(filepath=str(Path(a.blend)), compress=True)
-    Path(a.report).write_text(json.dumps(reports, indent=1), encoding="utf-8")
+    Path(a.report).write_text(json.dumps(reports, indent=1, default=float), encoding="utf-8")
+    LOOK_PATH.write_text(json.dumps(VIEWER_LOOK, indent=1), encoding="utf-8")   # + the view transform used
     log("report", json.dumps({v: {k: r[k] for k in r if k != "triangles"} for v, r in reports.items()
                               if v in ("full", "lite")}, indent=1))
 

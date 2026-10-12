@@ -5,7 +5,7 @@ _Generated from `artifacts/anatomy_map.json` by `cardio_ml.anatomy.write_asset_s
 ## Export
 * One file, glTF 2.0 binary (.glb): Y-up, in metres, with the origin at the heart centroid.
 * **Budget:** at most 150,000 triangles in total, at most 10 MB, with `KHR_draco_mesh_compression`. It must run in a browser without a dedicated GPU.
-* **Materials:** exactly 1 material per mesh; base colour set at runtime; no baked colours or textures on coronary meshes.
+* **Materials:** exactly 1 material per mesh; coronary/territory/helper colours set at runtime; Heart_Myocardium and Aorta keep the source PBR textures (WebP) with a KHR_materials_variants 'clinical' variant.
 * **Validation:** `python -c "from cardio_ml.anatomy import validate_glb_names as v; print(v('heart.glb'))"` must return `ok: True`.
 
 ## Required meshes (exact names)
@@ -46,4 +46,6 @@ Place each anchor at the centre of its structure, slightly in front of it, to ac
 ## Sources and licences
 | source | url | licence | model / author | attribution text |
 |---|---|---|---|---|
+| Realistic Human Heart | https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089 | CC BY 4.0 | neshallads (https://sketchfab.com/neshallads) | This work is based on "Realistic Human Heart" (https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089) by neshallads (https://sketchfab.com/neshallads) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/) |
 | Procedurally generated in this repo | blender/build_heart.py | CC0 1.0 (public domain dedication) | Track A team | none required |
+| Studio Small 09 (HDRI, render/preview lighting only) | https://polyhaven.com/a/studio_small_09 | CC0 | Poly Haven | none required (credited in README) |
