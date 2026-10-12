@@ -69,7 +69,7 @@ export function ExportMenu() {
   return (
     <DM.Root>
       <DM.Trigger asChild>
-        <Button variant="ghost" aria-label="Export" disabled={busy} data-testid="export-menu">
+        <Button variant="ghost" aria-label="Export" disabled={busy} data-testid="export-menu" className="px-2 md:px-3">
           <Share aria-hidden className="h-4 w-4" />
           <span className="hidden md:inline">{busy ? "Preparing…" : "Export"}</span>
           <ChevronDown aria-hidden className="hidden h-4 w-4 opacity-70 md:inline" />

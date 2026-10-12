@@ -22,7 +22,7 @@ export function TopBar({
 }) {
   const setUi = useStore((s) => s.setUi);
   return (
-    <header className="flex h-14 shrink-0 items-center gap-2 border-b border-line bg-s1 px-2 sm:gap-3 sm:px-4">
+    <header className="flex h-14 shrink-0 items-center gap-0.5 border-b border-line bg-s1 px-2 sm:gap-3 sm:px-4">
       {showPanelToggle && (
         <IconButton label="Patient inputs" onClick={() => setUi({ leftOpen: true })}>
           <PanelLeft />

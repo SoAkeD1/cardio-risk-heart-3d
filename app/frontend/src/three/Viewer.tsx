@@ -165,15 +165,15 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
   const loaded = useModelStatus((s) => s.loaded);
   const reduced = useMemo(() => prefersReducedMotion(), []);
   const declined = useRef(false);
-  const [width, setWidth] = useState(() => (typeof window === "undefined" ? 1000 : window.innerWidth));
+  const [size, setSize] = useState(() => ({ w: typeof window === "undefined" ? 1000 : window.innerWidth, h: 800 }));
   const ro = useRef<ResizeObserver | null>(null);
   const root = useCallback((el: HTMLDivElement | null) => {
     ro.current?.disconnect();
     if (!el) return;
-    ro.current = new ResizeObserver(([e]) => setWidth(e!.contentRect.width));
+    ro.current = new ResizeObserver(([e]) => setSize({ w: e!.contentRect.width, h: e!.contentRect.height }));
     ro.current.observe(el);
   }, []);
-  const compact = width < 640;
+  const compact = size.w < 640 || size.h < 440; // narrow or short canvas: collapsed legend, overflow menu
 
   // lite when the user chose it, or (auto) on low-memory / touch / mobile devices
   useEffect(() => {
