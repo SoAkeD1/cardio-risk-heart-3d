@@ -76,7 +76,8 @@ def main():
             ax.axis("off")
         fig.tight_layout()
         fig.savefig(figs / "compare_sketchfab_vs_ours.png", dpi=100, bbox_inches="tight")
-    sys.exit(chk.returncode)
+    guard = subprocess.run([sys.executable, str(ROOT / "scripts" / "check_no_hardcoding.py")])
+    sys.exit(chk.returncode or guard.returncode)
 
 
 if __name__ == "__main__":

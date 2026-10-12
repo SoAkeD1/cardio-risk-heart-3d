@@ -6,7 +6,7 @@ import type { PredictOut, Target, Vessel, WhatIfOut } from "../api/types";
 import { safeStorage } from "../lib/storage";
 
 export type Val = number | string;
-export type Preset = "front" | "left" | "posterior" | "body";
+export type Preset = string; // a view key from anatomy_map.viewer.views
 export type Look = "realistic" | "clinical";
 export type Perf = "auto" | "quality" | "lite";
 
@@ -19,6 +19,7 @@ export type ViewState = {
   heartbeat: boolean;
   turntable: boolean;
   performance: Perf;
+  education: boolean; // optional general-education card (off by default)
 };
 export type UiState = {
   theme: "dark" | "light";
@@ -38,6 +39,17 @@ export type WhatIf = {
   error?: string;
 };
 
+/** One input change and its model-estimated effect (all values from the API responses). */
+export type ChangeEvent = {
+  id: number;
+  at: number;
+  features: { name: string; old: Val; new: Val }[];
+  deltas: Record<string, number>; // target -> new prob - previous prob
+  tierFrom?: string;
+  tierTo?: string;
+};
+export type RequestLogEntry = { at: number; payload: unknown; latencyMs?: number; status: "ok" | "error" | "aborted" | "pending"; changed: string[] };
+
 export type State = {
   patient: Record<string, Val>;
   defaults: Record<string, Val>;
@@ -48,6 +60,13 @@ export type State = {
   error?: string;
   fieldErrors: Record<string, string>;
   offline: boolean;
+  /** the shown prediction is older than the current inputs or the service is unreachable */
+  stale: boolean;
+  /** bumped to re-send the current patient (e.g. after the backend comes back) */
+  resendNonce: number;
+  changeEvent?: ChangeEvent;
+  changeHistory: ChangeEvent[];
+  requestLog: RequestLogEntry[];
   whatIf: WhatIf;
   selection: { target?: Vessel; hover?: string };
   explainTarget: Target;
@@ -66,6 +85,10 @@ export type State = {
   setPending: (b: boolean) => void;
   setError: (e?: string, fields?: Record<string, string>) => void;
   setOffline: (b: boolean) => void;
+  setStale: (b: boolean) => void;
+  resend: () => void;
+  pushChange: (e: ChangeEvent) => void;
+  logRequest: (e: RequestLogEntry) => void;
   select: (t?: Vessel) => void;
   hover: (h?: string) => void;
   setExplainTarget: (t: Target) => void;
@@ -80,13 +103,14 @@ export type State = {
 
 export const defaultView: ViewState = {
   mode: "heart",
-  preset: "front",
+  preset: "", // empty = first heart view of anatomy_map.viewer.views
   look: "realistic",
   territories: false,
   xray: 0.18,
   heartbeat: true,
   turntable: false,
   performance: "auto",
+  education: false,
 };
 const defaultUi: UiState = { theme: "dark", leftOpen: true, rightTab: "risk", tourDone: false, legendOpen: true };
 const emptyWhatIf: WhatIf = { enabled: false, changes: {}, pending: false, showOnHeart: false, peek: false };
@@ -100,6 +124,10 @@ export const useStore = create<State>()(
       pending: false,
       fieldErrors: {},
       offline: false,
+      stale: false,
+      resendNonce: 0,
+      changeHistory: [],
+      requestLog: [],
       whatIf: emptyWhatIf,
       selection: {},
       explainTarget: "cad",
@@ -117,6 +145,8 @@ export const useStore = create<State>()(
           patient: { ...s.defaults, ...features },
           hasPatient: true,
           caseId: id,
+          changeHistory: [],
+          changeEvent: undefined,
           whatIf: { ...emptyWhatIf },
           fieldErrors: {},
         })),
@@ -129,7 +159,11 @@ export const useStore = create<State>()(
       setPrediction: (p) => set({ prediction: p }),
       setPending: (b) => set({ pending: b }),
       setError: (e, fields) => set({ error: e, fieldErrors: fields ?? {} }),
-      setOffline: (b) => set({ offline: b }),
+      setOffline: (b) => set((s) => ({ offline: b, stale: b ? !!s.prediction : s.stale })),
+      setStale: (b) => set({ stale: b }),
+      resend: () => set((s) => ({ resendNonce: s.resendNonce + 1 })),
+      pushChange: (e) => set((s) => ({ changeEvent: e, changeHistory: [e, ...s.changeHistory].slice(0, 5) })),
+      logRequest: (e) => set((s) => ({ requestLog: [e, ...s.requestLog].slice(0, 20) })),
       select: (t) =>
         set((s) => ({
           selection: { ...s.selection, target: t },
@@ -171,7 +205,7 @@ export const useStore = create<State>()(
         const p = (persisted ?? {}) as Partial<State>;
         return {
           ...current,
-          view: { ...current.view, ...(p.view ?? {}), turntable: false },
+          view: { ...current.view, ...(p.view ?? {}), turntable: false, education: false },
           ui: { ...current.ui, ...(p.ui ?? {}) },
         };
       },

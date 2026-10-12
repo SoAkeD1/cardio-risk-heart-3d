@@ -1,19 +1,18 @@
 import { useState } from "react";
-import { useAnatomyMap, useFeatureIndex } from "../../api/hooks";
-import { TARGETS, type Target } from "../../api/types";
+import { useAnatomyMap, useFeatureIndex, useTargets } from "../../api/hooks";
+import type { Target } from "../../api/types";
 import { useStore } from "../../state/store";
 import { Button } from "../../ui/Button";
 import { TabsContent, TabsList, TabsRoot } from "../../ui/Tabs";
 import { ShapWaterfall } from "./ShapWaterfall";
 
-export const TARGET_LABEL: Record<Target, string> = { cad: "CAD", lad: "LAD", lcx: "LCX", rca: "RCA" };
-
 export function TargetTabs({ children }: { children?: React.ReactNode }) {
   const t = useStore((s) => s.explainTarget);
   const setT = useStore((s) => s.setExplainTarget);
+  const targets = useTargets();
   return (
     <TabsRoot value={t} onValueChange={(v) => setT(v as Target)}>
-      <TabsList label="Explain which estimate" items={TARGETS.map((x) => ({ value: x, label: TARGET_LABEL[x] }))} />
+      <TabsList label="Explain which estimate" items={targets.map((x) => ({ value: x.key, label: x.label }))} />
       <TabsContent value={t} className="mt-3 space-y-3 outline-none">
         {children}
       </TabsContent>
@@ -29,7 +28,7 @@ export function WhyPanel() {
   const [all, setAll] = useState(false);
   if (!p) return null;
   const rows = p.contributions[t] ?? [];
-  const prob = t === "cad" ? p.prediction.cad.prob : p.prediction[t].prob;
+  const prob = p.prediction[t].prob;
   return (
     <div className="space-y-3 px-4 py-3" data-testid="why-panel">
       <TargetTabs>
@@ -41,8 +40,8 @@ export function WhyPanel() {
           prob={prob}
           k={all ? rows.length : 8}
           fx={fx}
-          raises={map?.style.regions.raises_color ?? "#E4572E"}
-          lowers={map?.style.regions.lowers_color ?? "#3B7DD8"}
+          raises={map?.style.regions.raises_color ?? "currentColor"}
+          lowers={map?.style.regions.lowers_color ?? "currentColor"}
         />
         <Button size="sm" variant="ghost" onClick={() => setAll((a) => !a)} aria-expanded={all}>
           {all ? "Show top 8 only" : `Show all ${rows.length} features`}

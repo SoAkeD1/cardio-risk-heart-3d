@@ -1,13 +1,12 @@
 import { ArrowDown, ArrowUp, Info, RotateCcw } from "lucide-react";
-import { useAnatomyMap, useFeatureIndex } from "../../api/hooks";
-import { TARGETS, type FeatureSpec } from "../../api/types";
+import { useAnatomyMap, useFeatureIndex, useTargets } from "../../api/hooks";
+import type { FeatureSpec } from "../../api/types";
 import { num, pct, pts } from "../../lib/format";
 import { useStore } from "../../state/store";
 import { Button } from "../../ui/Button";
 import { NumberField } from "../../ui/NumberField";
 import { Slider } from "../../ui/Slider";
 import { Toggle } from "../../ui/Toggle";
-import { TARGET_LABEL } from "../explain/WhyPanel";
 import { SensitivityChart } from "./SensitivityChart";
 
 const isYes = (v: unknown) => ["1", "y", "yes", "true"].includes(String(v).toLowerCase());
@@ -71,6 +70,7 @@ export function DeltaTable() {
   const r = useStore((s) => s.whatIf.result);
   const pending = useStore((s) => s.whatIf.pending);
   const { data: map } = useAnatomyMap();
+  const targets = useTargets();
   if (!r) return <p className="py-2 text-xs text-t2">Move a slider to see the model-estimated change.</p>;
   return (
     <table className="w-full text-xs" data-testid="delta-table" aria-busy={pending}>
@@ -83,11 +83,11 @@ export function DeltaTable() {
         </tr>
       </thead>
       <tbody>
-        {TARGETS.map((t) => {
+        {targets.map(({ key: t, label }) => {
           const d = r.delta[t] ?? 0;
           return (
             <tr key={t} className="border-t border-line" data-testid={`delta-${t}`}>
-              <td className="py-1.5 font-medium text-t1">{TARGET_LABEL[t]}</td>
+              <td className="py-1.5 font-medium text-t1">{label}</td>
               <td className="py-1.5 text-right text-t2">{pct(r.before[t].prob)}</td>
               <td className="py-1.5 text-right text-t1">{pct(r.after[t].prob)}</td>
               <td className="py-1.5 text-right">

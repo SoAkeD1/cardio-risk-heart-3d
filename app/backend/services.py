@@ -18,18 +18,12 @@ from cardio_ml import anatomy as A
 from cardio_ml import config as C
 from cardio_ml.data import clean_name
 
-from .feature_help import HELP
 from .reference_ranges import REFERENCE_RANGES
 
 log = logging.getLogger("cardiolens")
 
-GROUP_LABELS = {"demographic": "Demographics", "risk factor": "Risk factors",
-                "examination": "Examination & symptoms", "ECG": "ECG", "lab": "Labs", "echo": "Echocardiography"}
-VALUE_LABELS = {
-    "sex": {"Male": "Male", "Female": "Female"},
-    "bbb": {"N": "None", "LBBB": "Left", "RBBB": "Right"},
-    "vhd": {"N": "None", "mild": "Mild", "Moderate": "Moderate", "Severe": "Severe"},
-}
+CONTENT_DIR = Path(__file__).resolve().parent / "content"
+DISPLAY = json.loads((CONTENT_DIR / "feature_display.json").read_text(encoding="utf-8"))
 _YES = {"y", "yes", "1", "1.0", "true", "t"}
 _NO = {"n", "no", "0", "0.0", "false", "f"}
 _SEX = {"male": "Male", "m": "Male", "1": "Male", "female": "Female", "fmale": "Female", "f": "Female", "0": "Female"}
@@ -63,7 +57,7 @@ class Services:
         from cardio_ml.predict import get_predictor
         t0 = time.perf_counter()
         self.predictor = get_predictor(self.artifacts)
-        self.amap = A.load_map()
+        self.amap = A.load_map(self.artifacts / "anatomy_map.json")
         self.schema = self.predictor.schema
         self.fields = self.predictor.fields
         self.predictor.predict({}, explain=True, k=A.N_FEATURES)          # warm-up (first SHAP call is slow)
@@ -71,6 +65,9 @@ class Services:
         self.viewer_look = json.loads((self.artifacts / "viewer_look.json").read_text(encoding="utf-8"))
         self.scene_schema = json.loads((self.artifacts / "scene_state.schema.json").read_text(encoding="utf-8"))
         self._examples = select_examples(self)                           # curated hold-out cases (deterministic)
+        fr = self.artifacts / "feature_response.json"
+        self.feature_response = json.loads(fr.read_text(encoding="utf-8")) if fr.exists() else None
+        self.education = json.loads((CONTENT_DIR / "education.json").read_text(encoding="utf-8"))
         self.load_ms = round((time.perf_counter() - t0) * 1000, 1)
         self.loaded_at = datetime.now(timezone.utc).isoformat(timespec="seconds")
         log.info("cardio_ml models + anatomy map loaded in %.0f ms", self.load_ms)
@@ -82,29 +79,33 @@ class Services:
         strat = {sel[v].get("vessel_strategy") for v in C.VESSELS} - {None}
         return dict(status="ok", models={t: sel[t]["model"] for t in C.TARGETS},
                     vessel_strategy=", ".join(sorted(strat)) or "n/a", loaded_at=self.loaded_at,
-                    load_ms=self.load_ms, version=version)
+                    load_ms=self.load_ms, version=version, disclaimer=C.DISCLAIMER)
 
     def feature_schema(self) -> dict:
         modifiable = set(self.amap["modifiable"]["features"])
         feats = []
         for f in self.schema["features"]:
             n = f["name"]
-            spec = dict(name=n, original_name=f["original_name"], label=f["label"], group=f["group"],
-                        type=f["type"], unit=f["unit"], default=f["default"], modifiable=n in modifiable,
-                        used_by_model=bool(f.get("used_by_model", True)), help=HELP.get(n, f["label"]))
-            if n == "sex":
-                spec["label"] = "Sex"
+            spec = dict(name=n, original_name=f["original_name"], label=DISPLAY["label_overrides"].get(n, f["label"]),
+                        group=f["group"], type=f["type"], unit=f["unit"], default=f["default"],
+                        modifiable=n in modifiable, used_by_model=bool(f.get("used_by_model", True)),
+                        help=DISPLAY["help"].get(n, f["label"]))
+            eff = (self.feature_response or {}).get("features", {}).get(n)
+            if eff:
+                spec["effect_strength"] = int(eff["effect_strength"])
+                spec["effect_max_pts"] = {t: round(v * 100, 1) for t, v in eff["max_delta"].items()}
             if f["type"] == "numeric":
                 lo, hi = f.get("hard_limits", (None, None))
-                spec.update(min=f["min"], max=f["max"], hard_min=lo, hard_max=hi, step=_step(n, f))
+                spec.update(min=f["min"], max=f["max"], hard_min=lo, hard_max=hi,
+                            step=float(DISPLAY["steps"].get(n, DISPLAY["steps"]["default"])))
                 if n in REFERENCE_RANGES:
                     spec["normal_range"] = list(REFERENCE_RANGES[n])
             else:
                 spec["allowed_values"] = f.get("allowed_values")
-                if n in VALUE_LABELS:
-                    spec["value_labels"] = VALUE_LABELS[n]
+                if n in DISPLAY["value_labels"]:
+                    spec["value_labels"] = DISPLAY["value_labels"][n]
             feats.append(spec)
-        groups = [dict(key=g, label=GROUP_LABELS.get(g, g), order=i) for i, g in enumerate(self.schema["groups"])]
+        groups = [dict(key=g, label=DISPLAY["group_labels"].get(g, g), order=i) for i, g in enumerate(self.schema["groups"])]
         return dict(groups=groups, features=feats)
 
     # ------------------------------------------------------------------ validation
@@ -158,9 +159,10 @@ class Services:
                                  "(physiological limits).")
             return v
         s = str(value).strip().lower()
-        if name == "sex":
+        allowed_vals = [str(a) for a in f.get("allowed_values") or []]
+        if t == "binary" and set(allowed_vals) == set(_SEX.values()):     # labelled binary (dataset: "Fmale" typo)
             if s not in _SEX:
-                raise ValueError("Sex must be Male or Female.")
+                raise ValueError(f"{label} must be {' or '.join(allowed_vals)}.")
             return _SEX[s]
         if t == "binary":
             if isinstance(value, bool):
@@ -287,7 +289,8 @@ class Services:
                 holdout={k: {kk: float(vv) for kk, vv in v.items()} for k, v in m["holdout"][t].items()},
                 nested_cv={k: float(v) for k, v in ncv.items() if isinstance(v, (int, float))},
                 threshold=float(thr[t]["threshold"]), threshold_rule=thr[t]["rule"],
-                reliability_badge=A.reliability_badge(auc, amap), top_drivers=drivers.get(t, [])))
+                reliability_badge=A.reliability_badge(auc, amap), top_drivers=drivers.get(t, []),
+                positive_label=C.POSITIVE_TEXT[t], negative_label=C.NEGATIVE_TEXT[t]))
         lim = summary.split("**Limitations.**", 1)[-1].strip().split("\n\n")[0]
         lim = " ".join(lim.split())
         limitations = [s.strip() for s in re.split(r"(?<=\.)\s+(?=[A-Z])", lim) if s.strip()
@@ -335,14 +338,6 @@ class Services:
 
 
 # ============================================================================ helpers
-def _step(name: str, f: dict) -> float:
-    if name in {"cr", "k"}:
-        return 0.1
-    if name in {"bmi", "hb", "hdl"}:
-        return 0.1
-    return 1.0
-
-
 def _driver_phrase(e: dict) -> str:
     v, unit, lab = e["value"], e["unit"], e["label"].split(" (")[0]
     if not (len(lab) > 1 and lab[:2].isupper()):                # keep acronyms (LDL, EF-TTE, BMI) as written
@@ -371,6 +366,7 @@ def select_examples(svc: Services) -> list[dict]:
         p = svc.predictor.predict(feats, explain=False)
         rows.append(dict(i=i, f=feats, p=p, y={t: bool(Y.iloc[i][t]) for t in C.TARGETS}))
     tiers = svc.predictor.thresholds["risk_tiers"]
+    DC = DISPLAY["examples"]["diabetic_case"]
     chosen: list[int] = []
 
     def pick(cands, key, title_hint):
@@ -391,8 +387,8 @@ def select_examples(svc: Services) -> list[dict]:
         pick([r for r in rows if r["p"]["cad"]["risk_tier"] == "High"],
              lambda r: (-sum(fl(r, v) for v in C.VESSELS), -r["p"]["expected_stenotic_vessels"]),
              ("multi", "High risk · multi-vessel")),
-        pick([r for r in rows if int(r["f"].get("dm", 0)) == 1 and int(r["f"].get("atypical", 0)) == 1] or
-             [r for r in rows if int(r["f"].get("dm", 0)) == 1],
+        pick([r for r in rows if all(int(r["f"].get(k, 0)) == 1 for k in DC["require_all"])] or
+             [r for r in rows if all(int(r["f"].get(k, 0)) == 1 for k in DC["fallback_require"])],
              lambda r: -r["p"]["cad"]["prob"], ("diabetic", "Diabetic with atypical chest pain")),
         pick([r for r in rows if fl(r, "cad") != r["y"]["cad"]],
              lambda r: -abs(r["p"]["cad"]["prob"] - r["y"]["cad"]), ("uncertain", "Model uncertainty example")),
@@ -400,13 +396,14 @@ def select_examples(svc: Services) -> list[dict]:
     out = []
     for r, (eid, subtitle) in picks:
         f = svc.resolved(r["f"])
-        out.append(dict(id=eid, title=_title(f), subtitle=subtitle, features=f, true_labels=r["y"]))
+        out.append(dict(id=eid, title=_title(f), subtitle=subtitle, features=f, true_labels=r["y"],
+                        featured=eid == DISPLAY["examples"].get("featured")))
     return out
 
 
 def _title(f: dict) -> str:
-    sex = "M" if f["sex"] == "Male" else "F"
-    pain = ("typical angina" if int(f["typical_chest_pain"]) else "atypical chest pain" if int(f["atypical"])
-            else "non-anginal pain" if int(f["nonanginal"]) else "no chest pain")
-    extras = [w for k, w in (("dm", "diabetic"), ("htn", "hypertensive"), ("current_smoker", "smoker")) if int(f[k])]
-    return " · ".join([f"{int(float(f['age']))} {sex}", pain] + extras[:2])
+    T = DISPLAY["examples"]["title"]
+    sex = T["sex_short"].get(str(f[T["sex_feature"]]), str(f[T["sex_feature"]]))
+    pain = next((txt for k, txt in T["pain"] if int(f[k])), T["no_pain"])
+    extras = [w for k, w in T["flags"] if int(f[k])]
+    return " · ".join([f"{int(float(f[T['age_feature']]))} {sex}", pain] + extras[: T["max_flags"]])

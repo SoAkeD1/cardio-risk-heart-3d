@@ -2,7 +2,7 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCallback, useRef, useState } from "react";
 import { layoutTicks, type Tick } from "../lib/tickLayout";
 import { useAnatomyMap, useModelCard } from "../api/hooks";
-import { VESSELS } from "../api/types";
+import { useNames } from "../lib/anatomy";
 import { gradientCss, type Stop } from "../lib/color";
 import { pct } from "../lib/format";
 import { useStore } from "../state/store";
@@ -16,12 +16,14 @@ export function Legend({ compact = false }: { compact?: boolean }) {
   const [compactOpen, setCompactOpen] = useState(false);
   const open = compact ? compactOpen : pref;
   const setUi = useStore((s) => s.setUi);
-  if (!map) return null;
+  const N = useNames((s) => s.names);
+  if (!map || !N) return null;
   const stops: Stop[] = scene?.legend.stops ?? map.style.color_scale.stops.map(([p, color]) => ({ p, color }));
   const thr: Record<string, number> =
     scene?.legend.threshold_markers ??
     Object.fromEntries((card?.targets ?? []).filter((t) => t.key !== "cad").map((t) => [t.key, t.threshold]));
-  const neutral = map.neutral_structures.find((n) => n.mesh_names.includes("Coronary_LM"))?.color ?? "#C9C2B8";
+  const unmodelled = N.unmodelledCoronary;
+  const neutral = unmodelled[0]?.color ?? "transparent";
   return (
     <div
       data-testid="legend"
@@ -45,11 +47,9 @@ export function Legend({ compact = false }: { compact?: boolean }) {
         <>
           <div className="relative mt-2 h-3 rounded-sm" style={{ background: gradientCss(stops) }} aria-hidden />
           <ThresholdTicks
-            ticks={VESSELS.filter((v) => thr[v] !== undefined).map((v) => ({
-              key: v,
-              label: `${v.toUpperCase()} ${pct(thr[v])}`,
-              p: thr[v]!,
-            }))}
+            ticks={N.vessels
+              .filter((v) => thr[v.key] !== undefined)
+              .map((v) => ({ key: v.key, label: `${v.short} ${pct(thr[v.key])}`, p: thr[v.key]! }))}
           />
           <div className="num flex justify-between text-[11px] text-t3">
             <span>0%</span>
@@ -61,7 +61,7 @@ export function Legend({ compact = false }: { compact?: boolean }) {
           </p>
           <div className="mt-2 flex items-center gap-2">
             <span className="h-3 w-5 rounded-sm border border-line" style={{ background: neutral }} aria-hidden />
-            Not modelled (left main, branches)
+            Not modelled ({unmodelled.map((n) => n.display_name.toLowerCase()).join(", ")})
           </div>
         </>
       )}

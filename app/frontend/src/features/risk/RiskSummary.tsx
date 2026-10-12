@@ -5,6 +5,8 @@ import { RiskTierChip, useCountUp } from "./parts";
 export function RiskSummary() {
   const p = useStore((s) => s.prediction);
   const pending = useStore((s) => s.pending);
+  const stale = useStore((s) => s.stale);
+  const offline = useStore((s) => s.offline);
   const heart = p?.scene.heart;
   const cad = useCountUp(heart ? heart.cad_prob * 100 : undefined);
   const exp = useCountUp(heart?.expected_stenotic_vessels);
@@ -19,13 +21,24 @@ export function RiskSummary() {
         <div className="min-w-0">
           <div className="text-xs text-t2">Probability of coronary artery disease</div>
           <div className="flex items-baseline gap-2">
-            <span className="num text-hero font-semibold" data-testid="cad-prob" style={{ opacity: pending ? 0.75 : 1 }}>
+            <span className={`num text-hero font-semibold ${stale && offline ? "text-t3" : ""}`} data-testid="cad-prob" style={{ opacity: pending ? 0.75 : 1 }}>
               {Math.round(cad ?? 0)}%
             </span>
             <span className="text-sm font-medium text-t1">{likely ? "CAD likely" : "CAD unlikely"}</span>
           </div>
         </div>
-        <RiskTierChip tier={heart.risk_tier} />
+        <div className="flex flex-col items-end gap-1">
+          <RiskTierChip tier={heart.risk_tier} />
+          {stale && offline && (
+            <span
+              data-testid="stale-badge"
+              title={offline ? "Last real result from this session; the prediction service is offline" : "A new estimate is on its way"}
+              className="whitespace-nowrap rounded-full border border-[rgb(var(--warning)/0.6)] px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wide text-warn"
+            >
+              Stale
+            </span>
+          )}
+        </div>
       </div>
       <div className="num mt-1 text-xs text-t2">
         Expected stenotic vessels: <span className="text-t1">{(exp ?? 0).toFixed(1)} of 3</span> · Model reliability:{" "}

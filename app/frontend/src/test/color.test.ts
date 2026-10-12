@@ -27,8 +27,8 @@ describe("color.ts (CIELAB scale)", () => {
   });
   it("builds a CSS gradient and picks readable ink", () => {
     expect(gradientCss(fixture.stops, 5)).toMatch(/^linear-gradient\(to right, #[0-9A-F]{6} 0\.0%/);
-    expect(inkOn("#8E1B1B")).toBe("#FFFFFF");
-    expect(inkOn("#E8E2D8")).toBe("#1B1C1E");
+    expect(inkOn("#8E1B1B")).toBe("white");
+    expect(inkOn("#E8E2D8")).toBe("rgb(27 28 30)");
     expect(contrast("#000000", "#FFFFFF")).toBeCloseTo(21, 0);
   });
 });

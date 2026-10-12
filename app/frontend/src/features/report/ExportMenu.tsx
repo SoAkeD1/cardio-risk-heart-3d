@@ -1,7 +1,7 @@
 import * as DM from "@radix-ui/react-dropdown-menu";
 import { ChevronDown, ClipboardCopy, FileDown, ImageDown, Share } from "lucide-react";
 import { useState } from "react";
-import { useAnatomyMap, useFeatureIndex, useSchema } from "../../api/hooks";
+import { useAnatomyMap, useFeatureIndex, useModelCard, useSchema, useTargets } from "../../api/hooks";
 import { changedFields, useStore } from "../../state/store";
 import { Button } from "../../ui/Button";
 import { toast } from "../../ui/Toast";
@@ -12,6 +12,8 @@ export function ExportMenu() {
   const prediction = useStore((s) => s.prediction);
   const { data: schema } = useSchema();
   const { data: map } = useAnatomyMap();
+  const { data: card } = useModelCard();
+  const targets = useTargets();
   const fx = useFeatureIndex();
   const [busy, setBusy] = useState(false);
   const stamp = () => new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-");
@@ -32,6 +34,8 @@ export function ExportMenu() {
         prediction,
         schema,
         map,
+        citation: card?.dataset_citation,
+        targets,
         patient: st.patient,
         changed: changedFields(st.patient, st.defaults),
         snapshot,

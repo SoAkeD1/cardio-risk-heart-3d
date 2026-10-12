@@ -1,7 +1,7 @@
 import { ArrowDown, ArrowUp, Flag, ShieldAlert, ShieldCheck, ShieldHalf } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { useAnatomyMap, useFeatureIndex } from "../../api/hooks";
-import { VESSELS, type Vessel } from "../../api/types";
+import { useAnatomyMap, useFeatureIndex, useVesselKeys } from "../../api/hooks";
+import type { Vessel } from "../../api/types";
 import { byImpact, featureValue, pct, pts, shortLabel } from "../../lib/format";
 import { useStore } from "../../state/store";
 import { Badge } from "../../ui/Badge";
@@ -13,6 +13,7 @@ const REL_ICON = { High: ShieldCheck, Moderate: ShieldHalf, Limited: ShieldAlert
 export function VesselCard({ v }: { v: Vessel }) {
   const p = useStore((s) => s.prediction);
   const sel = useStore((s) => s.selection.target);
+  const greyed = useStore((s) => s.stale && s.offline);
   const hover = useStore((s) => s.selection.hover);
   const { data: map } = useAnatomyMap();
   const fx = useFeatureIndex();
@@ -65,7 +66,7 @@ export function VesselCard({ v }: { v: Vessel }) {
           <div className="mt-0.5 text-xs leading-snug text-t2">{meta?.short_description}</div>
         </div>
         <div className="shrink-0 text-right">
-          <div className="num text-xl font-semibold leading-none">{pct(sv.prob)}</div>
+          <div className={`num text-xl font-semibold leading-none ${greyed ? "text-t3" : ""}`}>{pct(sv.prob)}</div>
           <div className="num mt-1 text-[11px] text-t3">threshold {pct(sv.threshold)}</div>
         </div>
       </div>
@@ -102,9 +103,10 @@ export function VesselCard({ v }: { v: Vessel }) {
 }
 
 export function VesselCards() {
+  const vessels = useVesselKeys();
   return (
     <div className="space-y-2 px-4 py-3" data-testid="vessel-cards">
-      {VESSELS.map((v) => (
+      {vessels.map((v) => (
         <VesselCard key={v} v={v} />
       ))}
       <p className="pt-1 text-xs text-t3">Whole-vessel estimates: the dataset records no lesion location within an artery.</p>

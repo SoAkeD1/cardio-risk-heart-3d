@@ -30,6 +30,23 @@ class Health(BaseModel):
     loaded_at: str
     load_ms: float
     version: str
+    disclaimer: str
+
+
+class EducationItem(BaseModel):
+    key: str
+    features: list[str]
+    title: str
+    text: str
+    source: str
+    url: str
+
+
+class Education(BaseModel):
+    title: str
+    label: str
+    note: str
+    items: list[EducationItem]
 
 
 class Group(BaseModel):
@@ -57,6 +74,9 @@ class FeatureSpec(BaseModel):
     modifiable: bool
     used_by_model: bool
     help: str
+    effect_strength: int | None = Field(None, description="0-3: how much this input can move the model's estimates "
+                                       "(artifacts/feature_response.json)")
+    effect_max_pts: dict[str, float] | None = None
 
 
 class SchemaResponse(BaseModel):
@@ -70,6 +90,7 @@ class Example(BaseModel):
     subtitle: str
     features: dict[str, FeatureValue]
     true_labels: dict[str, bool]
+    featured: bool = False
 
 
 class ExamplesResponse(BaseModel):
@@ -79,7 +100,6 @@ class ExamplesResponse(BaseModel):
 
 # ----------------------------------------------------------------------------- prediction
 class PatientIn(BaseModel):
-    model_config = ConfigDict(json_schema_extra={"example": {"features": {"age": 63, "dm": 1, "ldl": 160}}})
     features: dict[str, FeatureValue] = Field(default_factory=dict)
 
 
@@ -282,6 +302,8 @@ class TargetCard(BaseModel):
     threshold_rule: str
     reliability_badge: str
     top_drivers: list[str]
+    positive_label: str
+    negative_label: str
 
 
 class Figure(BaseModel):

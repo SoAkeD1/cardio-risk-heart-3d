@@ -8,20 +8,21 @@ import { Button } from "../../ui/Button";
 export function StatusBanner({ noWebGL, modelError, onRetryModel }: { noWebGL: boolean; modelError: boolean; onRetryModel: () => void }) {
   const health = useHealth();
   const offlineFlag = useStore((s) => s.offline);
+  const hasResult = useStore((s) => !!s.prediction);
   const qc = useQueryClient();
   const offline = offlineFlag || (health.isError && !health.data);
   const items: { icon: JSX.Element; text: string; action?: { label: string; run: () => void } }[] = [];
   if (offline)
     items.push({
       icon: <WifiOff className="h-4 w-4" />,
-      text: "Can't reach the CardioLens server. Showing the last result; the 3D view still works.",
+      text: hasResult
+        ? "Can't reach the CardioLens server: the numbers shown are the last real result (marked stale). Reconnecting automatically…"
+        : "Can't reach the CardioLens server: waiting for the prediction service. Reconnecting automatically…",
       action: {
-        label: "Retry",
+        label: "Retry now",
         run: () => {
-          useStore.getState().setOffline(false);
-          qc.invalidateQueries();
-          const s = useStore.getState();
-          s.restorePatient({ ...s.patient }, s.hasPatient);
+          void qc.refetchQueries();
+          useStore.getState().resend();
         },
       },
     });

@@ -8,6 +8,10 @@ import { prefersReducedMotion } from "../lib/device";
 import { useStore } from "../state/store";
 import { toast } from "../ui/Toast";
 import { reg, useModelStatus } from "./registry";
+import { names } from "../lib/anatomy";
+
+/** Invisible / helper meshes (hit proxies, outline shells) from anatomy_map.viewer.vessel_helpers. */
+export const helperMeshes = () => new Set(names()?.vessels.flatMap((v) => [v.hit, v.outline]) ?? []);
 import { buildBindings, missingMeshes, useSceneBinding } from "./useSceneBinding";
 import { registerTestHook } from "../test/hooks";
 
@@ -53,12 +57,13 @@ export function HeartModel({ url }: { url: string }) {
       setFade(performance.now());
       invalidate();
     });
-    registerTestHook("getHeartScale", () => reg.nodes.get("Heart")?.scale.x ?? 1);
+    registerTestHook("getHeartScale", () => reg.nodes.get(names()?.groups.heart ?? "")?.scale.x ?? 1);
     registerTestHook("getMeshColors", () => {
+      const helpers = helperMeshes();
       const out: Record<string, string> = {};
       for (const [n, m] of reg.meshes) {
         const mat = m.material as THREE.MeshStandardMaterial;
-        if (mat?.color && !n.startsWith("Extra_")) out[n] = "#" + mat.color.getHexString().toUpperCase();
+        if (mat?.color && !helpers.has(n)) out[n] = "#" + mat.color.getHexString().toUpperCase();
       }
       return out;
     });
@@ -81,12 +86,16 @@ export function HeartModel({ url }: { url: string }) {
 
   // fade in over 300 ms + heartbeat (uniform scale of the Heart group, pivot at the origin)
   useFrame(({ clock }) => {
-    const heart = reg.nodes.get("Heart");
-    if (fade) {
+    const N = names();
+    const heart = N ? reg.nodes.get(N.groups.heart) : undefined;
+    if (fade && N) {
+      const skip = helperMeshes();
+      for (const t of N.territoryMeshes) skip.add(t);
+      skip.add(N.bodyShell);
       const k = Math.min(1, (performance.now() - fade) / 300);
       gltf.scene.traverse((o) => {
         const m = (o as THREE.Mesh).material as THREE.Material | undefined;
-        if (m && (o as THREE.Mesh).isMesh && !o.name.startsWith("Extra_") && !o.name.startsWith("Territory_") && o.name !== "Torso_Shell") {
+        if (m && (o as THREE.Mesh).isMesh && !skip.has(o.name)) {
           m.transparent = k < 1;
           m.opacity = k;
         }
@@ -96,8 +105,9 @@ export function HeartModel({ url }: { url: string }) {
     }
     if (heart) {
       const on = heartbeat && !reduced;
-      const A = tier === "High" ? 0.018 : 0.012;
-      const s = on ? 1 + A * beat(clock.getElapsedTime()) : 1;
+      const hb = N?.map.viewer.heartbeat;
+      const A = (tier && hb?.amplitude_by_tier[tier]) || Math.min(...Object.values(hb?.amplitude_by_tier ?? { x: 0 }));
+      const s = on ? 1 + A * beat(clock.getElapsedTime() * (hb?.rate_hz ?? 1)) : 1;
       heart.scale.setScalar(s);
       if (on) invalidate();
     }

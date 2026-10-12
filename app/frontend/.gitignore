@@ -6,3 +6,5 @@ public/env/
 public/figures/
 test-results/
 playwright-report/
+public/meta.json
+public/assets-manifest.json

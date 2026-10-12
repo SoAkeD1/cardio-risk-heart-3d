@@ -85,7 +85,10 @@ export function contrast(a: string, b: string): number {
   return (x + 0.05) / (y + 0.05);
 }
 
+const INK_DARK = "rgb(27 28 30)"; // design token --text-1 (light theme)
+const INK_LIGHT = "white";
+
 /** Readable text colour on a swatch. */
 export function inkOn(bg: string): string {
-  return contrast(bg, "#1B1C1E") >= contrast(bg, "#FFFFFF") ? "#1B1C1E" : "#FFFFFF";
+  return contrast(bg, labToHex([10.5, 0, 0])) >= contrast(bg, labToHex([100, 0, 0])) ? INK_DARK : INK_LIGHT;
 }

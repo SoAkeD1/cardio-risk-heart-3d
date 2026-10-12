@@ -2,9 +2,12 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 
 // Dev: /api is proxied to FastAPI on :8000. Build: three.js + R3F in their own chunk.
+const API = process.env.CARDIOLENS_API_URL ?? "http://127.0.0.1:8000";
+
 export default defineConfig({
   plugins: [react()],
-  server: { port: 5173, strictPort: true, proxy: { "/api": "http://127.0.0.1:8000" } },
+  // API target is configurable (the proof-of-no-hardcoding e2e test runs a second backend on another port)
+  server: { port: Number(process.env.CARDIOLENS_WEB_PORT ?? 5173), strictPort: true, proxy: { "/api": API } },
   // pre-bundle everything up front: no "optimized dependencies changed, reloading" mid-session in dev
   optimizeDeps: {
     include: [
@@ -29,7 +32,7 @@ export default defineConfig({
       "lucide-react",
     ],
   },
-  preview: { port: 4173, proxy: { "/api": "http://127.0.0.1:8000" } },
+  preview: { port: 4173, proxy: { "/api": API } },
   build: {
     target: "es2020",
     sourcemap: false,

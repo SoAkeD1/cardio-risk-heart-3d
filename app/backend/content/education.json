@@ -1,0 +1,39 @@
+{
+ "title": "Educational: how risk factors affect arteries",
+ "label": "General education — not patient-specific, not from this model",
+ "note": "These are general-population facts from public health sources. They do not change this patient's estimate, the colours on the heart, or any location on it.",
+ "items": [
+  {
+   "key": "smoking",
+   "features": ["current_smoker", "ex_smoker"],
+   "title": "Smoking",
+   "text": "Smoking damages the inner lining of the arteries and promotes plaque build-up and blood clots. It is estimated to raise the risk of coronary heart disease by 2 to 4 times; risk falls after quitting.",
+   "source": "U.S. Centers for Disease Control and Prevention (CDC): Health Effects of Cigarette Smoking",
+   "url": "https://www.cdc.gov/tobacco/about/index.html"
+  },
+  {
+   "key": "hypertension",
+   "features": ["htn", "bp"],
+   "title": "High blood pressure",
+   "text": "Persistently high blood pressure strains and damages artery walls over time and is one of the leading modifiable risk factors for heart attack and stroke.",
+   "source": "World Health Organization (WHO): Hypertension fact sheet",
+   "url": "https://www.who.int/news-room/fact-sheets/detail/hypertension"
+  },
+  {
+   "key": "diabetes",
+   "features": ["dm", "fbs"],
+   "title": "Diabetes",
+   "text": "Over time, high blood sugar can damage blood vessels and the nerves that control the heart. Adults with diabetes are about twice as likely to have heart disease or a stroke as adults without diabetes.",
+   "source": "U.S. Centers for Disease Control and Prevention (CDC): Diabetes and Your Heart",
+   "url": "https://www.cdc.gov/diabetes/diabetes-complications/diabetes-and-your-heart.html"
+  },
+  {
+   "key": "ldl",
+   "features": ["ldl", "dlp"],
+   "title": "LDL cholesterol",
+   "text": "LDL cholesterol contributes to fatty plaque (atherosclerosis) in artery walls. Lowering LDL cholesterol lowers the risk of cardiovascular events.",
+   "source": "2019 ESC/EAS Guidelines for the management of dyslipidaemias (Mach F. et al., Eur Heart J 2020;41:111-188)",
+   "url": "https://doi.org/10.1093/eurheartj/ehz455"
+  }
+ ]
+}

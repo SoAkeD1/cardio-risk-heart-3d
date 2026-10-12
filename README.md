@@ -26,6 +26,8 @@ Claude starts the server and the web app and your browser opens at <http://local
 | `python scripts/dev.py` | development: FastAPI on :8000 + Vite on :5173, opens the browser |
 | `python scripts/build.py` then `python -m app.backend.main` | production: one server at <http://localhost:8000> |
 | `docker build -t cardiolens . && docker run -p 8000:8000 cardiolens` | the same, in a container (for judges) |
+| `python scripts/feature_response_audit.py` | how much each input can move each estimate → `artifacts/feature_response.json` + heatmap |
+| `python scripts/check_no_hardcoding.py` | fails if the frontend duplicates data owned by the API / artifacts |
 
 Screenshots: [desktop dark](artifacts/figures/app_desktop_dark.png) ·
 [desktop light](artifacts/figures/app_desktop_light.png) · [tablet](artifacts/figures/app_tablet_dark.png) ·

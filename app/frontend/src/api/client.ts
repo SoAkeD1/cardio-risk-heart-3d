@@ -10,6 +10,7 @@ import type {
   SensitivityOut,
   Target,
   ViewerLook,
+  Education,
   WhatIfOut,
 } from "./types";
 
@@ -45,7 +46,8 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
     } catch {
       /* not JSON (proxy error page) */
     }
-    if (res.status >= 502 && !body.error) throw new ApiError(0, "offline", "Can't reach the CardioLens server.");
+    // a 5xx WITHOUT the API's error shape comes from a proxy / gateway (backend down or restarting) -> offline
+    if (res.status >= 500 && !body.error) throw new ApiError(0, "offline", "Can't reach the CardioLens server.");
     throw new ApiError(
       res.status,
       body.error?.code ?? "http_error",
@@ -68,6 +70,7 @@ export const api = {
   modelCard: () => request<ModelCard>("/model-card"),
   anatomyMap: () => request<AnatomyMap>("/anatomy-map"),
   viewerLook: () => request<ViewerLook>("/viewer-look"),
+  education: () => request<Education>("/education"),
   predict: (features: Features, focus: Target, signal?: AbortSignal) =>
     post<PredictOut>("/predict", { features, k: 8, focus, show_territories: false }, signal),
   whatIf: (features: Features, changes: Features, focus: Target, signal?: AbortSignal) =>

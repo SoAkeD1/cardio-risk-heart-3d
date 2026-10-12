@@ -1,10 +1,12 @@
 // three.js-dependent helpers (kept out of registry.ts so the entry chunk never pulls in three.js)
 import * as THREE from "three";
 import { reg } from "./registry";
+import { names } from "../lib/anatomy";
 
-/** Blender-space view target stored in Extra_View_* extras -> glTF / three.js (Y-up). */
+/** Blender-space view target stored in the view node's extras (key from anatomy_map) -> glTF / three.js (Y-up). */
 export function viewTarget(node: THREE.Object3D): THREE.Vector3 {
-  const t = (node.userData?.target as number[] | undefined) ?? [0, 0, 0];
+  const key = names()?.viewTargetExtra ?? "";
+  const t = (node.userData?.[key] as number[] | undefined) ?? [0, 0, 0];
   const v = new THREE.Vector3(t[0] ?? 0, t[2] ?? 0, -(t[1] ?? 0));
   node.parent?.updateWorldMatrix(true, false);
   return node.parent ? v.applyMatrix4(node.parent.matrixWorld) : v;

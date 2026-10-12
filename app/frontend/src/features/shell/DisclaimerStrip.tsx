@@ -1,16 +1,23 @@
 import { Info } from "lucide-react";
-import { useModelCard } from "../../api/hooks";
+import { useQuery } from "@tanstack/react-query";
+import { useAnatomyMap, useHealth, useModelCard } from "../../api/hooks";
+import { creditParts } from "../../lib/anatomy";
 import { useStore } from "../../state/store";
 
-// Fallback is only used if the API cannot be reached at all; the real text always comes from the API
-// (config.DISCLAIMER via any prediction response or the model card).
-const FALLBACK = "For decision support and educational purposes only. Not a substitute for formal diagnostic imaging or clinical judgement.";
+// The text always comes from the API (config.DISCLAIMER). If the API is unreachable, /meta.json (generated from the
+// same config by scripts/sync_assets.py at build time) is used: the disclaimer is never typed into the frontend.
+const useStaticMeta = () =>
+  useQuery({ queryKey: ["meta"], queryFn: async () => (await (await fetch("/meta.json")).json()) as { disclaimer: string }, staleTime: Infinity });
 
 /** Fixed, never dismissible. Text = config.DISCLAIMER from the API. */
 export function DisclaimerStrip() {
   const fromPrediction = useStore((s) => s.prediction?.disclaimer);
   const { data } = useModelCard();
-  const text = fromPrediction ?? data?.disclaimer ?? FALLBACK;
+  const health = useHealth();
+  const meta = useStaticMeta();
+  const { data: map } = useAnatomyMap();
+  const credit = creditParts(map, data?.dataset_citation);
+  const text = fromPrediction ?? health.data?.disclaimer ?? data?.disclaimer ?? meta.data?.disclaimer ?? "";
   return (
     <footer
       role="contentinfo"
@@ -21,18 +28,15 @@ export function DisclaimerStrip() {
       <p className="min-w-0 flex-1 leading-snug" data-testid="disclaimer">
         {text}
       </p>
-      <p className="hidden shrink-0 text-t3 xl:block">
-        3D heart:{" "}
-        <a
-          className="underline decoration-dotted underline-offset-2 hover:text-t1"
-          href="https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089"
-          target="_blank"
-          rel="noreferrer"
-        >
-          &lsquo;Realistic Human Heart&rsquo; by neshallads
-        </a>
-        , CC BY 4.0, modified · Data: Z-Alizadeh Sani (UCI)
-      </p>
+      {credit.model && (
+        <p className="hidden shrink-0 text-t3 xl:block">
+          3D heart:{" "}
+          <a className="underline decoration-dotted underline-offset-2 hover:text-t1" href={credit.model.url} target="_blank" rel="noreferrer">
+            &lsquo;{credit.model.name}&rsquo; by {credit.model.author}
+          </a>
+          , {credit.model.license}, modified{credit.dataset ? ` · Data: ${credit.dataset}` : ""}
+        </p>
+      )}
     </footer>
   );
 }

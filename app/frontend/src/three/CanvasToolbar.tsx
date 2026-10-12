@@ -7,12 +7,15 @@ import {
   Palette,
   PersonStanding,
   RefreshCcw,
+  BookOpenText,
   MoreHorizontal,
   RotateCw,
   Settings2,
 } from "lucide-react";
 import { useAnatomyMap } from "../api/hooks";
-import { useStore, type Preset } from "../state/store";
+import { useStore } from "../state/store";
+import { useNames } from "../lib/anatomy";
+import { goToView, resetView, toggleBodyMode } from "../lib/views";
 import { IconButton } from "../ui/IconButton";
 import { Segmented } from "../ui/Segmented";
 import { Slider } from "../ui/Slider";
@@ -21,23 +24,14 @@ import { toast } from "../ui/Toast";
 import { toggleFullscreen } from "../features/shell/Shortcuts";
 import { composeSnapshot, downloadDataUrl } from "./snapshot";
 
-const PRESETS: { p: Preset; label: string; key: string }[] = [
-  { p: "front", label: "Front", key: "1" },
-  { p: "left", label: "Left", key: "2" },
-  { p: "posterior", label: "Back", key: "3" },
-  { p: "body", label: "Body", key: "4" },
-];
-
 export function CanvasToolbar({ compact = false }: { compact?: boolean }) {
   const view = useStore((s) => s.view);
   const setView = useStore((s) => s.setView);
-  const fly = useStore((s) => s.requestFly);
   const { data: map } = useAnatomyMap();
 
-  const preset = (p: Preset) => {
-    setView({ preset: p, mode: p === "body" ? "body" : "heart" });
-    fly({ preset: p });
-  };
+  const views = useNames((s) => s.names?.views) ?? [];
+  const preset = goToView;
+  const current = view.preset || views.find((v) => v.mode === view.mode)?.key;
   const shot = async () => {
     try {
       const legend = useStore.getState().prediction?.scene.legend ?? null;
@@ -67,16 +61,24 @@ export function CanvasToolbar({ compact = false }: { compact?: boolean }) {
         >
           <Layers />
         </IconButton>
-        <IconButton label="Body mode" shortcut="B" active={view.mode === "body"} onClick={() => preset(view.mode === "body" ? "front" : "body")}>
+        <IconButton label="Body mode" shortcut="B" active={view.mode === "body"} onClick={toggleBodyMode}>
           <PersonStanding />
         </IconButton>
         <IconButton label="Heartbeat" shortcut="H" active={view.heartbeat} onClick={() => setView({ heartbeat: !view.heartbeat })}>
           <HeartPulse />
         </IconButton>
+        <IconButton
+          label="Educational: how risk factors affect arteries (general, not from this model)"
+          active={view.education}
+          onClick={() => setView({ education: !view.education })}
+          data-testid="education-toggle"
+        >
+          <BookOpenText />
+        </IconButton>
         <IconButton label="Turntable (6°/s)" active={view.turntable} onClick={() => setView({ turntable: !view.turntable })}>
           <RotateCw />
         </IconButton>
-        <IconButton label="Reset view" shortcut="R" onClick={() => fly({ preset: view.mode === "body" ? "body" : view.preset })}>
+        <IconButton label="Reset view" shortcut="R" onClick={resetView}>
           <RefreshCcw />
         </IconButton>
         <IconButton label="Save screenshot (PNG)" onClick={shot}>
@@ -118,10 +120,10 @@ export function CanvasToolbar({ compact = false }: { compact?: boolean }) {
     <div className="pointer-events-none absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] flex-col items-end gap-2">
       <div role="toolbar" aria-label="View controls" className="pointer-events-auto flex flex-nowrap justify-end gap-0.5 rounded-md border border-line bg-s1/90 p-1 shadow-soft backdrop-blur">
         <div className="mr-1 flex rounded-md bg-s2 p-0.5" role="group" aria-label="View presets">
-          {PRESETS.map(({ p, label, key }) => (
+          {views.map(({ key: p, label, shortcut: key }) => (
             <Tooltip key={p} content={`${label} view (${key})`}>
               <button
-                aria-pressed={view.preset === p}
+                aria-pressed={current === p}
                 onClick={() => preset(p)}
                 className="h-8 rounded-[5px] px-2.5 text-xs font-medium text-t2 hover:text-t1 aria-pressed:bg-s3 aria-pressed:text-t1"
               >

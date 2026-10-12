@@ -1,10 +1,12 @@
 import { useEffect } from "react";
-import { useStore, type Preset } from "../../state/store";
+import { useStore } from "../../state/store";
+import { names } from "../../lib/anatomy";
+import { goToView, resetView, toggleBodyMode } from "../../lib/views";
 import { Dialog } from "../../ui/Dialog";
 import { Kbd } from "../../ui/Kbd";
 
 export const SHORTCUTS: [string, string][] = [
-  ["1 / 2 / 3 / 4", "Front / Left / Posterior / Body view"],
+  ["1 / 2 / 3 / 4", "View presets (see the canvas toolbar)"],
   ["L", "Realistic ↔ Clinical look"],
   ["T", "Territories on / off"],
   ["B", "Body mode on / off"],
@@ -16,7 +18,6 @@ export const SHORTCUTS: [string, string][] = [
   ["Alt + click", "Reset a patient field to its default"],
 ];
 
-const PRESETS: Record<string, Preset> = { "1": "front", "2": "left", "3": "posterior", "4": "body" };
 
 export function toggleFullscreen() {
   const el = document.querySelector<HTMLElement>('[data-tour="canvas"]');
@@ -35,18 +36,13 @@ export function useGlobalShortcuts({ onShortcuts }: { onShortcuts: () => void })
       if (t && (t.closest("input, textarea, select, [contenteditable=true], [role=slider], [role=dialog]") !== null)) return;
       const s = useStore.getState();
       const k = e.key;
-      if (k in PRESETS) {
-        const p = PRESETS[k]!;
-        s.setView({ preset: p, mode: p === "body" ? "body" : "heart" });
-        s.requestFly({ preset: p });
-      } else if (k === "l" || k === "L") s.setView({ look: s.view.look === "realistic" ? "clinical" : "realistic" });
+      const view = names()?.views.find((v) => v.shortcut === k);
+      if (view) goToView(view.key);
+      else if (k === "l" || k === "L") s.setView({ look: s.view.look === "realistic" ? "clinical" : "realistic" });
       else if (k === "t" || k === "T") s.setView({ territories: !s.view.territories });
-      else if (k === "b" || k === "B") {
-        const body = s.view.mode !== "body";
-        s.setView({ mode: body ? "body" : "heart", preset: body ? "body" : "front" });
-        s.requestFly({ preset: body ? "body" : "front" });
-      } else if (k === "h" || k === "H") s.setView({ heartbeat: !s.view.heartbeat });
-      else if (k === "r" || k === "R") s.requestFly({ preset: s.view.mode === "body" ? "body" : s.view.preset });
+      else if (k === "b" || k === "B") toggleBodyMode();
+      else if (k === "h" || k === "H") s.setView({ heartbeat: !s.view.heartbeat });
+      else if (k === "r" || k === "R") resetView();
       else if (k === "f" || k === "F") toggleFullscreen();
       else if (k === "?") onShortcuts();
       else if (k === "Escape") {

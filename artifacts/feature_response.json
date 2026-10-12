@@ -1,0 +1,2828 @@
+{
+ "description": "Max |Δ calibrated probability| when sweeping each input over its schema range (binary: both values; categorical/ordinal: every level; numeric: 9 values min..max) for each curated sample patient, with all other inputs fixed. Frozen models; genuine model behaviour.",
+ "samples": [
+  "low",
+  "moderate",
+  "lad",
+  "multi",
+  "diabetic",
+  "uncertain"
+ ],
+ "targets": [
+  "cad",
+  "lad",
+  "lcx",
+  "rca"
+ ],
+ "numeric_points": 9,
+ "effect_strength_rule": "max over targets of max |Δ| in points: <0.5 -> 0, <5.0 -> 1, <15.0 -> 2, else 3",
+ "near_zero_threshold_pts": 0.5,
+ "features": {
+  "age": {
+   "label": "Age",
+   "group": "demographic",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.3733,
+    "lad": 0.311,
+    "lcx": 0.3815,
+    "rca": 0.513
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0547,
+     "lad": 0.0982,
+     "lcx": 0.0691,
+     "rca": 0.0931
+    },
+    "moderate": {
+     "cad": 0.3456,
+     "lad": 0.171,
+     "lcx": 0.2798,
+     "rca": 0.1002
+    },
+    "lad": {
+     "cad": 0.2227,
+     "lad": 0.2555,
+     "lcx": 0.3041,
+     "rca": 0.2468
+    },
+    "multi": {
+     "cad": 0.0241,
+     "lad": 0.1697,
+     "lcx": 0.3815,
+     "rca": 0.513
+    },
+    "diabetic": {
+     "cad": 0.3733,
+     "lad": 0.2938,
+     "lcx": 0.2878,
+     "rca": 0.4472
+    },
+    "uncertain": {
+     "cad": 0.0255,
+     "lad": 0.311,
+     "lcx": 0.2438,
+     "rca": 0.3241
+    }
+   },
+   "used_by_model": true
+  },
+  "weight": {
+   "label": "Weight",
+   "group": "demographic",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0,
+    "lad": 0.0,
+    "lcx": 0.0,
+    "rca": 0.0033
+   },
+   "effect_strength": 0,
+   "per_sample": {
+    "low": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0027
+    },
+    "moderate": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.002
+    },
+    "lad": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0032
+    },
+    "multi": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0016
+    },
+    "diabetic": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0016
+    },
+    "uncertain": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0033
+    }
+   },
+   "used_by_model": true
+  },
+  "length": {
+   "label": "Height",
+   "group": "demographic",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0,
+    "lad": 0.0,
+    "lcx": 0.1417,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0108,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.039,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0168,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0522,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0966,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.1417,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "sex": {
+   "label": "Sex",
+   "group": "demographic",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0585,
+    "lad": 0.0272,
+    "lcx": 0.2175,
+    "rca": 0.0485
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0002,
+     "lad": 0.0012,
+     "lcx": 0.0215,
+     "rca": 0.0013
+    },
+    "moderate": {
+     "cad": 0.0058,
+     "lad": 0.0125,
+     "lcx": 0.0862,
+     "rca": 0.0058
+    },
+    "lad": {
+     "cad": 0.0006,
+     "lad": 0.0205,
+     "lcx": 0.0672,
+     "rca": 0.0485
+    },
+    "multi": {
+     "cad": 0.0,
+     "lad": 0.0039,
+     "lcx": 0.0102,
+     "rca": 0.0053
+    },
+    "diabetic": {
+     "cad": 0.0585,
+     "lad": 0.0272,
+     "lcx": 0.2175,
+     "rca": 0.0453
+    },
+    "uncertain": {
+     "cad": 0.0001,
+     "lad": 0.0096,
+     "lcx": 0.1095,
+     "rca": 0.0197
+    }
+   },
+   "used_by_model": true
+  },
+  "bmi": {
+   "label": "BMI",
+   "group": "demographic",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0572,
+    "lad": 0.0547,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.004,
+     "lad": 0.0071,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0572,
+     "lad": 0.032,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0035,
+     "lad": 0.0531,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.0091,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0036,
+     "lad": 0.0547,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0021,
+     "lad": 0.0485,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "dm": {
+   "label": "Diabetes mellitus",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0429,
+    "lad": 0.0396,
+    "lcx": 0.0,
+    "rca": 0.2809
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.007,
+     "lad": 0.0084,
+     "lcx": 0.0,
+     "rca": 0.0568
+    },
+    "moderate": {
+     "cad": 0.0429,
+     "lad": 0.0345,
+     "lcx": 0.0,
+     "rca": 0.1047
+    },
+    "lad": {
+     "cad": 0.0027,
+     "lad": 0.0371,
+     "lcx": 0.0,
+     "rca": 0.236
+    },
+    "multi": {
+     "cad": 0.0007,
+     "lad": 0.0106,
+     "lcx": 0.0,
+     "rca": 0.1629
+    },
+    "diabetic": {
+     "cad": 0.0033,
+     "lad": 0.0396,
+     "lcx": 0.0,
+     "rca": 0.2809
+    },
+    "uncertain": {
+     "cad": 0.0019,
+     "lad": 0.0394,
+     "lcx": 0.0,
+     "rca": 0.2499
+    }
+   },
+   "used_by_model": true
+  },
+  "htn": {
+   "label": "Hypertension",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.2136,
+    "lad": 0.0696,
+    "lcx": 0.0,
+    "rca": 0.0676
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0239,
+     "lad": 0.0135,
+     "lcx": 0.0,
+     "rca": 0.0072
+    },
+    "moderate": {
+     "cad": 0.2136,
+     "lad": 0.0436,
+     "lcx": 0.0,
+     "rca": 0.0117
+    },
+    "lad": {
+     "cad": 0.0081,
+     "lad": 0.055,
+     "lcx": 0.0,
+     "rca": 0.0328
+    },
+    "multi": {
+     "cad": 0.0016,
+     "lad": 0.0172,
+     "lcx": 0.0,
+     "rca": 0.0211
+    },
+    "diabetic": {
+     "cad": 0.0078,
+     "lad": 0.0514,
+     "lcx": 0.0,
+     "rca": 0.0348
+    },
+    "uncertain": {
+     "cad": 0.012,
+     "lad": 0.0696,
+     "lcx": 0.0,
+     "rca": 0.0676
+    }
+   },
+   "used_by_model": true
+  },
+  "current_smoker": {
+   "label": "Current smoker",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0177,
+    "lad": 0.0378,
+    "lcx": 0.0,
+    "rca": 0.0676
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0026,
+     "lad": 0.0071,
+     "lcx": 0.0,
+     "rca": 0.0072
+    },
+    "moderate": {
+     "cad": 0.0177,
+     "lad": 0.0296,
+     "lcx": 0.0,
+     "rca": 0.0157
+    },
+    "lad": {
+     "cad": 0.0012,
+     "lad": 0.0323,
+     "lcx": 0.0,
+     "rca": 0.0328
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.0075,
+     "lcx": 0.0,
+     "rca": 0.0141
+    },
+    "diabetic": {
+     "cad": 0.0013,
+     "lad": 0.0339,
+     "lcx": 0.0,
+     "rca": 0.0465
+    },
+    "uncertain": {
+     "cad": 0.0009,
+     "lad": 0.0378,
+     "lcx": 0.0,
+     "rca": 0.0676
+    }
+   },
+   "used_by_model": true
+  },
+  "ex_smoker": {
+   "label": "Ex-smoker",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0203,
+    "lad": 0.0626,
+    "lcx": 0.0,
+    "rca": 0.0555
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0031,
+     "lad": 0.0154,
+     "lcx": 0.0,
+     "rca": 0.0072
+    },
+    "moderate": {
+     "cad": 0.0203,
+     "lad": 0.061,
+     "lcx": 0.0,
+     "rca": 0.0157
+    },
+    "lad": {
+     "cad": 0.0013,
+     "lad": 0.0588,
+     "lcx": 0.0,
+     "rca": 0.0328
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.0132,
+     "lcx": 0.0,
+     "rca": 0.0141
+    },
+    "diabetic": {
+     "cad": 0.0012,
+     "lad": 0.0548,
+     "lcx": 0.0,
+     "rca": 0.0348
+    },
+    "uncertain": {
+     "cad": 0.0009,
+     "lad": 0.0626,
+     "lcx": 0.0,
+     "rca": 0.0555
+    }
+   },
+   "used_by_model": true
+  },
+  "fh": {
+   "label": "Family history of CAD",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0147,
+    "lad": 0.0122,
+    "lcx": 0.0,
+    "rca": 0.0555
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0022,
+     "lad": 0.0024,
+     "lcx": 0.0,
+     "rca": 0.0072
+    },
+    "moderate": {
+     "cad": 0.0147,
+     "lad": 0.01,
+     "lcx": 0.0,
+     "rca": 0.0157
+    },
+    "lad": {
+     "cad": 0.001,
+     "lad": 0.0114,
+     "lcx": 0.0,
+     "rca": 0.0328
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0027,
+     "lcx": 0.0,
+     "rca": 0.0141
+    },
+    "diabetic": {
+     "cad": 0.0009,
+     "lad": 0.0109,
+     "lcx": 0.0,
+     "rca": 0.0348
+    },
+    "uncertain": {
+     "cad": 0.0007,
+     "lad": 0.0122,
+     "lcx": 0.0,
+     "rca": 0.0555
+    }
+   },
+   "used_by_model": true
+  },
+  "obesity": {
+   "label": "Obesity",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0114,
+    "lad": 0.0129,
+    "lcx": 0.0,
+    "rca": 0.0676
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0015,
+     "lad": 0.0021,
+     "lcx": 0.0,
+     "rca": 0.0024
+    },
+    "moderate": {
+     "cad": 0.0114,
+     "lad": 0.0093,
+     "lcx": 0.0,
+     "rca": 0.0117
+    },
+    "lad": {
+     "cad": 0.0008,
+     "lad": 0.0117,
+     "lcx": 0.0,
+     "rca": 0.0328
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.003,
+     "lcx": 0.0,
+     "rca": 0.0211
+    },
+    "diabetic": {
+     "cad": 0.0008,
+     "lad": 0.0111,
+     "lcx": 0.0,
+     "rca": 0.0348
+    },
+    "uncertain": {
+     "cad": 0.0006,
+     "lad": 0.0129,
+     "lcx": 0.0,
+     "rca": 0.0676
+    }
+   },
+   "used_by_model": true
+  },
+  "crf": {
+   "label": "Chronic renal failure",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0381,
+    "lad": 0.1148,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0064,
+     "lad": 0.0308,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0381,
+     "lad": 0.1148,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0023,
+     "lad": 0.094,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0004,
+     "lad": 0.0204,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0023,
+     "lad": 0.0873,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0016,
+     "lad": 0.1005,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "cva": {
+   "label": "Prior stroke (CVA)",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0116,
+    "lad": 0.0569,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0018,
+     "lad": 0.0077,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0116,
+     "lad": 0.035,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0006,
+     "lad": 0.0542,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0,
+     "lad": 0.0145,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0006,
+     "lad": 0.0512,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0004,
+     "lad": 0.0569,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "airway_disease": {
+   "label": "Airway disease",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0389,
+    "lad": 0.0358,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0065,
+     "lad": 0.0082,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0389,
+     "lad": 0.0326,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0023,
+     "lad": 0.0339,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0004,
+     "lad": 0.0075,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0023,
+     "lad": 0.0315,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0017,
+     "lad": 0.0358,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "thyroid_disease": {
+   "label": "Thyroid disease",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0149,
+    "lad": 0.0975,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0019,
+     "lad": 0.0123,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0149,
+     "lad": 0.0561,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0011,
+     "lad": 0.0931,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.0255,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0012,
+     "lad": 0.088,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0009,
+     "lad": 0.0975,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "chf": {
+   "label": "Congestive heart failure",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.047,
+    "lad": 0.1321,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0086,
+     "lad": 0.0388,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.047,
+     "lad": 0.1321,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0023,
+     "lad": 0.0968,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.0199,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0023,
+     "lad": 0.0895,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0016,
+     "lad": 0.1032,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "dlp": {
+   "label": "Dyslipidaemia",
+   "group": "risk factor",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0122,
+    "lad": 0.0024,
+    "lcx": 0.0,
+    "rca": 0.0555
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0018,
+     "lad": 0.0004,
+     "lcx": 0.0,
+     "rca": 0.0072
+    },
+    "moderate": {
+     "cad": 0.0122,
+     "lad": 0.0016,
+     "lcx": 0.0,
+     "rca": 0.0157
+    },
+    "lad": {
+     "cad": 0.0008,
+     "lad": 0.0024,
+     "lcx": 0.0,
+     "rca": 0.0256
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0006,
+     "lcx": 0.0,
+     "rca": 0.0141
+    },
+    "diabetic": {
+     "cad": 0.0009,
+     "lad": 0.002,
+     "lcx": 0.0,
+     "rca": 0.0465
+    },
+    "uncertain": {
+     "cad": 0.0006,
+     "lad": 0.0023,
+     "lcx": 0.0,
+     "rca": 0.0555
+    }
+   },
+   "used_by_model": true
+  },
+  "bp": {
+   "label": "Systolic blood pressure",
+   "group": "examination",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0916,
+    "lad": 0.0839,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0064,
+     "lad": 0.0156,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0916,
+     "lad": 0.0488,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0047,
+     "lad": 0.0711,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0008,
+     "lad": 0.0195,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0053,
+     "lad": 0.0839,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0034,
+     "lad": 0.0646,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "pr": {
+   "label": "Pulse rate",
+   "group": "examination",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0322,
+    "lad": 0.0693,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0053,
+     "lad": 0.0173,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0322,
+     "lad": 0.0685,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.002,
+     "lad": 0.0651,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.0146,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.002,
+     "lad": 0.0606,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0014,
+     "lad": 0.0693,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "edema": {
+   "label": "Edema",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0232,
+    "lad": 0.0994,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0036,
+     "lad": 0.0206,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0232,
+     "lad": 0.0803,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0015,
+     "lad": 0.0732,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.0162,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0014,
+     "lad": 0.0682,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0012,
+     "lad": 0.0994,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "weak_peripheral_pulse": {
+   "label": "Weak peripheral pulse",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0388,
+    "lad": 0.0064,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0065,
+     "lad": 0.0018,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0388,
+     "lad": 0.0064,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0023,
+     "lad": 0.0046,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0004,
+     "lad": 0.0007,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0023,
+     "lad": 0.0039,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0016,
+     "lad": 0.0053,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "lung_rales": {
+   "label": "Lung rales",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0065,
+    "lad": 0.045,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0011,
+     "lad": 0.0103,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0065,
+     "lad": 0.0413,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0004,
+     "lad": 0.042,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0,
+     "lad": 0.0095,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0003,
+     "lad": 0.0391,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0002,
+     "lad": 0.045,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "systolic_murmur": {
+   "label": "Systolic murmur",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0072,
+    "lad": 0.0012,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0009,
+     "lad": 0.0003,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0072,
+     "lad": 0.0012,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0005,
+     "lad": 0.0012,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0002,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0005,
+     "lad": 0.0009,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0004,
+     "lad": 0.0012,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "diastolic_murmur": {
+   "label": "Diastolic murmur",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0552,
+    "lad": 0.1103,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.007,
+     "lad": 0.0136,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0552,
+     "lad": 0.062,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0046,
+     "lad": 0.1058,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0009,
+     "lad": 0.0291,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0046,
+     "lad": 0.1009,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0034,
+     "lad": 0.1103,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "typical_chest_pain": {
+   "label": "Typical chest pain",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.681,
+    "lad": 0.5132,
+    "lcx": 0.3073,
+    "rca": 0.3325
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.5969,
+     "lad": 0.1505,
+     "lcx": 0.173,
+     "rca": 0.0632
+    },
+    "moderate": {
+     "cad": 0.5573,
+     "lad": 0.4975,
+     "lcx": 0.3073,
+     "rca": 0.2167
+    },
+    "lad": {
+     "cad": 0.681,
+     "lad": 0.5015,
+     "lcx": 0.1132,
+     "rca": 0.1428
+    },
+    "multi": {
+     "cad": 0.0533,
+     "lad": 0.2687,
+     "lcx": 0.1418,
+     "rca": 0.2746
+    },
+    "diabetic": {
+     "cad": 0.012,
+     "lad": 0.137,
+     "lcx": 0.0306,
+     "rca": 0.0806
+    },
+    "uncertain": {
+     "cad": 0.559,
+     "lad": 0.5132,
+     "lcx": 0.253,
+     "rca": 0.3325
+    }
+   },
+   "used_by_model": true
+  },
+  "dyspnea": {
+   "label": "Dyspnea",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0549,
+    "lad": 0.0042,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0035,
+     "lad": 0.0007,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0549,
+     "lad": 0.0032,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0026,
+     "lad": 0.0039,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.0009,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0021,
+     "lad": 0.0037,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0017,
+     "lad": 0.0042,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "function_class": {
+   "label": "Functional class",
+   "group": "examination",
+   "type": "ordinal",
+   "max_delta": {
+    "cad": 0.0132,
+    "lad": 0.038,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.002,
+     "lad": 0.0081,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0132,
+     "lad": 0.0332,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0006,
+     "lad": 0.0262,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.0101,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0009,
+     "lad": 0.0377,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0006,
+     "lad": 0.038,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "atypical": {
+   "label": "Atypical chest pain",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.2096,
+    "lad": 0.1333,
+    "lcx": 0.1886,
+    "rca": 0.2612
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0082,
+     "lad": 0.0064,
+     "lcx": 0.0001,
+     "rca": 0.0065
+    },
+    "moderate": {
+     "cad": 0.2096,
+     "lad": 0.0584,
+     "lcx": 0.0292,
+     "rca": 0.079
+    },
+    "lad": {
+     "cad": 0.0162,
+     "lad": 0.128,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0016,
+     "lad": 0.0357,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0511,
+     "lad": 0.0787,
+     "lcx": 0.1886,
+     "rca": 0.2612
+    },
+    "uncertain": {
+     "cad": 0.01,
+     "lad": 0.1333,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "nonanginal": {
+   "label": "Non-anginal chest pain",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0231,
+    "lad": 0.1383,
+    "lcx": 0.0024,
+    "rca": 0.0102
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0048,
+     "lad": 0.0144,
+     "lcx": 0.0,
+     "rca": 0.001
+    },
+    "moderate": {
+     "cad": 0.0231,
+     "lad": 0.0361,
+     "lcx": 0.0024,
+     "rca": 0.0102
+    },
+    "lad": {
+     "cad": 0.0045,
+     "lad": 0.1325,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0009,
+     "lad": 0.0375,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0046,
+     "lad": 0.1262,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0034,
+     "lad": 0.1383,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "exertional_cp": {
+   "label": "Exertional chest pain",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0,
+    "lad": 0.0,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 0,
+   "per_sample": {
+    "low": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0,
+     "lad": 0.0,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": false
+  },
+  "lowth_ang": {
+   "label": "Low-threshold angina",
+   "group": "examination",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0448,
+    "lad": 0.1331,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0082,
+     "lad": 0.039,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0448,
+     "lad": 0.1331,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0022,
+     "lad": 0.097,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.02,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0022,
+     "lad": 0.0896,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0015,
+     "lad": 0.104,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "q_wave": {
+   "label": "Q wave",
+   "group": "ECG",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0855,
+    "lad": 0.2793,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0351,
+     "lad": 0.0769,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0855,
+     "lad": 0.2484,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0276,
+     "lad": 0.2793,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0012,
+     "lad": 0.0311,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0032,
+     "lad": 0.1078,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0063,
+     "lad": 0.161,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "st_elevation": {
+   "label": "ST elevation",
+   "group": "ECG",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0862,
+    "lad": 0.251,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0353,
+     "lad": 0.0778,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0862,
+     "lad": 0.251,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0033,
+     "lad": 0.1175,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0012,
+     "lad": 0.0313,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0033,
+     "lad": 0.1087,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0063,
+     "lad": 0.1619,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "st_depression": {
+   "label": "ST depression",
+   "group": "ECG",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0632,
+    "lad": 0.1561,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0294,
+     "lad": 0.043,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0632,
+     "lad": 0.1561,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.002,
+     "lad": 0.0711,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0011,
+     "lad": 0.025,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0024,
+     "lad": 0.0863,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0058,
+     "lad": 0.1247,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "tinversion": {
+   "label": "T-wave inversion",
+   "group": "ECG",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0787,
+    "lad": 0.1869,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0332,
+     "lad": 0.0533,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0787,
+     "lad": 0.1869,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0029,
+     "lad": 0.0884,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0012,
+     "lad": 0.0274,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0037,
+     "lad": 0.1156,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0062,
+     "lad": 0.1388,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "lvh": {
+   "label": "Left ventricular hypertrophy",
+   "group": "ECG",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.2144,
+    "lad": 0.0654,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0233,
+     "lad": 0.016,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.2144,
+     "lad": 0.0491,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0022,
+     "lad": 0.0616,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0008,
+     "lad": 0.0138,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0022,
+     "lad": 0.0574,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.005,
+     "lad": 0.0654,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "poor_r_progression": {
+   "label": "Poor R-wave progression",
+   "group": "ECG",
+   "type": "binary",
+   "max_delta": {
+    "cad": 0.0584,
+    "lad": 0.0808,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0285,
+     "lad": 0.0209,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0584,
+     "lad": 0.0808,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0034,
+     "lad": 0.0725,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.001,
+     "lad": 0.0159,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0034,
+     "lad": 0.0674,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0056,
+     "lad": 0.0772,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "bbb": {
+   "label": "Bundle branch block",
+   "group": "ECG",
+   "type": "categorical",
+   "max_delta": {
+    "cad": 0.0162,
+    "lad": 0.0419,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0162,
+     "lad": 0.0096,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0032,
+     "lad": 0.0388,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0002,
+     "lad": 0.0397,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0004,
+     "lad": 0.0088,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0001,
+     "lad": 0.0371,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0039,
+     "lad": 0.0419,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "fbs": {
+   "label": "Fasting blood sugar",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.3761,
+    "lad": 0.098,
+    "lcx": 0.101,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0229,
+     "lad": 0.0231,
+     "lcx": 0.0362,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.3761,
+     "lad": 0.098,
+     "lcx": 0.0745,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0343,
+     "lad": 0.0689,
+     "lcx": 0.06,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0023,
+     "lad": 0.0175,
+     "lcx": 0.0234,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0312,
+     "lad": 0.0681,
+     "lcx": 0.101,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0151,
+     "lad": 0.0835,
+     "lcx": 0.0939,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "cr": {
+   "label": "Creatinine",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0335,
+    "lad": 0.0755,
+    "lcx": 0.2454,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0064,
+     "lad": 0.0199,
+     "lcx": 0.1087,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0335,
+     "lad": 0.0523,
+     "lcx": 0.1437,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0023,
+     "lad": 0.0694,
+     "lcx": 0.2454,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0007,
+     "lad": 0.033,
+     "lcx": 0.1992,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0027,
+     "lad": 0.0755,
+     "lcx": 0.1822,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0015,
+     "lad": 0.0698,
+     "lcx": 0.2192,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "tg": {
+   "label": "Triglycerides",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.2491,
+    "lad": 0.1029,
+    "lcx": 0.1122,
+    "rca": 0.1554
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0119,
+     "lad": 0.0175,
+     "lcx": 0.0221,
+     "rca": 0.0103
+    },
+    "moderate": {
+     "cad": 0.2491,
+     "lad": 0.0925,
+     "lcx": 0.0478,
+     "rca": 0.0434
+    },
+    "lad": {
+     "cad": 0.0069,
+     "lad": 0.0862,
+     "lcx": 0.0308,
+     "rca": 0.1035
+    },
+    "multi": {
+     "cad": 0.0015,
+     "lad": 0.02,
+     "lcx": 0.037,
+     "rca": 0.0352
+    },
+    "diabetic": {
+     "cad": 0.0138,
+     "lad": 0.0698,
+     "lcx": 0.0484,
+     "rca": 0.0587
+    },
+    "uncertain": {
+     "cad": 0.0059,
+     "lad": 0.1029,
+     "lcx": 0.1122,
+     "rca": 0.1554
+    }
+   },
+   "used_by_model": true
+  },
+  "ldl": {
+   "label": "LDL cholesterol",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0123,
+    "lad": 0.0289,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0025,
+     "lad": 0.0069,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0123,
+     "lad": 0.017,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0015,
+     "lad": 0.027,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0002,
+     "lad": 0.0053,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0017,
+     "lad": 0.0265,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0009,
+     "lad": 0.0289,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "hdl": {
+   "label": "HDL cholesterol",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.045,
+    "lad": 0.0368,
+    "lcx": 0.0605,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0027,
+     "lad": 0.008,
+     "lcx": 0.0175,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.045,
+     "lad": 0.0311,
+     "lcx": 0.0522,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.002,
+     "lad": 0.0353,
+     "lcx": 0.0427,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.0059,
+     "lcx": 0.0388,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0016,
+     "lad": 0.031,
+     "lcx": 0.0605,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0012,
+     "lad": 0.0368,
+     "lcx": 0.058,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "bun": {
+   "label": "Blood urea nitrogen",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0202,
+    "lad": 0.0439,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.002,
+     "lad": 0.0059,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0202,
+     "lad": 0.0401,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0014,
+     "lad": 0.0439,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0003,
+     "lad": 0.0108,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0008,
+     "lad": 0.0264,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0007,
+     "lad": 0.0325,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "esr": {
+   "label": "ESR",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.247,
+    "lad": 0.1477,
+    "lcx": 0.0571,
+    "rca": 0.2442
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0356,
+     "lad": 0.0302,
+     "lcx": 0.0271,
+     "rca": 0.0374
+    },
+    "moderate": {
+     "cad": 0.247,
+     "lad": 0.056,
+     "lcx": 0.0571,
+     "rca": 0.0382
+    },
+    "lad": {
+     "cad": 0.0302,
+     "lad": 0.1117,
+     "lcx": 0.0201,
+     "rca": 0.0851
+    },
+    "multi": {
+     "cad": 0.0023,
+     "lad": 0.0353,
+     "lcx": 0.0487,
+     "rca": 0.1049
+    },
+    "diabetic": {
+     "cad": 0.0307,
+     "lad": 0.1477,
+     "lcx": 0.0308,
+     "rca": 0.2442
+    },
+    "uncertain": {
+     "cad": 0.0165,
+     "lad": 0.0927,
+     "lcx": 0.0567,
+     "rca": 0.1534
+    }
+   },
+   "used_by_model": true
+  },
+  "hb": {
+   "label": "Haemoglobin",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0125,
+    "lad": 0.0321,
+    "lcx": 0.0646,
+    "rca": 0.1249
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.001,
+     "lad": 0.0052,
+     "lcx": 0.0389,
+     "rca": 0.0164
+    },
+    "moderate": {
+     "cad": 0.0125,
+     "lad": 0.027,
+     "lcx": 0.0646,
+     "rca": 0.0221
+    },
+    "lad": {
+     "cad": 0.0006,
+     "lad": 0.0302,
+     "lcx": 0.0584,
+     "rca": 0.1066
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0062,
+     "lcx": 0.0117,
+     "rca": 0.0371
+    },
+    "diabetic": {
+     "cad": 0.0006,
+     "lad": 0.0269,
+     "lcx": 0.0546,
+     "rca": 0.0678
+    },
+    "uncertain": {
+     "cad": 0.0004,
+     "lad": 0.0321,
+     "lcx": 0.0179,
+     "rca": 0.1249
+    }
+   },
+   "used_by_model": true
+  },
+  "k": {
+   "label": "Potassium",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0597,
+    "lad": 0.1159,
+    "lcx": 0.096,
+    "rca": 0.2203
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0085,
+     "lad": 0.0253,
+     "lcx": 0.0236,
+     "rca": 0.0332
+    },
+    "moderate": {
+     "cad": 0.0597,
+     "lad": 0.1159,
+     "lcx": 0.0334,
+     "rca": 0.1009
+    },
+    "lad": {
+     "cad": 0.0034,
+     "lad": 0.0924,
+     "lcx": 0.0797,
+     "rca": 0.2185
+    },
+    "multi": {
+     "cad": 0.0006,
+     "lad": 0.0208,
+     "lcx": 0.0232,
+     "rca": 0.0483
+    },
+    "diabetic": {
+     "cad": 0.0037,
+     "lad": 0.0935,
+     "lcx": 0.096,
+     "rca": 0.1203
+    },
+    "uncertain": {
+     "cad": 0.0024,
+     "lad": 0.0988,
+     "lcx": 0.0341,
+     "rca": 0.2203
+    }
+   },
+   "used_by_model": true
+  },
+  "na": {
+   "label": "Sodium",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0108,
+    "lad": 0.0467,
+    "lcx": 0.0877,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0012,
+     "lad": 0.0079,
+     "lcx": 0.013,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0108,
+     "lad": 0.0467,
+     "lcx": 0.0224,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0005,
+     "lad": 0.0431,
+     "lcx": 0.0877,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0097,
+     "lcx": 0.0166,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0005,
+     "lad": 0.0357,
+     "lcx": 0.0785,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0003,
+     "lad": 0.0319,
+     "lcx": 0.0509,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "wbc": {
+   "label": "White blood cells",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.037,
+    "lad": 0.0299,
+    "lcx": 0.0629,
+    "rca": 0.0
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0028,
+     "lad": 0.004,
+     "lcx": 0.021,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.037,
+     "lad": 0.0181,
+     "lcx": 0.0341,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0015,
+     "lad": 0.016,
+     "lcx": 0.0473,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0053,
+     "lcx": 0.0134,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0012,
+     "lad": 0.0299,
+     "lcx": 0.0629,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0009,
+     "lad": 0.0152,
+     "lcx": 0.0178,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "lymph": {
+   "label": "Lymphocytes",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0618,
+    "lad": 0.2106,
+    "lcx": 0.0629,
+    "rca": 0.3079
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0106,
+     "lad": 0.065,
+     "lcx": 0.0228,
+     "rca": 0.0717
+    },
+    "moderate": {
+     "cad": 0.0618,
+     "lad": 0.2106,
+     "lcx": 0.0341,
+     "rca": 0.1543
+    },
+    "lad": {
+     "cad": 0.0027,
+     "lad": 0.1403,
+     "lcx": 0.0485,
+     "rca": 0.3079
+    },
+    "multi": {
+     "cad": 0.0007,
+     "lad": 0.0655,
+     "lcx": 0.0089,
+     "rca": 0.0853
+    },
+    "diabetic": {
+     "cad": 0.0031,
+     "lad": 0.1955,
+     "lcx": 0.0629,
+     "rca": 0.1464
+    },
+    "uncertain": {
+     "cad": 0.0023,
+     "lad": 0.1622,
+     "lcx": 0.0251,
+     "rca": 0.2873
+    }
+   },
+   "used_by_model": true
+  },
+  "neut": {
+   "label": "Neutrophils",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0637,
+    "lad": 0.14,
+    "lcx": 0.0,
+    "rca": 0.1186
+   },
+   "effect_strength": 2,
+   "per_sample": {
+    "low": {
+     "cad": 0.0068,
+     "lad": 0.0218,
+     "lcx": 0.0,
+     "rca": 0.0096
+    },
+    "moderate": {
+     "cad": 0.0637,
+     "lad": 0.0821,
+     "lcx": 0.0,
+     "rca": 0.0192
+    },
+    "lad": {
+     "cad": 0.003,
+     "lad": 0.0924,
+     "lcx": 0.0,
+     "rca": 0.0466
+    },
+    "multi": {
+     "cad": 0.0007,
+     "lad": 0.0411,
+     "lcx": 0.0,
+     "rca": 0.0606
+    },
+    "diabetic": {
+     "cad": 0.0048,
+     "lad": 0.14,
+     "lcx": 0.0,
+     "rca": 0.1186
+    },
+    "uncertain": {
+     "cad": 0.0022,
+     "lad": 0.0909,
+     "lcx": 0.0,
+     "rca": 0.0825
+    }
+   },
+   "used_by_model": true
+  },
+  "plt": {
+   "label": "Platelets",
+   "group": "lab",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.0302,
+    "lad": 0.0377,
+    "lcx": 0.1774,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0028,
+     "lad": 0.0106,
+     "lcx": 0.062,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0302,
+     "lad": 0.0374,
+     "lcx": 0.0809,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.001,
+     "lad": 0.0377,
+     "lcx": 0.0908,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0072,
+     "lcx": 0.1191,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.001,
+     "lad": 0.0377,
+     "lcx": 0.1774,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0005,
+     "lad": 0.0357,
+     "lcx": 0.1617,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "ef_tte": {
+   "label": "EF-TTE (ejection fraction)",
+   "group": "echo",
+   "type": "numeric",
+   "max_delta": {
+    "cad": 0.2864,
+    "lad": 0.3031,
+    "lcx": 0.0612,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.0721,
+     "lad": 0.1151,
+     "lcx": 0.0029,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.2864,
+     "lad": 0.3031,
+     "lcx": 0.0438,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0115,
+     "lad": 0.1714,
+     "lcx": 0.0599,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0024,
+     "lad": 0.0338,
+     "lcx": 0.0104,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.047,
+     "lad": 0.1517,
+     "lcx": 0.0367,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0075,
+     "lad": 0.1849,
+     "lcx": 0.0612,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "region_rwma": {
+   "label": "Regional wall-motion abnormality",
+   "group": "echo",
+   "type": "ordinal",
+   "max_delta": {
+    "cad": 0.1013,
+    "lad": 0.2883,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 3,
+   "per_sample": {
+    "low": {
+     "cad": 0.018,
+     "lad": 0.0938,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.1013,
+     "lad": 0.2883,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0054,
+     "lad": 0.161,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.001,
+     "lad": 0.0332,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0054,
+     "lad": 0.1485,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0039,
+     "lad": 0.1734,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  },
+  "vhd": {
+   "label": "Valvular heart disease",
+   "group": "echo",
+   "type": "ordinal",
+   "max_delta": {
+    "cad": 0.0024,
+    "lad": 0.0121,
+    "lcx": 0.0,
+    "rca": 0.0
+   },
+   "effect_strength": 1,
+   "per_sample": {
+    "low": {
+     "cad": 0.0005,
+     "lad": 0.0025,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "moderate": {
+     "cad": 0.0024,
+     "lad": 0.0072,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "lad": {
+     "cad": 0.0003,
+     "lad": 0.0121,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "multi": {
+     "cad": 0.0001,
+     "lad": 0.0018,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "diabetic": {
+     "cad": 0.0002,
+     "lad": 0.0075,
+     "lcx": 0.0,
+     "rca": 0.0
+    },
+    "uncertain": {
+     "cad": 0.0002,
+     "lad": 0.0086,
+     "lcx": 0.0,
+     "rca": 0.0
+    }
+   },
+   "used_by_model": true
+  }
+ },
+ "generated_in_s": 142.6
+}

@@ -32,6 +32,11 @@ export function installTestHooks() {
       const s = useStore.getState();
       return { selection: s.selection, explainTarget: s.explainTarget, view: s.view, pending: s.pending, caseId: s.caseId };
     },
+    lastResolved: () => useStore.getState().prediction?.resolved_features ?? {},
+    lastPrediction: () => {
+      const p = useStore.getState().prediction;
+      return p ? { prediction: p.prediction, resolved_features: p.resolved_features } : null;
+    },
     sceneColors: () => {
       const sc = useStore.getState().prediction?.scene;
       return sc ? Object.fromEntries(Object.entries(sc.meshes).map(([k, m]) => [k, m.color])) : {};

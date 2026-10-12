@@ -159,9 +159,9 @@ export default function ModelCardDialog({ open, onOpenChange }: { open: boolean;
                 <thead className="text-left text-t2">
                   <tr>
                     <th scope="col" className="py-1 font-medium">Sample</th>
-                    {["CAD", "LAD", "LCX", "RCA"].map((h) => (
+                    {c.targets.map(({ key: h, label }) => (
                       <th key={h} scope="col" className="py-1 text-center font-medium">
-                        {h}
+                        {label.replace(/\s*\([^)]*\)\s*$/, "")}
                       </th>
                     ))}
                   </tr>
@@ -172,9 +172,9 @@ export default function ModelCardDialog({ open, onOpenChange }: { open: boolean;
                       <td className="py-1.5 text-t1">
                         {e.title} <span className="text-t3">· {e.subtitle}</span>
                       </td>
-                      {(["cad", "lad", "lcx", "rca"] as const).map((k) => (
+                      {c.targets.map(({ key: k, positive_label, negative_label }) => (
                         <td key={k} className="py-1.5 text-center">
-                          {e.true_labels[k] ? (k === "cad" ? "CAD" : "Stenotic") : "Normal"}
+                          {e.true_labels[k] ? positive_label : negative_label}
                         </td>
                       ))}
                     </tr>

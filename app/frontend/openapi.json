@@ -288,6 +288,28 @@
      }
     }
    }
+  },
+  "/api/education": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Education",
+    "description": "Optional general-population education content (app/backend/content/education.json). Never patient-specific.",
+    "operationId": "education_api_education_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Education"
+        }
+       }
+      }
+     }
+    }
+   }
   }
  },
  "components": {
@@ -439,6 +461,78 @@
     ],
     "title": "Driver"
    },
+   "Education": {
+    "properties": {
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "note": {
+      "type": "string",
+      "title": "Note"
+     },
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/EducationItem"
+      },
+      "type": "array",
+      "title": "Items"
+     }
+    },
+    "type": "object",
+    "required": [
+     "title",
+     "label",
+     "note",
+     "items"
+    ],
+    "title": "Education"
+   },
+   "EducationItem": {
+    "properties": {
+     "key": {
+      "type": "string",
+      "title": "Key"
+     },
+     "features": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Features"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text"
+     },
+     "source": {
+      "type": "string",
+      "title": "Source"
+     },
+     "url": {
+      "type": "string",
+      "title": "Url"
+     }
+    },
+    "type": "object",
+    "required": [
+     "key",
+     "features",
+     "title",
+     "text",
+     "source",
+     "url"
+    ],
+    "title": "EducationItem"
+   },
    "ErrorBody": {
     "properties": {
      "code": {
@@ -526,6 +620,11 @@
       },
       "type": "object",
       "title": "True Labels"
+     },
+     "featured": {
+      "type": "boolean",
+      "title": "Featured",
+      "default": false
      }
     },
     "type": "object",
@@ -726,6 +825,32 @@
      "help": {
       "type": "string",
       "title": "Help"
+     },
+     "effect_strength": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Effect Strength",
+      "description": "0-3: how much this input can move the model's estimates (artifacts/feature_response.json)"
+     },
+     "effect_max_pts": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "number"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Effect Max Pts"
      }
     },
     "type": "object",
@@ -813,6 +938,10 @@
      "version": {
       "type": "string",
       "title": "Version"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
      }
     },
     "type": "object",
@@ -822,7 +951,8 @@
      "vessel_strategy",
      "loaded_at",
      "load_ms",
-     "version"
+     "version",
+     "disclaimer"
     ],
     "title": "Health"
    },
@@ -1041,14 +1171,7 @@
      }
     },
     "type": "object",
-    "title": "PredictIn",
-    "example": {
-     "features": {
-      "age": 63,
-      "dm": 1,
-      "ldl": 160
-     }
-    }
+    "title": "PredictIn"
    },
    "PredictOut": {
     "properties": {
@@ -1674,14 +1797,7 @@
     "required": [
      "feature"
     ],
-    "title": "SensitivityIn",
-    "example": {
-     "features": {
-      "age": 63,
-      "dm": 1,
-      "ldl": 160
-     }
-    }
+    "title": "SensitivityIn"
    },
    "SensitivityOut": {
     "properties": {
@@ -1841,6 +1957,14 @@
       },
       "type": "array",
       "title": "Top Drivers"
+     },
+     "positive_label": {
+      "type": "string",
+      "title": "Positive Label"
+     },
+     "negative_label": {
+      "type": "string",
+      "title": "Negative Label"
      }
     },
     "type": "object",
@@ -1855,7 +1979,9 @@
      "threshold",
      "threshold_rule",
      "reliability_badge",
-     "top_drivers"
+     "top_drivers",
+     "positive_label",
+     "negative_label"
     ],
     "title": "TargetCard"
    },
@@ -1962,14 +2088,7 @@
     "required": [
      "changes"
     ],
-    "title": "WhatIfIn",
-    "example": {
-     "features": {
-      "age": 63,
-      "dm": 1,
-      "ldl": 160
-     }
-    }
+    "title": "WhatIfIn"
    },
    "WhatIfOut": {
     "properties": {

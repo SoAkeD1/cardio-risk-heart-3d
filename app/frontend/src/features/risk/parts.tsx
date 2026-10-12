@@ -62,11 +62,12 @@ const TIER_ICON = { Low: ChevronsDown, Moderate: Minus, High: ChevronsUp } as co
 /** Tier chip: icon + text + tier tint from anatomy_map.style.heart_tiers. */
 export function RiskTierChip({ tier }: { tier: "Low" | "Moderate" | "High" }) {
   const { data: map } = useAnatomyMap();
-  const bg = map?.style.heart_tiers[tier]?.color ?? "#E9D0C3";
+  const bg = map?.style.heart_tiers[tier]?.color;
+  if (!bg) return null;
   const Icon = TIER_ICON[tier];
   return (
     <span
-      className="inline-flex h-7 items-center gap-1 rounded-full px-2.5 text-xs font-semibold"
+      className="inline-flex h-7 shrink-0 items-center gap-1 whitespace-nowrap rounded-full px-2.5 text-xs font-semibold"
       style={{ background: bg, color: inkOn(bg) }}
       data-testid="tier-chip"
     >

@@ -1,5 +1,6 @@
 import { Info, TriangleAlert } from "lucide-react";
 import type { FeatureSpec } from "../../api/types";
+import { useTargets } from "../../api/hooks";
 import { featureValue, num } from "../../lib/format";
 import { useStore, type Val } from "../../state/store";
 import { NumberField } from "../../ui/NumberField";
@@ -13,7 +14,6 @@ const isYes = (v: Val | undefined) => ["1", "y", "yes", "true"].includes(String(
 export function optionLabel(f: FeatureSpec, v: string | number): string {
   const s = String(v);
   if (f.value_labels && s in f.value_labels) return f.value_labels[s]!;
-  if (f.name === "function_class") return s === "0" ? "None" : `Class ${s}`;
   return s;
 }
 
@@ -71,6 +71,7 @@ export function FieldControl({ f }: { f: FeatureSpec }) {
           <Info className="h-3.5 w-3.5" />
         </button>
       </Tooltip>
+      {f.effect_strength != null && <EffectMeter f={f} />}
     </div>
   );
 
@@ -169,5 +170,32 @@ export function FieldControl({ f }: { f: FeatureSpec }) {
         </p>
       )}
     </div>
+  );
+}
+
+/** 0-3 bars from artifacts/feature_response.json (served as effect_strength by /api/schema). */
+function EffectMeter({ f }: { f: FeatureSpec }) {
+  const n = f.effect_strength ?? 0;
+  const pts = f.effect_max_pts ?? {};
+  const targets = useTargets();
+  const tip = (
+    <span>
+      How much this input can change this model&rsquo;s estimates.
+      <br />
+      <span className="text-t2">
+        {n === 0
+          ? "Little effect on any estimate."
+          : `Up to ${targets.map((t) => `${t.label} ${Math.round(pts[t.key] ?? 0)}`).join(" · ")} pts across the sample patients.`}
+      </span>
+    </span>
+  );
+  return (
+    <Tooltip content={tip}>
+      <span role="img" aria-label={`Effect on the estimate: ${n} of 3`} data-effect={n} className="ml-auto flex h-3 shrink-0 items-end gap-[2px] pl-1">
+        {[1, 2, 3].map((i) => (
+          <span key={i} className={`w-[3px] rounded-sm ${i <= n ? "bg-[rgb(var(--text-2))]" : "bg-s3"}`} style={{ height: 4 + i * 3 }} />
+        ))}
+      </span>
+    </Tooltip>
   );
 }

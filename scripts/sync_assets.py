@@ -48,6 +48,10 @@ def main() -> int:
             print(f"hash mismatch after copy: {dst}")
             return 1
         manifest[str(dst.relative_to(PUB)).replace("\\", "/")] = h[:16]
+    # static fallback for the disclaimer (shown only if the API is unreachable): generated from config, not typed in
+    sys.path.insert(0, str(ROOT))
+    from cardio_ml.config import DISCLAIMER
+    (PUB / "meta.json").write_text(json.dumps({"disclaimer": DISCLAIMER}), encoding="utf-8")
     (PUB / "assets-manifest.json").write_text(json.dumps(manifest, indent=1), encoding="utf-8")
     print(f"synced {len(manifest)} assets into app/frontend/public (hashes verified)")
     if missing:

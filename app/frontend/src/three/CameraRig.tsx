@@ -7,27 +7,23 @@ import { prefersReducedMotion } from "../lib/device";
 import { useStore, type Preset } from "../state/store";
 import { reg, useModelStatus } from "./registry";
 import { viewTarget, worldPos } from "./geom";
+import { firstView, names, viewMode } from "../lib/anatomy";
 
 const FLY_MS = 600;
 const easeInOutCubic = (t: number) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
-const VIEW_NODE: Record<Preset, string> = {
-  front: "Extra_View_Front",
-  left: "Extra_View_Left",
-  posterior: "Extra_View_Posterior",
-  body: "Extra_View_Body",
-};
 
-const REF_ASPECT = 1.6; // Extra_View_* presets are framed for a 16:10 frame (35 deg vertical FOV)
+const REF_ASPECT = 1.6; // the view-preset nodes are framed for a 16:10 frame (35 deg vertical FOV)
 
-/** Preset pose from the Extra_View_* node; pulled back on narrower canvases so the subject still fits. */
+/** Preset pose from the view node named in anatomy_map.viewer.views; pulled back on narrower canvases. */
 export function presetPose(p: Preset, aspect = REF_ASPECT): { pos: THREE.Vector3; target: THREE.Vector3 } | null {
-  const n = reg.nodes.get(VIEW_NODE[p]);
+  const view = names()?.views.find((v) => v.key === p);
+  const n = view && reg.nodes.get(view.node);
   if (!n) return null;
   n.updateWorldMatrix(true, false);
   const pos = new THREE.Vector3().setFromMatrixPosition(n.matrixWorld);
   const target = viewTarget(n);
   // presets come from 16:10 renders; in app panels the subject gets a little air + width-limited canvases pull back
-  const k = (p === "body" ? 1.05 : 1.25) * Math.max(1, 1 / Math.max(aspect, 0.3));
+  const k = (view.mode === "body" ? 1.05 : 1.25) * Math.max(1, 1 / Math.max(aspect, 0.3));
   return { pos: target.clone().add(pos.sub(target).multiplyScalar(k)), target };
 }
 
@@ -71,7 +67,7 @@ export function CameraRig() {
   useEffect(() => {
     if (!loaded) return;
     const v = useStore.getState().view;
-    go(presetPose(v.mode === "body" ? "body" : v.preset === "body" ? "front" : v.preset, aspect()), true);
+    go(presetPose(v.preset && viewMode(v.preset) === v.mode ? v.preset : firstView(v.mode), aspect()), true);
     reg.camera = camera;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [loaded]);

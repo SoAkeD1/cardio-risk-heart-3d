@@ -14,6 +14,8 @@ import type { Scene } from "../api/types";
 import { useStore } from "../state/store";
 import { worldPos } from "./geom";
 import { reg, useModelStatus } from "./registry";
+import { names, useNames } from "../lib/anatomy";
+import { useActiveChange } from "./ChangeFeedback";
 
 type Chip = {
   key: string;
@@ -35,13 +37,19 @@ type Tag = {
   color: string;
   flagged: boolean;
 };
-export const useOverlay = create<{ chips: Chip[]; tags: Tag[]; set: (p: { chips?: Chip[]; tags?: Tag[] }) => void }>(
-  (set) => ({
-    chips: [],
-    tags: [],
-    set: (p) => set(p),
-  }),
-);
+type DeltaChip = { key: string; id: number; x: number; y: number; text: string; up: boolean };
+export const DELTA_CHIP_MS = 2000;
+export const useOverlay = create<{
+  chips: Chip[];
+  tags: Tag[];
+  deltas: DeltaChip[];
+  set: (p: { chips?: Chip[]; tags?: Tag[]; deltas?: DeltaChip[] }) => void;
+}>((set) => ({
+  chips: [],
+  tags: [],
+  deltas: [],
+  set: (p) => set(p),
+}));
 
 const CHIP_H = 22;
 const GRID = 8; // silhouette mask cell (px)
@@ -64,18 +72,22 @@ function worldBox(names: string[]): THREE.Box3 | null {
   return any ? box : null;
 }
 
-/** 3D point where a region's chip belongs. */
-function regionPoint(region: string, meshNames: string[], anchor: string): THREE.Vector3 | null {
-  if (region === "whole_body" || meshNames.includes("Torso_Shell")) {
-    const torso = worldBox(["Torso_Shell"]);
-    const lungs = worldBox(["Organ_Lungs"]);
-    if (!torso) return worldPos(anchor);
-    const c = torso.getCenter(new THREE.Vector3());
-    c.y = lungs
-      ? lungs.getCenter(new THREE.Vector3()).y + (lungs.max.y - lungs.min.y) * 0.25
-      : torso.min.y + 0.72 * (torso.max.y - torso.min.y);
-    return c; // chest centre
-  }
+/** Chest centre: body-shell centre (x, z) at the upper part of the chest reference mesh (both from the map). */
+function chestCentre(): THREE.Vector3 | null {
+  const N = names();
+  if (!N) return null;
+  const torso = worldBox([N.bodyShell]);
+  const lungs = worldBox([N.chestRef]);
+  if (!torso) return null;
+  const c = torso.getCenter(new THREE.Vector3());
+  c.y = lungs ? lungs.getCenter(new THREE.Vector3()).y + (lungs.max.y - lungs.min.y) * 0.25 : torso.min.y + 0.72 * (torso.max.y - torso.min.y);
+  return c;
+}
+
+/** 3D point where a region's chip belongs (anatomy_map body_regions[].chip_point). */
+function regionPoint(chipPoint: string | undefined, meshNames: string[], anchor: string): THREE.Vector3 | null {
+  if (chipPoint === "chest_centre") return chestCentre() ?? worldPos(anchor);
+  if (chipPoint === "anchor" || !meshNames.length) return worldPos(anchor);
   const b = worldBox(meshNames);
   return b ? b.getCenter(new THREE.Vector3()) : worldPos(anchor);
 }
@@ -102,7 +114,10 @@ export function OverlayLayout() {
   useFrame(() => {
     if (!loaded) return;
     const now = performance.now();
+    const ev = useStore.getState().changeEvent;
+    const evLive = !!ev && Date.now() - ev.at < DELTA_CHIP_MS;
     const key =
+      `${evLive ? ev!.id : 0}|` +
       camera.matrixWorld.elements.map((v) => v.toFixed(4)).join(",") +
       `|${size.width}x${size.height}|${mode}|${pred?.latency_ms}|${whatIf.showOnHeart}|${whatIf.peek}|${whatIf.result?.latency_ms}`;
     if (key === last.current.key || now - last.current.t < 60) return;
@@ -112,9 +127,10 @@ export function OverlayLayout() {
 
     // ---------------------------------------------------------------- body-mode region chips
     let chips: Chip[] = [];
-    if (mode === "body" && scene?.regions.length) {
-      // silhouette mask from projected Torso_Shell vertices (dilated by one cell)
-      const shell = reg.meshes.get("Torso_Shell");
+    const N = names();
+    if (mode === "body" && scene?.regions.length && N) {
+      // silhouette mask from the projected body-shell vertices (dilated by one cell)
+      const shell = reg.meshes.get(names()?.bodyShell ?? "");
       const cols = Math.ceil(size.width / GRID),
         rows = Math.ceil(size.height / GRID);
       const mask = new Uint8Array(cols * rows);
@@ -154,7 +170,7 @@ export function OverlayLayout() {
         [x - w / 2 + 4, x, x + w / 2 - 4].every(
           (sx) => inside(sx, y - CHIP_H / 2 + 4) && inside(sx, y + CHIP_H / 2 - 4),
         );
-      const chest = regionPoint("whole_body", ["Torso_Shell"], "Anchor_WholeBody");
+      const chest = chestCentre();
       const chestS = chest ? project(chest) : { x: size.width / 2, y: size.height / 2 };
       const placed: { x0: number; x1: number; y0: number; y1: number }[] = [];
       const free = (x: number, y: number, w: number) =>
@@ -163,9 +179,9 @@ export function OverlayLayout() {
         );
       const items = scene.regions
         .map((r) => {
-          const blood = r.camera_anchor === "Anchor_Blood";
-          const label = blood ? "Blood tests" : r.display_name;
-          const p = regionPoint(r.region, r.mesh_names, r.camera_anchor);
+          const blood = !r.mesh_names.length; // a region without meshes (e.g. blood tests) -> HUD-style chip
+          const label = r.display_name;
+          const p = regionPoint(N.regions.find((x) => x.region === r.region)?.chip_point, r.mesh_names, r.camera_anchor);
           return p ? { r, blood, label, s: project(p), w: estW(label, blood ? 2 : 1) } : null;
         })
         .filter((x): x is NonNullable<typeof x> => !!x)
@@ -208,13 +224,15 @@ export function OverlayLayout() {
     let tags: Tag[] = [];
     const vessels = scene ? Object.entries(scene.vessels) : [];
     if (mode === "heart" && vessels.filter(([, v]) => v.flagged).length >= 2) {
-      const occluders = ["Heart_Myocardium", "Aorta"].map((n) => reg.meshes.get(n)).filter((m): m is THREE.Mesh => !!m);
+      const N = names()!;
+      const occluders = N.occluders.map((n) => reg.meshes.get(n)).filter((m): m is THREE.Mesh => !!m);
       const camPos = camera.getWorldPosition(new THREE.Vector3());
       const centre = new THREE.Vector3(0, 0, 0);
       const boxes: { x0: number; x1: number; y0: number; y1: number }[] = [];
       for (const [k, v] of vessels) {
-        const mesh = reg.nodes.get(`Coronary_${k.toUpperCase()}`);
-        const raw = mesh?.userData?.centerlines_gltf as string | undefined;
+        const vdef = N.vessels.find((x) => x.key === k);
+        const mesh = vdef && reg.nodes.get(vdef.mesh);
+        const raw = mesh?.userData?.[N.centerlineExtra] as string | undefined;
         if (!mesh || !raw) continue;
         const parent = mesh.parent;
         parent?.updateWorldMatrix(true, false);
@@ -251,7 +269,7 @@ export function OverlayLayout() {
         bestIdx.current[k] = chosen.i;
         const s = project(chosen.p);
         if (s.z > 1) continue;
-        const label = k.toUpperCase();
+        const label = vdef!.short;
         const w = estW(label, 0);
         // tag sits above the point with a short leader; push up/sideways to avoid other tags
         const tx = s.x;
@@ -267,13 +285,52 @@ export function OverlayLayout() {
         tags.push({ key: k, x: tx, y: ty, px: s.x, py: s.y, label, color: v.color, flagged: v.flagged });
       }
     } else tags = [];
-    setOverlay({ chips, tags });
+    // ---------------------------------------------------------------- per-vessel Δ chips after an input change
+    const deltas: DeltaChip[] = [];
+    const Nn = names();
+    if (evLive && ev && Nn && mode === "heart") {
+      const taken = tags.map((t) => ({ x0: t.x - 30, x1: t.x + 30, y0: t.y - 10, y1: t.y + 10 }));
+      // never under the canvas UI (legend, vessel buttons, toolbar, toast): their rectangles are obstacles too
+      const cr = gl.domElement.getBoundingClientRect();
+      for (const el of document.querySelectorAll<HTMLElement>('[data-testid="legend"], [aria-label="Select an artery"], [aria-label="View controls"], [data-testid="change-toast"]')) {
+        const r = el.getBoundingClientRect();
+        taken.push({ x0: r.left - cr.left, x1: r.right - cr.left, y0: r.top - cr.top, y1: r.bottom - cr.top });
+      }
+      for (const v of Nn.vessels) {
+        const d = ev.deltas[v.key] ?? 0;
+        if (Math.abs(d) < 0.01) continue;
+        const p = worldPos(v.anchor);
+        if (!p) continue;
+        const sp = project(p);
+        if (sp.z > 1) continue;
+        const n = Math.round(Math.abs(d) * 100);
+        const text = `${v.short} ${d > 0 ? "+" : "−"}${n} pt${n === 1 ? "" : "s"}`;
+        const w = text.length * 6.6 + 16;
+        let y = sp.y;
+        let x = sp.x;
+        const hit = () => taken.some((b) => x - w / 2 < b.x1 + 4 && b.x0 < x + w / 2 + 4 && y - 11 < b.y1 && b.y0 < y + 11);
+        for (let n = 0; n < 10 && hit(); n++) {
+          // try above / below first, then sideways toward the canvas centre
+          if (n % 2 === 0) y = sp.y - 24 * (n / 2 + 1);
+          else y = sp.y + 24 * ((n + 1) / 2);
+          if (n >= 6) x = sp.x + (size.width / 2 - sp.x) * 0.3;
+        }
+        if (hit()) continue; // no clean spot: skip (the toast still reports the delta)
+        taken.push({ x0: x - w / 2, x1: x + w / 2, y0: y - 11, y1: y + 11 });
+        deltas.push({ key: v.key, id: ev.id, x, y, text, up: d > 0 });
+      }
+    }
+    setOverlay({ chips, tags, deltas });
   });
   return null;
 }
 
 export function OverlayLabels() {
-  const { chips, tags } = useOverlay();
+  const { chips, tags, deltas: allDeltas } = useOverlay();
+  const live = useActiveChange(DELTA_CHIP_MS);
+  const deltas = allDeltas.filter((d) => d.id === live?.id);
+  const regionStyle = useNames((s) => s.names?.map.style.regions);
+  const outline = useNames((s) => s.names?.map.style.vessel.outline_color) ?? "currentColor";
   const mode = useStore((s) => s.view.mode);
   return (
     <div className="pointer-events-none absolute inset-0 z-[5] overflow-hidden" aria-hidden>
@@ -312,11 +369,11 @@ export function OverlayLabels() {
                 y1={t.py}
                 x2={t.x}
                 y2={t.y + 10}
-                stroke="#FFFFFF"
+                stroke={outline}
                 strokeOpacity={0.85}
                 strokeWidth={1.2}
               />
-              <circle cx={t.px} cy={t.py} r={2.4} fill="#FFFFFF" />
+              <circle cx={t.px} cy={t.py} r={2.4} fill={outline} />
             </g>
           ))}
         </svg>
@@ -331,6 +388,17 @@ export function OverlayLabels() {
           >
             <span className="h-2 w-2 rounded-full border border-white/70" style={{ background: t.color }} />
             {t.label}
+          </div>
+        ))}
+      {mode === "heart" &&
+        deltas.map((d) => (
+          <div
+            key={`${d.key}-${d.id}`}
+            data-delta-chip={d.key}
+            className="absolute flex h-[22px] -translate-x-1/2 -translate-y-1/2 items-center whitespace-nowrap rounded-full border bg-s1/95 px-2 text-[11px] font-semibold text-t1 shadow-soft motion-safe:animate-[chipOut_2000ms_ease-out_forwards]"
+            style={{ left: d.x, top: d.y, borderColor: d.up ? regionStyle?.raises_color : regionStyle?.lowers_color }}
+          >
+            {d.text}
           </div>
         ))}
     </div>

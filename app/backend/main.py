@@ -18,7 +18,7 @@ from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.responses import FileResponse, ORJSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from .routers import assets, examples, health, modelcard, predict, schema, sensitivity, whatif
+from .routers import assets, education, examples, health, modelcard, predict, schema, sensitivity, whatif
 from .services import ApiError, Services
 from .settings import get_settings
 
@@ -81,7 +81,7 @@ def create_app(services: Services | None = None) -> FastAPI:
         log.exception("unhandled error")
         return _err(500, "internal_error", "Something went wrong on the server. Please try again.")
 
-    for r in (health, schema, examples, predict, whatif, sensitivity, modelcard, assets):
+    for r in (health, schema, examples, predict, whatif, sensitivity, modelcard, assets, education):
         app.include_router(r.router, prefix="/api")
 
     dist = Path(st.FRONTEND_DIST)

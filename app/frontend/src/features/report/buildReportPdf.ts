@@ -2,8 +2,8 @@
 // in the built-in Helvetica font (">=" instead of a math sign, "-" instead of minus).
 import type { AnatomyMap, FeatureSpec, PredictOut, SchemaResponse, Target, WhatIfOut } from "../../api/types";
 import { byImpact, featureValue, pct } from "../../lib/format";
+import { creditParts } from "../../lib/anatomy";
 
-const T_LABEL: Record<Target, string> = { cad: "CAD", lad: "LAD", lcx: "LCX", rca: "RCA" };
 const ascii = (s: string) =>
   s.replace(/≥/g, ">=").replace(/≤/g, "<=").replace(/[−–—]/g, "-").replace(/[‘’]/g, "'").replace(/[“”]/g, '"').replace(/·/g, "-").replace(/×/g, "x").replace(/µ/g, "u").replace(/²/g, "2").replace(/³/g, "3");
 const ptsA = (d: number) => {
@@ -15,6 +15,8 @@ export async function buildReportPdf(opts: {
   prediction: PredictOut;
   schema: SchemaResponse;
   map?: AnatomyMap;
+  citation?: string;
+  targets: { key: Target; label: string }[];
   patient: Record<string, string | number>;
   changed: string[];
   snapshot?: string | null;
@@ -27,6 +29,8 @@ export async function buildReportPdf(opts: {
   const p = opts.prediction;
   const fx: Record<string, FeatureSpec> = Object.fromEntries(opts.schema.features.map((f) => [f.name, f]));
   const disclaimer = ascii(p.disclaimer);
+  const credit = creditParts(opts.map, opts.citation);
+  const vessels = opts.targets.filter((t) => t.key in p.scene.vessels);
   let y = 0;
 
   const header = () => {
@@ -53,11 +57,12 @@ export async function buildReportPdf(opts: {
       doc.setTextColor(60);
       doc.text(doc.splitTextToSize(disclaimer, CW - 20), M, 283);
       doc.setTextColor(120);
-      doc.text(
-        ascii("3D heart: 'Realistic Human Heart' by neshallads (Sketchfab), CC BY 4.0, modified. Data: Z-Alizadeh Sani (UCI)."),
-        M,
-        292,
-      );
+      if (credit.model)
+        doc.text(
+          ascii(`3D heart: '${credit.model.name}' by ${credit.model.author}, ${credit.model.license}, modified.${credit.dataset ? ` Data: ${credit.dataset}.` : ""}`),
+          M,
+          292,
+        );
       doc.text(`${i} / ${n}`, W - M, 292, { align: "right" });
     }
   };
@@ -144,11 +149,11 @@ export async function buildReportPdf(opts: {
     let ty = y + 4;
     const tx = M + iw + 5;
     doc.setFontSize(9);
-    for (const v of ["lad", "lcx", "rca"] as const) {
+    for (const { key: v, label: vl } of vessels) {
       const s = p.scene.vessels[v]!;
       doc.setFont("helvetica", "bold");
       doc.setTextColor(27, 28, 30);
-      doc.text(`${v.toUpperCase()}  ${pct(s.prob)}`, tx, ty);
+      doc.text(`${vl}  ${pct(s.prob)}`, tx, ty);
       doc.setFont("helvetica", "normal");
       doc.setTextColor(80);
       doc.text(doc.splitTextToSize(`${s.flagged ? "Stenosis likely" : "Below threshold"} (threshold ${pct(s.threshold)}). Reliability: ${s.reliability}.`, W - M - tx), tx, ty + 4.2);
@@ -161,7 +166,7 @@ export async function buildReportPdf(opts: {
     h2("Arteries");
     table(
       ["Artery", "Probability", "Threshold", "Flag", "Reliability"],
-      (["lad", "lcx", "rca"] as const).map((v) => {
+      vessels.map(({ key: v }) => {
         const s = p.scene.vessels[v]!;
         return [s.display_name, pct(s.prob), pct(s.threshold), s.flagged ? "Stenosis likely" : "-", s.reliability];
       }),
@@ -171,7 +176,8 @@ export async function buildReportPdf(opts: {
 
   // --- patient summary
   h2("Patient summary (changed and key fields)");
-  const key = ["age", "sex", "bmi", "bp", "fbs", "ldl", "hdl", "tg", "dm", "htn", "current_smoker", "typical_chest_pain", "ef_tte"];
+  // key fields = modifiable risk factors (anatomy_map) + the top CAD drivers of THIS patient (API)
+  const key = [...(opts.map?.modifiable.features ?? []), ...byImpact(p.contributions.cad ?? []).slice(0, 6).map((r) => r.feature)];
   const names = [...new Set([...opts.changed, ...key])].filter((n) => fx[n]);
   const cells = names.map((n) => [ascii(fx[n]!.label), ascii(featureValue(opts.patient[n], fx[n]))]);
   const half = Math.ceil(cells.length / 2);
@@ -183,9 +189,9 @@ export async function buildReportPdf(opts: {
 
   // --- drivers
   h2("Top-5 drivers per estimate (SHAP, probability points)");
-  for (const t of ["cad", "lad", "lcx", "rca"] as Target[]) {
+  for (const { key: t, label: tl } of opts.targets) {
     const rows = byImpact(p.contributions[t] ?? []).slice(0, 5);
-    para(`${T_LABEL[t]} (${pct(t === "cad" ? p.prediction.cad.prob : p.prediction[t].prob)}): ${rows
+    para(`${tl} (${pct(p.prediction[t].prob)}): ${rows
       .map((r) => `${fx[r.feature]?.label ?? r.label} = ${featureValue(r.value, fx[r.feature])} ${ptsA(r.shap)}`)
       .join("; ")}`);
   }
@@ -201,7 +207,7 @@ export async function buildReportPdf(opts: {
     para(`Changes: ${Object.entries(opts.whatIfChanges).map(([k, v]) => `${fx[k]?.label ?? k} -> ${featureValue(v, fx[k])}`).join("; ")}`);
     table(
       ["Target", "Before", "After", "Change"],
-      (["cad", "lad", "lcx", "rca"] as Target[]).map((t) => [T_LABEL[t], pct(opts.whatIf!.before[t].prob), pct(opts.whatIf!.after[t].prob), ptsA(opts.whatIf!.delta[t] ?? 0)]),
+      opts.targets.map(({ key: t, label: tl }) => [tl, pct(opts.whatIf!.before[t].prob), pct(opts.whatIf!.after[t].prob), ptsA(opts.whatIf!.delta[t] ?? 0)]),
       [40, 30, 30, 30],
     );
     para("Model-estimated change only - correlational, not a treatment effect.", 27);

@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useMemo, useState } from "react";
-import { useExamples, usePredictionSync, useSchema, useWhatIfSync } from "./api/hooks";
+import { useAnatomyMap, useExamples, usePredictionSync, useSchema, useServiceRecovery, useWhatIfSync } from "./api/hooks";
+import { useNames } from "./lib/anatomy";
 import { useStore, type Val } from "./state/store";
 import { useLayout } from "./lib/useBreakpoint";
 import { hasWebGL } from "./lib/device";
@@ -13,6 +14,7 @@ import { ResultsPanel } from "./features/risk/ResultsPanel";
 import { MobileTabs } from "./features/shell/MobileTabs";
 import { BottomSheet } from "./features/shell/BottomSheet";
 import { Tour } from "./features/onboarding/Tour";
+import { DebugDrawer } from "./features/shell/DebugDrawer";
 import { ExportMenu } from "./features/report/ExportMenu";
 import { loadExample } from "./features/patient/SampleMenu";
 import { Sheet } from "./ui/Sheet";
@@ -25,10 +27,16 @@ const ModelCardDialog = lazy(() => import("./features/modelcard/ModelCardDialog"
 export default function App() {
   useApplyTheme();
   usePredictionSync();
+  useServiceRecovery();
   useWhatIfSync();
   const layout = useLayout();
   const schema = useSchema();
   const examples = useExamples();
+  const amap = useAnatomyMap();
+  const setNames = useNames((s) => s.set);
+  useEffect(() => {
+    if (amap.data) setNames(amap.data);
+  }, [amap.data, setNames]);
   const ui = useStore((s) => s.ui);
   const setUi = useStore((s) => s.setUi);
   const setDefaults = useStore((s) => s.setDefaults);
@@ -151,6 +159,7 @@ export default function App() {
 
       <DisclaimerStrip />
       <div id="live-region" aria-live="polite" className="sr-only" />
+      <DebugDrawer />
 
       <Suspense fallback={null}>{modelCard && <ModelCardDialog open onOpenChange={setModelCard} />}</Suspense>
       <ShortcutSheet open={shortcuts} onOpenChange={setShortcuts} />

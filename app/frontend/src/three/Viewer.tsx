@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { useViewerLook } from "../api/hooks";
-import { VESSELS, type Vessel } from "../api/types";
+
 import { isLowEndDevice, prefersReducedMotion } from "../lib/device";
 import { pct } from "../lib/format";
 import { useStore } from "../state/store";
@@ -16,6 +16,9 @@ import { HeartModel, MODEL_URL } from "./HeartModel";
 import { Legend } from "./Legend";
 import { Picking } from "./Picking";
 import { OverlayLabels, OverlayLayout } from "./Overlays";
+import { ChangeFeedback } from "./ChangeFeedback";
+import { EducationCard } from "../features/onboarding/EducationCard";
+import { firstView, useNames } from "../lib/anatomy";
 import { reg, useModelStatus } from "./registry";
 import { worldPos } from "./geom";
 import { Tooltip3D } from "./Tooltip3D";
@@ -48,7 +51,7 @@ function ViewerApis() {
       const cam = camera as THREE.PerspectiveCamera;
       const prev = { pos: cam.position.clone(), quat: cam.quaternion.clone(), dpr: gl.getPixelRatio() };
       if (opts?.front) {
-        const pose = presetPose("front", (cam as THREE.PerspectiveCamera).aspect);
+        const pose = presetPose(firstView("heart"), (cam as THREE.PerspectiveCamera).aspect);
         if (pose) {
           cam.position.copy(pose.pos);
           cam.lookAt(pose.target);
@@ -131,26 +134,27 @@ function VesselButtons({ compact }: { compact: boolean }) {
   const sel = useStore((s) => s.selection.target);
   const select = useStore((s) => s.select);
   const fly = useStore((s) => s.requestFly);
+  const vessels = useNames((s) => s.names?.vessels) ?? [];
   return (
     <div role="group" aria-label="Select an artery" className="pointer-events-auto absolute bottom-3 right-3 z-10 flex gap-1 rounded-md border border-line bg-s1/90 p-1 shadow-soft backdrop-blur">
-      {VESSELS.map((v: Vessel) => {
+      {vessels.map(({ key: v, short, anchor }) => {
         const sv = scene?.vessels[v];
         return (
           <button
             key={v}
             data-testid={`vessel-btn-${v}`}
             aria-pressed={sel === v}
-            aria-label={sv ? `${sv.display_name}: ${pct(sv.prob)}${sv.flagged ? ", stenosis likely" : ""}` : v.toUpperCase()}
+            aria-label={sv ? `${sv.display_name}: ${pct(sv.prob)}${sv.flagged ? ", stenosis likely" : ""}` : short}
             onClick={() => {
               const next = sel === v ? undefined : v;
               select(next);
-              if (next) fly({ anchor: sv?.camera_anchor ?? `Anchor_${v.toUpperCase()}` });
+              if (next) fly({ anchor: sv?.camera_anchor ?? anchor });
               if (next) document.getElementById(`vessel-card-${v}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
             }}
             className="flex h-8 items-center gap-1.5 rounded-[5px] px-2 text-xs font-semibold text-t1 hover:bg-s2 aria-pressed:bg-s3 aria-pressed:ring-1 aria-pressed:ring-[rgb(var(--accent)/0.7)]"
           >
             <span className="h-2.5 w-2.5 rounded-full border border-line" style={{ background: sv?.color ?? "transparent" }} aria-hidden />
-            {v.toUpperCase()}
+            {short}
             {sv && !compact && <span className="num font-normal text-t2">{pct(sv.prob)}</span>}
           </button>
         );
@@ -167,6 +171,7 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
   const scene = useStore((s) => s.prediction?.scene);
   const loaded = useModelStatus((s) => s.loaded);
   const reduced = useMemo(() => prefersReducedMotion(), []);
+  const N = useNames((s) => s.names);
   const declined = useRef(false);
   const [size, setSize] = useState(() => ({ w: typeof window === "undefined" ? 1000 : window.innerWidth, h: 800 }));
   const ro = useRef<ResizeObserver | null>(null);
@@ -196,10 +201,12 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
   const animating = !reduced && (view.heartbeat || view.turntable || anyFlag || (view.mode === "body" && !!scene?.regions.length));
 
   const aria = scene
-    ? VESSELS.map((v) => {
-        const s = scene.vessels[v]!;
-        return `${v.toUpperCase()} ${pct(s.prob)}${s.flagged ? " stenosis likely" : ""}`;
-      }).join("; ") + `. CAD ${pct(scene.heart.cad_prob)}, ${scene.heart.risk_tier} tier.`
+    ? (N?.vessels ?? [])
+        .map(({ key, short }) => {
+          const s = scene.vessels[key]!;
+          return `${short} ${pct(s.prob)}${s.flagged ? " stenosis likely" : ""}`;
+        })
+        .join("; ") + `. CAD ${pct(scene.heart.cad_prob)}, ${scene.heart.risk_tier} tier.`
     : "3D heart with the three main coronary arteries shown in a neutral colour. Load a sample patient to see risk.";
 
   if (!look) return <div className="canvas-bg h-full w-full" />;
@@ -260,6 +267,8 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
       </div>
       <ProgressOverlay />
       <OverlayLabels />
+      <ChangeFeedback />
+      <EducationCard />
       <WhatIfChip />
       <CanvasToolbar compact={compact} />
       <Legend compact={compact} />

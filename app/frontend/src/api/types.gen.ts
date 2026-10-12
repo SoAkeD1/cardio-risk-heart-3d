@@ -157,6 +157,26 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/education": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Education
+         * @description Optional general-population education content (app/backend/content/education.json). Never patient-specific.
+         */
+        get: operations["education_api_education_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -204,6 +224,32 @@ export interface components {
             /** Direction */
             direction: string;
         };
+        /** Education */
+        Education: {
+            /** Title */
+            title: string;
+            /** Label */
+            label: string;
+            /** Note */
+            note: string;
+            /** Items */
+            items: components["schemas"]["EducationItem"][];
+        };
+        /** EducationItem */
+        EducationItem: {
+            /** Key */
+            key: string;
+            /** Features */
+            features: string[];
+            /** Title */
+            title: string;
+            /** Text */
+            text: string;
+            /** Source */
+            source: string;
+            /** Url */
+            url: string;
+        };
         /** ErrorBody */
         ErrorBody: {
             /** Code */
@@ -235,6 +281,11 @@ export interface components {
             true_labels: {
                 [key: string]: boolean;
             };
+            /**
+             * Featured
+             * @default false
+             */
+            featured: boolean;
         };
         /** ExamplesResponse */
         ExamplesResponse: {
@@ -286,6 +337,15 @@ export interface components {
             used_by_model: boolean;
             /** Help */
             help: string;
+            /**
+             * Effect Strength
+             * @description 0-3: how much this input can move the model's estimates (artifacts/feature_response.json)
+             */
+            effect_strength?: number | null;
+            /** Effect Max Pts */
+            effect_max_pts?: {
+                [key: string]: number;
+            } | null;
         };
         /** Figure */
         Figure: {
@@ -322,6 +382,8 @@ export interface components {
             load_ms: number;
             /** Version */
             version: string;
+            /** Disclaimer */
+            disclaimer: string;
         };
         /** LegendStop */
         LegendStop: {
@@ -376,16 +438,7 @@ export interface components {
             /** Disclaimer */
             disclaimer: string;
         };
-        /**
-         * PredictIn
-         * @example {
-         *       "features": {
-         *         "age": 63,
-         *         "dm": 1,
-         *         "ldl": 160
-         *       }
-         *     }
-         */
+        /** PredictIn */
         PredictIn: {
             /** Features */
             features?: {
@@ -613,16 +666,7 @@ export interface components {
             /** Features */
             features: components["schemas"]["FeatureSpec"][];
         };
-        /**
-         * SensitivityIn
-         * @example {
-         *       "features": {
-         *         "age": 63,
-         *         "dm": 1,
-         *         "ldl": 160
-         *       }
-         *     }
-         */
+        /** SensitivityIn */
         SensitivityIn: {
             /** Features */
             features?: {
@@ -699,6 +743,10 @@ export interface components {
             reliability_badge: string;
             /** Top Drivers */
             top_drivers: string[];
+            /** Positive Label */
+            positive_label: string;
+            /** Negative Label */
+            negative_label: string;
         };
         /** TargetPrediction */
         TargetPrediction: {
@@ -711,16 +759,7 @@ export interface components {
             /** Risk Tier */
             risk_tier?: ("Low" | "Moderate" | "High") | null;
         };
-        /**
-         * WhatIfIn
-         * @example {
-         *       "features": {
-         *         "age": 63,
-         *         "dm": 1,
-         *         "ldl": 160
-         *       }
-         *     }
-         */
+        /** WhatIfIn */
         WhatIfIn: {
             /** Features */
             features?: {
@@ -1018,6 +1057,26 @@ export interface operations {
                     "application/json": {
                         [key: string]: unknown;
                     };
+                };
+            };
+        };
+    };
+    education_api_education_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Education"];
                 };
             };
         };

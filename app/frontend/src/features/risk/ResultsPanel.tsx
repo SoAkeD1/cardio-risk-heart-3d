@@ -6,6 +6,7 @@ import { EmptyState } from "../onboarding/EmptyState";
 import { WhatIfPanel } from "../whatif/WhatIfPanel";
 import { SectionHeader } from "./parts";
 import { RiskSummary } from "./RiskSummary";
+import { WhatChanged } from "./WhatChanged";
 import { VesselCards } from "./VesselCards";
 
 /** Right panel: summary · vessel cards · Why? · physiological breakdown · what-if. `only` = mobile tab subset. */
@@ -36,6 +37,7 @@ export function ResultsPanel({ only }: { only?: "risk" | "why" | "whatif" }) {
             <>
               <SectionHeader title="Risk summary" />
               <RiskSummary />
+              <WhatChanged />
               {warnings.length > 0 && (
                 <ul className="mx-4 mb-3 space-y-1 rounded-md border border-line bg-s2 p-2 text-xs text-warn">
                   {warnings.map((w) => (

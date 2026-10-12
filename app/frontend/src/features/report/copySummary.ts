@@ -7,7 +7,7 @@ export function summaryText(p: PredictOut, fx: Record<string, FeatureSpec>): str
   const lines = [
     `CardioLens model estimate (${new Date().toLocaleString("en-GB")})`,
     `CAD: ${pct(h.cad_prob)} - ${h.cad_prob >= h.threshold ? "CAD likely" : "CAD unlikely"}, ${h.risk_tier} risk tier; expected stenotic vessels ${h.expected_stenotic_vessels.toFixed(1)} of 3 (reliability ${h.reliability}).`,
-    ...(["lad", "lcx", "rca"] as const).map((v) => {
+    ...Object.keys(p.scene.vessels).map((v) => {
       const s = p.scene.vessels[v]!;
       return `${s.display_name}: ${pct(s.prob)} (threshold ${pct(s.threshold)})${s.flagged ? " - stenosis likely" : ""}; reliability ${s.reliability}.`;
     }),

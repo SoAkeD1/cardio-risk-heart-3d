@@ -1,7 +1,7 @@
 // scene_state -> materials. Mesh names, colours and flags come ONLY from the API scene + anatomy_map.
 // * each mesh gets its own material clone (never mutate shared materials)
 // * colour / emissive tween over 400 ms (easeOutCubic) inside useFrame
-// * flagged vessels: Extra_Outline_<V> shell visible + emissive pulse e(t) = base * (0.6 + 0.4 sin(2*pi*f*t))
+// * flagged vessels: the vessel's outline shell (anatomy_map.viewer.vessel_helpers) visible + emissive pulse e(t) = base * (0.6 + 0.4 sin(2*pi*f*t))
 // * only LAD / LCX / RCA carry risk colours; LM and branches keep their neutral map colours
 import { useFrame, useThree } from "@react-three/fiber";
 import { useEffect, useMemo, useRef } from "react";
@@ -10,8 +10,13 @@ import type { AnatomyMap, Scene } from "../api/types";
 import { prefersReducedMotion } from "../lib/device";
 import { useStore, type Look } from "../state/store";
 import { reg } from "./registry";
+import { names } from "../lib/anatomy";
 
 const TWEEN_MS = 400;
+const TIER_TWEEN_MS = 600; // myocardium tint cross-fade when the CAD risk tier changes
+const FLASH_MS = 300; // vessel flash when its probability changed >= 1 pt
+const REGION_PULSE_MS = 1000; // body-mode organ pulse for the changed feature's region
+const FLASH_MIN_DELTA = 0.01;
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const TEXTURED_TINT = 0.5; // textured surfaces (heart, aorta) take the scene tint at 50 % so the texture stays legible
 const WHITE = new THREE.Color(1, 1, 1);
@@ -22,7 +27,8 @@ type Binding = {
   mesh: THREE.Mesh;
   textured: boolean;
   variants: Partial<Record<Look, Std>>;
-  color: { from: THREE.Color; to: THREE.Color; cur: THREE.Color; start: number };
+  color: { from: THREE.Color; to: THREE.Color; cur: THREE.Color; start: number; dur?: number };
+  flash?: { start: number; dur: number; color?: string };
   emissive: { from: number; to: number; cur: number; start: number };
   pulseHz: number;
   flagged: boolean;
@@ -117,12 +123,14 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
   useEffect(() => {
     if (!bindings || !map) return;
     const now = performance.now();
-    const neutral = map.neutral_structures.find((n) => n.mesh_names.includes("Coronary_LM"))?.color ?? "#C9C2B8";
+    const N = names();
+    const neutral = N?.unmodelledCoronary[0]?.color ?? map.neutral_structures[0]!.color;
     const setTarget = (b: Binding, color: string, emissive: number, pulse: number, flagged: boolean) => {
       const c = new THREE.Color(color);
       b.color.from.copy(b.color.cur);
       b.color.to.copy(c);
       b.color.start = reduced ? now - TWEEN_MS : now;
+      b.color.dur = undefined; // a tier change (change-feedback effect below) lengthens this to TIER_TWEEN_MS
       b.emissive.from = b.emissive.cur;
       b.emissive.to = emissive;
       b.emissive.start = b.color.start;
@@ -137,12 +145,40 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
       } else if (!scene && map.vessels.some((v) => v.mesh_names.includes(name))) {
         setTarget(b, neutral, 0, 0, false); // before any prediction: vessels neutral
       } else if (!scene && map.heart.mesh_names.includes(name)) {
-        setTarget(b, "#FFFFFF", 0, 0, false);
+        setTarget(b, "#" + WHITE.getHexString(), 0, 0, false); // untinted texture
       }
     }
     animUntil.current = now + TWEEN_MS + 50;
     invalidate();
   }, [bindings, map, scene, reduced, invalidate]);
+
+  // change feedback: flash changed vessels, cross-fade the myocardium on tier change, pulse the linked organ
+  const changeEvent = useStore((s) => s.changeEvent);
+  useEffect(() => {
+    if (!bindings || !changeEvent) return;
+    const N = names();
+    if (!N) return;
+    const now = performance.now();
+    for (const v of N.vessels) {
+      if (Math.abs(changeEvent.deltas[v.key] ?? 0) < FLASH_MIN_DELTA) continue;
+      const b = bindings.get(v.mesh);
+      if (b) b.flash = { start: now, dur: FLASH_MS };
+    }
+    if (changeEvent.tierFrom !== changeEvent.tierTo)
+      for (const m of N.heartMeshes) {
+        const b = bindings.get(m);
+        if (b) b.color.dur = TIER_TWEEN_MS;
+      }
+    if (useStore.getState().view.mode === "body")
+      for (const f of changeEvent.features)
+        for (const r of N.regions.filter((x) => x.features.includes(f.name)))
+          for (const m of r.mesh_names) {
+            const b = bindings.get(m);
+            if (b) b.flash = { start: now, dur: REGION_PULSE_MS };
+          }
+    animUntil.current = now + REGION_PULSE_MS + 50;
+    invalidate();
+  }, [bindings, changeEvent, invalidate]);
 
   // static per-frame-independent material setup (visibility, transparency, outlines, helpers)
   useEffect(() => {
@@ -150,23 +186,26 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
     const terrOpacity = map.style.territory.opacity;
     for (const [name, b] of bindings) {
       const m = b.mesh.material as Std;
-      if (name.startsWith("Extra_Hit_")) {
+      const N = names();
+      if (!N) continue;
+      const outlineOf = N.vessels.find((v) => v.outline === name);
+      if (N.vessels.some((v) => v.hit === name)) {
         m.transparent = true;
         m.opacity = 0;
         m.depthWrite = false;
         m.colorWrite = false;
-      } else if (name.startsWith("Extra_Outline_")) {
-        const v = name.replace("Extra_Outline_", "").toLowerCase();
+      } else if (outlineOf) {
+        const v = outlineOf.key;
         const sv = scene?.vessels[v];
         if (!(b.mesh.material instanceof THREE.MeshBasicMaterial)) {
           // inverted normals are baked into the outline shell -> FrontSide renders the hull behind the vessel
-          b.mesh.material = new THREE.MeshBasicMaterial({ color: "#FFFFFF", transparent: true, opacity: 0.9, side: THREE.FrontSide, depthWrite: false });
+          b.mesh.material = new THREE.MeshBasicMaterial({ color: map.style.vessel.outline_color, transparent: true, opacity: 0.9, side: THREE.FrontSide, depthWrite: false });
         }
         const om = b.mesh.material as THREE.MeshBasicMaterial;
-        om.color.set(scene?.meshes[`Coronary_${v.toUpperCase()}`]?.outline_color ?? "#FFFFFF");
+        om.color.set(scene?.meshes[outlineOf.mesh]?.outline_color ?? map.style.vessel.outline_color);
         b.mesh.visible = !!sv?.flagged;
         b.mesh.renderOrder = 1;
-      } else if (name.startsWith("Territory_")) {
+      } else if (N.territoryMeshes.includes(name)) {
         b.mesh.visible = view.territories;
         for (const mm of Object.values(b.variants)) {
           if (!mm) continue;
@@ -177,14 +216,14 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
           mm.polygonOffsetFactor = -2;
         }
         b.mesh.renderOrder = 2;
-      } else if (name === "Torso_Shell") {
+      } else if (name === N.bodyShell) {
         m.transparent = true;
         m.opacity = view.xray;
         m.depthWrite = false;
         b.mesh.renderOrder = 3;
       }
     }
-    const body = reg.nodes.get("Body");
+    const body = reg.nodes.get(names()?.groups.body ?? "");
     if (body) body.visible = view.mode === "body";
     invalidate();
   }, [bindings, map, scene, view.territories, view.mode, view.xray, invalidate]);
@@ -192,20 +231,23 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
   // per frame: tweens, pulses, hover lift, region glow (body mode)
   useFrame(({ clock }) => {
     if (!bindings) return;
+    const N = names();
+    const helpers = new Set(N?.vessels.flatMap((v) => [v.hit, v.outline]) ?? []);
+    const coronary = new Set([...(N?.vessels.map((v) => v.mesh) ?? []), ...(N?.unmodelledCoronary.flatMap((n) => n.mesh_names) ?? [])]);
     const now = performance.now();
     const t = clock.getElapsedTime();
     const regions = view.mode === "body" ? (scene?.regions ?? []) : [];
     const glow = new Map<string, { color: string; k: number }>();
     for (const r of regions) {
-      if (r.region === "heart") continue; // the heart carries the tier pulse
+      if (r.mesh_names.some((m) => N?.heartMeshes.includes(m))) continue; // the heart carries the tier pulse
       for (const n of r.mesh_names) glow.set(n, { color: r.color, k: r.intensity });
     }
     let animating = now < animUntil.current;
     for (const [name, b] of bindings) {
-      if (name.startsWith("Extra_")) continue;
+      if (helpers.has(name)) continue;
       const m = b.mesh.material as Std;
       if (!m.color) continue;
-      const w = easeOutCubic(Math.min(1, Math.max(0, (now - b.color.start) / TWEEN_MS)));
+      const w = easeOutCubic(Math.min(1, Math.max(0, (now - b.color.start) / (b.color.dur ?? TWEEN_MS))));
       b.color.cur.copy(b.color.from).lerp(b.color.to, w);
       b.emissive.cur = b.emissive.from + (b.emissive.to - b.emissive.from) * w;
       if (b.textured) m.color.copy(WHITE).lerp(b.color.cur, TEXTURED_TINT);
@@ -218,12 +260,20 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
       }
       const vesselKey = b.target && b.target !== "cad" ? b.target : undefined;
       if (vesselKey && (hover === vesselKey || selected === vesselKey)) e += 0.15;
+      if (b.flash) {
+        const k = (now - b.flash.start) / b.flash.dur;
+        if (k >= 1) b.flash = undefined;
+        else {
+          e += (reduced ? 0.35 : 0.9) * (1 - k);
+          animating = true;
+        }
+      }
       const g = glow.get(name);
       if (g) {
         m.emissive.set(g.color);
         m.emissiveIntensity = g.k * (reduced ? 0.7 : 0.45 + 0.35 * (0.5 + 0.5 * Math.sin(2 * Math.PI * 0.5 * t)));
         animating = !reduced || animating;
-      } else if (name.startsWith("Coronary_") && look === "realistic") {
+      } else if (look === "realistic" && coronary.has(name)) {
         // realistic look: the red-textured myocardium can swallow red vessels. Lift vessel lightness slightly with a
         // light emissive tint (material.color stays EXACTLY the API colour)
         m.emissive.copy(b.color.cur).lerp(WHITE, 0.55);

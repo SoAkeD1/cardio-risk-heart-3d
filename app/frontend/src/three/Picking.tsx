@@ -2,34 +2,38 @@ import { useThree } from "@react-three/fiber";
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import type { Vessel } from "../api/types";
+import { names } from "../lib/anatomy";
 import { useStore } from "../state/store";
 import { reg, useHoverTip } from "./registry";
 
-const HIT: Record<string, Vessel> = { Extra_Hit_LAD: "lad", Extra_Hit_LCX: "lcx", Extra_Hit_RCA: "rca" };
-const BASE = ["Extra_Hit_LAD", "Extra_Hit_LCX", "Extra_Hit_RCA", "Heart_Myocardium", "Aorta", "Coronary_LM", "Coronary_Branches"];
-
-function visibleInWorld(o: THREE.Object3D): boolean {
-  for (let n: THREE.Object3D | null = o; n; n = n.parent) if (!n.visible && !n.name.startsWith("Extra_Hit_")) return false;
+function visibleInWorld(o: THREE.Object3D, hitProxies: Set<string>): boolean {
+  for (let n: THREE.Object3D | null = o; n; n = n.parent) if (!n.visible && !hitProxies.has(n.name)) return false;
   return true;
 }
 
-/** key for a mesh: 'lad' | 'lcx' | 'rca' | 'myocardium' | 'aorta' | 'lm' | 'branches' | 'organ' */
+/** Pick key for a mesh (all from anatomy_map): a vessel key, "heart", "neutral:<key>" or "region". */
 export function keyFor(name: string): string {
-  if (name in HIT) return HIT[name]!;
-  if (name === "Heart_Myocardium") return "myocardium";
-  if (name === "Aorta") return "aorta";
-  if (name === "Coronary_LM") return "lm";
-  if (name === "Coronary_Branches") return "branches";
-  return "organ";
+  const N = names();
+  if (!N) return "region";
+  const v = N.vessels.find((x) => x.hit === name || x.mesh === name);
+  if (v) return v.key;
+  if (N.heartMeshes.includes(name)) return "heart";
+  const ns = N.neutral.find((n) => n.mesh_names.includes(name));
+  if (ns) return `neutral:${ns.key}`;
+  return "region";
 }
 
-/** Raycast hit proxies + myocardium + neutral structures (+ organs in body mode); the nearest hit wins. */
+/** Raycast hit proxies + myocardium + pickable neutral structures (+ region organs in body mode); nearest hit wins. */
 export function pickAt(ndc: THREE.Vector2, camera: THREE.Camera): { name: string; key: string; point: THREE.Vector3 } | null {
+  const N = names();
+  if (!N) return null;
   const ray = new THREE.Raycaster();
   ray.setFromCamera(ndc, camera);
   const body = useStore.getState().view.mode === "body";
-  const names = body ? [...BASE, ...[...reg.meshes.keys()].filter((n) => n.startsWith("Organ_"))] : BASE;
-  const targets = names.map((n) => reg.meshes.get(n)).filter((m): m is THREE.Mesh => !!m && visibleInWorld(m));
+  const hits = new Set(N.vessels.map((v) => v.hit));
+  const base = [...hits, ...N.heartMeshes, ...N.neutral.filter((n) => n.pickable).flatMap((n) => n.mesh_names)];
+  const pickNames = body ? [...base, ...N.regionMeshes.filter((m) => m !== N.bodyShell)] : base;
+  const targets = pickNames.map((n) => reg.meshes.get(n)).filter((m): m is THREE.Mesh => !!m && visibleInWorld(m, hits));
   const hit = ray.intersectObjects(targets, false)[0];
   if (!hit) return null;
   return { name: hit.object.name, key: keyFor(hit.object.name), point: hit.point };
@@ -54,7 +58,7 @@ export function Picking() {
       const st = useStore.getState();
       if (h) {
         setTip({ x: e.clientX - r.left, y: e.clientY - r.top, key: h.key, mesh: h.name });
-        el.style.cursor = ["lad", "lcx", "rca"].includes(h.key) ? "pointer" : "grab";
+        el.style.cursor = names()?.vesselKeys.includes(h.key as Vessel) ? "pointer" : "grab";
         st.hover(h.key);
       } else {
         setTip(null);
@@ -78,10 +82,11 @@ export function Picking() {
       const h = pickAt(ndc(e), camera);
       const st = useStore.getState();
       if (d.touch) hoverAt(e); // tap = hover + select (long press keeps the tooltip)
-      if (h && ["lad", "lcx", "rca"].includes(h.key)) {
-        const v = h.key as Vessel;
+      const vk = h && names()?.vessels.find((x) => x.key === h.key);
+      if (h && vk) {
+        const v = vk.key;
         st.select(v);
-        const anchor = st.prediction?.scene.vessels[v]?.camera_anchor ?? `Anchor_${v.toUpperCase()}`;
+        const anchor = st.prediction?.scene.vessels[v]?.camera_anchor ?? vk.anchor;
         st.requestFly({ anchor });
         document.getElementById(`vessel-card-${v}`)?.scrollIntoView({ behavior: "smooth", block: "nearest" });
       } else if (!h) {

@@ -39,6 +39,8 @@ export default {
       transitionTimingFunction: { out: "cubic-bezier(0.2, 0.8, 0.2, 1)" },
       keyframes: {
         progress: { "0%": { transform: "translateX(-100%)" }, "100%": { transform: "translateX(300%)" } },
+        toastIn: { "0%": { opacity: "0", transform: "translateY(-6px)" }, "100%": { opacity: "1", transform: "none" } },
+        chipOut: { "0%": { opacity: "1", transform: "none" }, "70%": { opacity: "1" }, "100%": { opacity: "0", transform: "translateY(-10px)" } },
       },
     },
   },

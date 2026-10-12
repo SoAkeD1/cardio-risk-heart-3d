@@ -4,19 +4,20 @@ import { useAnatomyMap, useFeatureIndex, useSchema } from "../../api/hooks";
 import type { Contribution, FeatureSpec } from "../../api/types";
 import { featureValue, num } from "../../lib/format";
 import { useStore } from "../../state/store";
-import { TARGET_LABEL } from "./WhyPanel";
+import { useTargets } from "../../api/hooks";
 
 /** 6 physiological groups: share of total |attribution| for the selected target. */
 export function GroupBreakdown() {
   const p = useStore((s) => s.prediction);
   const t = useStore((s) => s.explainTarget);
   const { data: schema } = useSchema();
+  const label = useTargets().find((x) => x.key === t)?.label ?? "";
   if (!p || !schema) return null;
   const g = p.prediction.group_contributions[t] ?? {};
   const max = Math.max(1, ...Object.values(g));
   return (
     <div className="px-4 py-3">
-      <p className="mb-2 text-xs text-t2">Share of the {TARGET_LABEL[t]} explanation coming from each group of measurements.</p>
+      <p className="mb-2 text-xs text-t2">Share of the {label} explanation coming from each group of measurements.</p>
       <div className="space-y-1.5" role="table" aria-label="Contribution by physiological group">
         {[...schema.groups]
           .sort((a, b) => (g[b.key] ?? 0) - (g[a.key] ?? 0))
@@ -83,6 +84,7 @@ export function MeasurementTable() {
   const t = useStore((s) => s.explainTarget);
   const fx = useFeatureIndex();
   const { data: map } = useAnatomyMap();
+  const label = useTargets().find((x) => x.key === t)?.label ?? "";
   const [sort, setSort] = useState<{ key: Key; asc: boolean }>({ key: "pct", asc: false });
   const rows = useMemo(() => {
     const r: Row[] = (p?.contributions[t] ?? []).map((c) => ({
@@ -105,7 +107,7 @@ export function MeasurementTable() {
   return (
     <div className="scroll-y max-h-[420px] px-4 pb-3">
       <table className="w-full text-xs" data-testid="measurement-table">
-        <caption className="sr-only">Measurements for {TARGET_LABEL[t]}: value, typical range, status and contribution</caption>
+        <caption className="sr-only">Measurements for {label}: value, typical range, status and contribution</caption>
         <thead className="sticky top-0 bg-s1 text-left text-t2">
           <tr>
             {head("label", "Measurement")}

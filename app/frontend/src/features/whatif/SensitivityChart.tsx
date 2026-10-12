@@ -1,18 +1,20 @@
-import { useSensitivity } from "../../api/hooks";
+import { useSensitivity, useTargets } from "../../api/hooks";
 import { num } from "../../lib/format";
 import { Skeleton } from "../../ui/Skeleton";
 
 // Target lines are distinguished by dash pattern + direct labels (not by colour alone); neutral greys.
-const LINES = [
-  { key: "cad", label: "CAD", dash: "", w: 2.4 },
-  { key: "lad", label: "LAD", dash: "6 3", w: 1.6 },
-  { key: "lcx", label: "LCX", dash: "2 3", w: 1.6 },
-  { key: "rca", label: "RCA", dash: "8 3 2 3", w: 1.6 },
-] as const;
+// line styles by target ORDER (model-card order: overall estimate first, drawn heavier)
+const STYLES = [
+  { dash: "", w: 2.4, o: 0.95 },
+  { dash: "6 3", w: 1.6, o: 0.6 },
+  { dash: "2 3", w: 1.6, o: 0.6 },
+  { dash: "8 3 2 3", w: 1.6, o: 0.6 },
+];
 
 /** Probability of each target as the focused feature sweeps its training range (other inputs fixed). */
 export function SensitivityChart({ feature, current }: { feature: string; current?: number }) {
   const { data, isFetching, isError } = useSensitivity(feature, true);
+  const LINES = useTargets().map((t, i) => ({ key: t.key, label: t.label, ...STYLES[i % STYLES.length]! }));
   if (isError) return <p className="text-xs text-warn">Sensitivity curve unavailable.</p>;
   if (!data) return <Skeleton className="h-[172px]" />;
   const W = 320,
@@ -53,7 +55,7 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
                 d={d}
                 fill="none"
                 stroke="rgb(var(--text-1))"
-                strokeOpacity={l.key === "cad" ? 0.95 : 0.6}
+                strokeOpacity={l.o}
                 strokeWidth={l.w}
                 strokeDasharray={l.dash}
               />
@@ -89,7 +91,7 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
                 y1="3"
                 y2="3"
                 stroke="rgb(var(--text-1))"
-                strokeOpacity={l.key === "cad" ? 0.95 : 0.6}
+                strokeOpacity={l.o}
                 strokeWidth={l.w}
                 strokeDasharray={l.dash}
               />

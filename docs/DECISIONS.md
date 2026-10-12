@@ -90,3 +90,69 @@ Non-obvious choices made while building CardioLens, with the reason for each.
 * **Realistic-look contrast.** On the realistic look only, coronaries get a light emissive tint (0.16 of their
   colour mixed 55% toward white). `material.color` remains exactly the API colour, so the colour-equality e2e
   test still holds.
+
+## Zero-hardcoding + live change feedback
+**Audit.** I scanned `app/frontend/src` and the backend for duplicated data: map colours, thresholds, mesh /
+anchor / helper names, feature names, the disclaimer, AUCs, group names and units. It found **180 literals in 21
+files**. Everything that duplicated a source of truth was removed:
+
+| Was hardcoded in | Now comes from |
+|---|---|
+| `Extra_Hit_*` / `Extra_Outline_*` (Picking, useSceneBinding, HeartModel) | `anatomy_map.viewer.vessel_helpers` |
+| `Extra_View_*`, preset keys/labels/shortcuts (CameraRig, Toolbar, Shortcuts, Viewer) | `anatomy_map.viewer.views` |
+| `"Heart"` / `"Body"` groups, heartbeat amplitudes | `anatomy_map.viewer.groups`, `viewer.heartbeat` |
+| `Torso_Shell`, `Organ_Lungs`, `Heart_Myocardium`/`Aorta` occluders (Overlays) | `viewer.body_shell_mesh`, `chest_reference_mesh`, `occluder_meshes`, `body_regions[].chip_point` |
+| `Coronary_LM` + `#C9C2B8` neutral swatch (Legend, Fallback2D, binding) | `neutral_structures[].unmodelled_coronary` + their colours |
+| Picking keys / neutral tooltip names (Tooltip3D) | `neutral_structures[].display_name/tooltip`, `heart.display_name` |
+| `centerlines_gltf` extra key, view-target extra key | `viewer.centerline_extra`, `viewer.view_target_extra` |
+| 2D schematic geometry (Fallback2D) | `viewer.schematic_2d` |
+| `VESSELS` / `TARGETS` / `TARGET_LABEL` constants | `anatomy_map.vessels` (+ `vessel_helpers.short_name`) and `/api/model-card` targets |
+| `"#E4572E"`, `"#3B7DD8"`, `"#E9D0C3"`, `"#FFFFFF"` fallbacks | `style.regions`, `style.heart_tiers`, `style.vessel.outline_color` (no fallback colours) |
+| Disclaimer fallback sentence | API (`/api/health`, predictions, model card); if offline, `/meta.json` written by `sync_assets.py` from `config.DISCLAIMER` |
+| Credit lines (strip + PDF footer) | `anatomy_map.asset.sources` + model-card `dataset_citation` |
+| PDF key-field list (13 feature names) | `anatomy_map.modifiable.features` + the patient's top CAD drivers (API) |
+| `function_class` option labels | schema `value_labels` |
+| Model-card outcome texts ("CAD"/"Stenotic"/"Normal") | model-card `positive_label` / `negative_label` (from `config`) |
+| Featured sample id | `/api/examples` `featured` flag |
+| Backend: help texts, value labels, group labels, steps, example-title rules (`feature_help.py`, `services.py`) | `app/backend/content/feature_display.json` |
+
+**Guard.** `scripts/check_no_hardcoding.py` runs in `make_all.py` and in `tests/test_no_hardcoding.py`, which also
+plants literals to prove the guard detects them. Thresholds and AUCs are matched by their exact spellings: 3
+decimals for thresholds; 3 decimals or full 2 decimals for AUCs. Lossier forms such as 0.08 or 0.9 collide with
+generic UI numbers like damping and opacity.
+
+**Proof test.** `e2e/proof.spec.ts` starts a second backend and a second Vite on a temporary copy of `artifacts/`
+with three changes: the unmodelled-vessel colour plus the top colour stop, the LAD threshold, and the LDL label.
+The UI shows all three with no frontend change. The real `artifacts/` is never touched.
+
+**Backend root cause.** The "Can't reach the CardioLens server" banner had two causes.
+1. The servers had been stopped after the fresh-clone test, and the frontend never recovered by itself. The
+   offline flag was only cleared by a manual Retry or a successful prediction; no prediction was ever re-sent;
+   and the static queries stopped retrying after about 30 s.
+2. With `--reload` enabled, uvicorn's reloader on Windows restarts its worker with a console CTRL+C event. That
+   event also reached `dev.py`, which then stopped both servers.
+
+Fixes:
+* health is polled every 3 s; recovery clears the banner, refetches failed queries and re-sends the patient
+* the API runs in its own hidden console, with output still streamed
+* `dev.py` starts both servers together, and a watchdog restarts the API if it exits or is silent for 60 s
+* `--reload` is limited to `app/backend` and `cardio_ml`
+* a non-JSON 5xx from the dev proxy now counts as "offline", not as an API error
+
+**Stale results.** A result is shown only if it really came from the API in this session. While the service is
+down it is greyed and labelled "Stale". On first load without the backend, the app shows "Waiting for prediction
+service" and the heart stays neutral, with no fake numbers.
+
+**Feature effects.** `scripts/feature_response_audit.py` (frozen models) writes `artifacts/feature_response.json`
+and the heatmap. `effect_strength` levels (max |Δ| over targets): below 0.5 pts → 0, below 5 → 1, below 15 → 2,
+otherwise 3. The first cuts tried (0.5 / 2 / 5) rated 44 of 55 features as 3, so they didn't discriminate. Only
+weight (its effect goes through BMI) and exertional chest pain (constant, unused) are below 0.5 pts; this is
+genuine model behaviour.
+
+**Change feedback.**
+* Toast and per-vessel Δ chips are only shown for 1–3 changed inputs. A sample load is not shown as a change.
+* Δ chips avoid the legend, toolbar, vessel buttons and toast.
+* Region links come from `body_regions[].features`; the direction comes from the API region entry, or else from
+  the SHAP sign of that feature.
+* The educational overlay is off by default. It comes from `content/education.json` with cited sources, never
+  touches the 3D heart, and is not in the PDF.

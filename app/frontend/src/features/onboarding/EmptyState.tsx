@@ -1,12 +1,21 @@
 import { HeartPulse } from "lucide-react";
-import { useExamples } from "../../api/hooks";
+import { useExamples, useHealth } from "../../api/hooks";
 import { Button } from "../../ui/Button";
 import { loadExample } from "../patient/SampleMenu";
 
 /** First visit: invite the user to load a sample (the heart stays neutral until then). */
 export function EmptyState() {
   const { data } = useExamples();
-  const first = data?.examples.find((e) => e.id === "lad") ?? data?.examples[0];
+  const health = useHealth();
+  if (!health.data)
+    return (
+      <div className="flex flex-1 flex-col items-center justify-center gap-3 px-6 py-10 text-center" data-testid="waiting-service">
+        <span className="h-8 w-8 animate-spin rounded-full border-2 border-s3 border-t-accent" aria-hidden />
+        <h2 className="text-base font-semibold">Waiting for prediction service</h2>
+        <p className="max-w-[280px] text-sm text-t2">No estimate is shown until the model server answers. The heart stays neutral.</p>
+      </div>
+    );
+  const first = data?.examples.find((e) => e.featured) ?? data?.examples[0];
   return (
     <div className="flex flex-1 flex-col items-center justify-center gap-4 px-6 py-10 text-center" data-testid="empty-state">
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-s2">
