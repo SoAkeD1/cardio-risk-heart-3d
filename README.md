@@ -11,6 +11,11 @@ interactive 3D heart**, with the reasons why and what-if exploration. Decision s
 <https://archive.ics.uci.edu/dataset/411/extention+of+z> (DOI 10.24432/C5Q31M).
 
 ## Run the app
+**Easiest (Windows):** double-click **`Start CardioLens.bat`** in the project folder. It runs on its own, with no
+Claude or terminal needed. It builds the app if needed, restarts the server if it ever crashes, and opens
+<http://localhost:8000>. A shortcut in the Windows Startup folder can start it at every login: delete
+`%APPDATA%\Microsoft\Windows\Start Menu\Programs\Startup\CardioLens.lnk` to turn that off.
+
 **In the Claude desktop app (no terminal knowledge needed):** open this folder in Claude and ask:
 
 > run python scripts/dev.py
