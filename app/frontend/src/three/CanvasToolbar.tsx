@@ -7,6 +7,7 @@ import {
   Palette,
   PersonStanding,
   RefreshCcw,
+  MoreHorizontal,
   RotateCw,
   Settings2,
 } from "lucide-react";
@@ -27,7 +28,7 @@ const PRESETS: { p: Preset; label: string; key: string }[] = [
   { p: "body", label: "Body", key: "4" },
 ];
 
-export function CanvasToolbar() {
+export function CanvasToolbar({ compact = false }: { compact?: boolean }) {
   const view = useStore((s) => s.view);
   const setView = useStore((s) => s.setView);
   const fly = useStore((s) => s.requestFly);
@@ -47,22 +48,8 @@ export function CanvasToolbar() {
     }
   };
 
-  return (
-    <div className="pointer-events-none absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] flex-col items-end gap-2">
-      <div role="toolbar" aria-label="View controls" className="pointer-events-auto flex flex-wrap justify-end gap-0.5 rounded-md border border-line bg-s1/90 p-1 shadow-soft backdrop-blur">
-        <div className="mr-1 flex rounded-md bg-s2 p-0.5" role="group" aria-label="View presets">
-          {PRESETS.map(({ p, label, key }) => (
-            <Tooltip key={p} content={`${label} view (${key})`}>
-              <button
-                aria-pressed={view.preset === p}
-                onClick={() => preset(p)}
-                className="h-8 rounded-[5px] px-2.5 text-xs font-medium text-t2 hover:text-t1 aria-pressed:bg-s3 aria-pressed:text-t1"
-              >
-                {label}
-              </button>
-            </Tooltip>
-          ))}
-        </div>
+  const tools = (
+    <>
         <IconButton
           label={`Look: ${view.look === "realistic" ? "Realistic" : "Clinical"} (switch)`}
           shortcut="L"
@@ -124,6 +111,41 @@ export function CanvasToolbar() {
             </Pop.Content>
           </Pop.Portal>
         </Pop.Root>
+    </>
+  );
+
+  return (
+    <div className="pointer-events-none absolute right-3 top-3 z-10 flex max-w-[calc(100%-24px)] flex-col items-end gap-2">
+      <div role="toolbar" aria-label="View controls" className="pointer-events-auto flex flex-nowrap justify-end gap-0.5 rounded-md border border-line bg-s1/90 p-1 shadow-soft backdrop-blur">
+        <div className="mr-1 flex rounded-md bg-s2 p-0.5" role="group" aria-label="View presets">
+          {PRESETS.map(({ p, label, key }) => (
+            <Tooltip key={p} content={`${label} view (${key})`}>
+              <button
+                aria-pressed={view.preset === p}
+                onClick={() => preset(p)}
+                className="h-8 rounded-[5px] px-2.5 text-xs font-medium text-t2 hover:text-t1 aria-pressed:bg-s3 aria-pressed:text-t1"
+              >
+                {label}
+              </button>
+            </Tooltip>
+          ))}
+        </div>
+        {compact ? (
+          <Pop.Root>
+            <Pop.Trigger asChild>
+              <button aria-label="More view controls" className="inline-flex h-9 w-9 items-center justify-center rounded-md text-t2 hover:bg-s2 hover:text-t1">
+                <MoreHorizontal className="h-[18px] w-[18px]" />
+              </button>
+            </Pop.Trigger>
+            <Pop.Portal>
+              <Pop.Content align="end" sideOffset={6} className="z-[70] grid grid-cols-5 gap-0.5 rounded-md border border-line bg-s1 p-1 shadow-soft">
+                {tools}
+              </Pop.Content>
+            </Pop.Portal>
+          </Pop.Root>
+        ) : (
+          tools
+        )}
       </div>
       {view.mode === "body" && (
         <div className="pointer-events-auto flex w-56 items-center gap-3 rounded-md border border-line bg-s1/90 px-3 py-2 text-xs text-t2 shadow-soft backdrop-blur">

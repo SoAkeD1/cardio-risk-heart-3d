@@ -53,6 +53,7 @@ export function HeartModel({ url }: { url: string }) {
       setFade(performance.now());
       invalidate();
     });
+    registerTestHook("getHeartScale", () => reg.nodes.get("Heart")?.scale.x ?? 1);
     registerTestHook("getMeshColors", () => {
       const out: Record<string, string> = {};
       for (const [n, m] of reg.meshes) {

@@ -44,7 +44,9 @@ export function Slider({
         )}
         <S.Range className="absolute h-full bg-[rgb(var(--text-2)/0.5)]" />
       </S.Track>
-      <S.Thumb className="block h-4 w-4 rounded-full border-2 border-[rgb(var(--text-1))] bg-s1 shadow transition-transform duration-100 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--focus))]" />
+      <S.Thumb
+        aria-label={label}
+        className="block h-4 w-4 rounded-full border-2 border-[rgb(var(--text-1))] bg-s1 shadow transition-transform duration-100 hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgb(var(--focus))]" />
     </S.Root>
   );
 }

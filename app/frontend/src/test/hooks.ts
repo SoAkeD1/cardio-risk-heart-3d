@@ -4,7 +4,13 @@ import { useStore } from "../state/store";
 declare const __TEST_HOOKS__: boolean;
 
 type MeshColorFn = () => Record<string, string>;
-const registry: { getMeshColors?: MeshColorFn; getFps?: () => number; projectAnchor?: (n: string) => { x: number; y: number } | null } = {};
+const registry: {
+  getMeshColors?: MeshColorFn;
+  getFps?: () => number;
+  getHeartScale?: () => number;
+  getFrameloop?: () => string;
+  projectAnchor?: (n: string) => { x: number; y: number } | null;
+} = {};
 
 export function registerTestHook<K extends keyof typeof registry>(k: K, fn: (typeof registry)[K]) {
   registry[k] = fn;
@@ -19,6 +25,8 @@ export function installTestHooks() {
   (window as unknown as { __cardiolens: unknown }).__cardiolens = {
     getMeshColors: () => registry.getMeshColors?.() ?? {},
     getFps: () => registry.getFps?.() ?? 0,
+    getHeartScale: () => registry.getHeartScale?.() ?? 1,
+    getFrameloop: () => registry.getFrameloop?.() ?? "?",
     projectAnchor: (n: string) => registry.projectAnchor?.(n) ?? null,
     getState: () => {
       const s = useStore.getState();

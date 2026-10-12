@@ -34,11 +34,11 @@ export function TopBar({
       <div className="hidden sm:block">
         <SampleMenu />
       </div>
-      <Button variant="ghost" onClick={onModelCard} className="hidden md:inline-flex" data-testid="open-model-card">
+      <Button variant="ghost" onClick={onModelCard} className="hidden lg:inline-flex" data-testid="open-model-card">
         <BookOpen aria-hidden className="h-4 w-4" />
         Model card
       </Button>
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <IconButton label="Model card" onClick={onModelCard}>
           <BookOpen />
         </IconButton>
@@ -48,7 +48,7 @@ export function TopBar({
       <IconButton label="Help: replay the tour" onClick={onHelp}>
         <CircleHelp />
       </IconButton>
-      <div className="hidden md:block">
+      <div className="hidden lg:block">
         <IconButton label="Keyboard shortcuts" shortcut="?" onClick={onShortcuts}>
           <Keyboard />
         </IconButton>

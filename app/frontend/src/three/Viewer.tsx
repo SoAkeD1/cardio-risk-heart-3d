@@ -1,6 +1,6 @@
 import { PerformanceMonitor, useProgress } from "@react-three/drei";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
-import { Component, Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { Component, Suspense, useCallback, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import * as THREE from "three";
 import { useViewerLook } from "../api/hooks";
 import { VESSELS, type Vessel } from "../api/types";
@@ -36,6 +36,10 @@ class ModelBoundary extends Component<{ onError: () => void; children: ReactNode
 /** Snapshot + projection + FPS hooks that need the R3F context. */
 function ViewerApis() {
   const { gl, scene, camera, size } = useThree();
+  const get = useThree((s) => s.get);
+  useEffect(() => {
+    registerTestHook("getFrameloop", () => get().frameloop);
+  }, [get]);
   const frames = useRef<number[]>([]);
   useEffect(() => {
     reg.canvas = gl.domElement;
@@ -65,7 +69,8 @@ function ViewerApis() {
       const r = gl.domElement.getBoundingClientRect();
       return { x: r.left + ((p.x + 1) / 2) * r.width, y: r.top + ((1 - p.y) / 2) * r.height };
     });
-    registerTestHook("getFps", () => reg.fps);
+    // frames rendered during the last second, evaluated at query time (an idle demand loop reports ~0)
+    registerTestHook("getFps", () => frames.current.filter((t) => performance.now() - t < 1000).length);
   }, [gl, scene, camera, size]);
   useFrame(() => {
     const now = performance.now();
@@ -118,7 +123,7 @@ function WhatIfChip() {
 }
 
 /** Focusable mirrors of the 3D vessels (keyboard path + screen readers). */
-function VesselButtons() {
+function VesselButtons({ compact }: { compact: boolean }) {
   const scene = useStore((s) => s.prediction?.scene);
   const sel = useStore((s) => s.selection.target);
   const select = useStore((s) => s.select);
@@ -143,7 +148,7 @@ function VesselButtons() {
           >
             <span className="h-2.5 w-2.5 rounded-full border border-line" style={{ background: sv?.color ?? "transparent" }} aria-hidden />
             {v.toUpperCase()}
-            {sv && <span className="num font-normal text-t2">{pct(sv.prob)}</span>}
+            {sv && !compact && <span className="num font-normal text-t2">{pct(sv.prob)}</span>}
           </button>
         );
       })}
@@ -160,6 +165,15 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
   const loaded = useModelStatus((s) => s.loaded);
   const reduced = useMemo(() => prefersReducedMotion(), []);
   const declined = useRef(false);
+  const [width, setWidth] = useState(() => (typeof window === "undefined" ? 1000 : window.innerWidth));
+  const ro = useRef<ResizeObserver | null>(null);
+  const root = useCallback((el: HTMLDivElement | null) => {
+    ro.current?.disconnect();
+    if (!el) return;
+    ro.current = new ResizeObserver(([e]) => setWidth(e!.contentRect.width));
+    ro.current.observe(el);
+  }, []);
+  const compact = width < 640;
 
   // lite when the user chose it, or (auto) on low-memory / touch / mobile devices
   useEffect(() => {
@@ -187,7 +201,7 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
 
   if (!look) return <div className="canvas-bg h-full w-full" />;
   return (
-    <div className="canvas-bg relative h-full w-full overflow-hidden">
+    <div ref={root} className="canvas-bg relative h-full w-full overflow-hidden">
       <div role="img" aria-label={aria} className="absolute inset-0">
         <Canvas
           dpr={dpr}
@@ -238,9 +252,9 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
       </div>
       <ProgressOverlay />
       <WhatIfChip />
-      <CanvasToolbar />
-      <Legend />
-      <VesselButtons />
+      <CanvasToolbar compact={compact} />
+      <Legend compact={compact} />
+      <VesselButtons compact={compact} />
       <Tooltip3D />
     </div>
   );

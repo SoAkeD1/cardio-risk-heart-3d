@@ -26,12 +26,14 @@ export function MobileTabs({ viewer }: { viewer: ReactNode }) {
             ]}
           />
         </div>
-        <TabsContent value="inputs" className="flex min-h-0 flex-1 flex-col outline-none">
+        <TabsContent value="inputs" className="flex min-h-0 flex-1 flex-col outline-none data-[state=inactive]:hidden">
           <PatientPanel />
         </TabsContent>
         {(["risk", "why", "whatif"] as const).map((v) => (
-          <TabsContent key={v} id={v === "risk" ? "results" : undefined} value={v} className="flex min-h-0 flex-1 flex-col outline-none">
-            <ResultsPanel only={v} />
+          <TabsContent key={v} value={v} className="flex min-h-0 flex-1 flex-col outline-none data-[state=inactive]:hidden">
+            <div id={v === "risk" ? "results" : undefined} className="flex min-h-0 flex-1 flex-col">
+              <ResultsPanel only={v} />
+            </div>
           </TabsContent>
         ))}
       </TabsRoot>
