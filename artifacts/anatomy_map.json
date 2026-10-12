@@ -1,0 +1,435 @@
+{
+  "version": "1.0",
+  "description": "Single source of truth for mapping predict_patient() output onto the 3D heart/torso. Edit this file (not code) to add structures, regions or change visual constants.",
+  "rules": [
+    "Only LAD, LCX and RCA receive vessel-level risk colour; they are the only vessel targets.",
+    "Vessels are coloured uniformly along their whole length: the dataset has no proximal/mid/distal lesion location.",
+    "No clinical feature (including Region RWMA) is ever used to choose a vessel, segment or location on the heart.",
+    "Unmodelled coronary branches (left main, diagonals, others) are rendered neutral.",
+    "Body-region highlights mark the location of a contributing risk factor - NOT the location of disease."
+  ],
+  "vessels": [
+    {
+      "key": "lad",
+      "mesh_names": [
+        "Coronary_LAD"
+      ],
+      "display_name": "Left Anterior Descending (LAD)",
+      "short_description": "Supplies blood to the front of the heart.",
+      "camera_anchor": "Anchor_LAD",
+      "territory_key": "lad"
+    },
+    {
+      "key": "lcx",
+      "mesh_names": [
+        "Coronary_LCX"
+      ],
+      "display_name": "Left Circumflex (LCX)",
+      "short_description": "Supplies blood to the side and back of the heart.",
+      "camera_anchor": "Anchor_LCX",
+      "territory_key": "lcx"
+    },
+    {
+      "key": "rca",
+      "mesh_names": [
+        "Coronary_RCA"
+      ],
+      "display_name": "Right Coronary Artery (RCA)",
+      "short_description": "Supplies blood to the right side and bottom of the heart.",
+      "camera_anchor": "Anchor_RCA",
+      "territory_key": "rca"
+    }
+  ],
+  "territories": {
+    "assumption": "Right-dominant circulation; AHA 17-segment model (Cerqueira et al., Circulation 2002;105:539-542).",
+    "tooltip": "Typical perfusion territory (right-dominant anatomy assumed); individual anatomy varies. Colour is derived from the vessel prediction, never from Region RWMA.",
+    "entries": [
+      {
+        "key": "lad",
+        "mesh_names": [
+          "Territory_LAD"
+        ],
+        "aha_segments": [
+          1,
+          2,
+          7,
+          8,
+          13,
+          14,
+          17
+        ]
+      },
+      {
+        "key": "lcx",
+        "mesh_names": [
+          "Territory_LCX"
+        ],
+        "aha_segments": [
+          5,
+          6,
+          11,
+          12,
+          16
+        ]
+      },
+      {
+        "key": "rca",
+        "mesh_names": [
+          "Territory_RCA"
+        ],
+        "aha_segments": [
+          3,
+          4,
+          9,
+          10,
+          15
+        ]
+      }
+    ]
+  },
+  "neutral_structures": [
+    {
+      "key": "left_main",
+      "mesh_names": [
+        "Coronary_LM"
+      ],
+      "display_name": "Left main coronary artery",
+      "color": "#C9C2B8",
+      "opacity": 1.0,
+      "required": true,
+      "tooltip": "Left main: not modelled - no label in dataset."
+    },
+    {
+      "key": "other_branches",
+      "mesh_names": [
+        "Coronary_Branches"
+      ],
+      "display_name": "Diagonals and other branches",
+      "color": "#C9C2B8",
+      "opacity": 1.0,
+      "required": false,
+      "tooltip": "Diagonal and other branches: not modelled - no label in dataset."
+    },
+    {
+      "key": "aorta",
+      "mesh_names": [
+        "Aorta"
+      ],
+      "display_name": "Aorta",
+      "color": "#D9CFC4",
+      "opacity": 1.0,
+      "required": true,
+      "tooltip": "Aorta (anatomical context)."
+    },
+    {
+      "key": "torso",
+      "mesh_names": [
+        "Torso_Shell"
+      ],
+      "display_name": "Torso",
+      "color": "#F1ECE6",
+      "opacity": 0.18,
+      "required": true,
+      "tooltip": "Torso (anatomical context)."
+    }
+  ],
+  "heart": {
+    "mesh_names": [
+      "Heart_Myocardium"
+    ],
+    "camera_anchor": "Anchor_Heart",
+    "display_name": "Heart (myocardium)",
+    "tooltip": "Overall CAD risk tier: {risk_tier} (model-estimated CAD probability {cad_prob:.0%}). Expected number of stenotic vessels: {expected_stenotic_vessels:.1f} of 3 (shown as a number only, not drawn on the heart)."
+  },
+  "body_regions": [
+    {
+      "region": "heart",
+      "display_name": "Heart",
+      "mesh_names": [
+        "Heart_Myocardium"
+      ],
+      "camera_anchor": "Anchor_Heart",
+      "features": [
+        "q_wave",
+        "st_elevation",
+        "st_depression",
+        "tinversion",
+        "lvh",
+        "poor_r_progression",
+        "bbb",
+        "ef_tte",
+        "region_rwma",
+        "vhd",
+        "typical_chest_pain",
+        "atypical",
+        "nonanginal",
+        "lowth_ang",
+        "exertional_cp",
+        "systolic_murmur",
+        "diastolic_murmur",
+        "chf",
+        "function_class",
+        "pr"
+      ]
+    },
+    {
+      "region": "vessels",
+      "display_name": "Blood vessels & lipids",
+      "mesh_names": [
+        "Aorta"
+      ],
+      "camera_anchor": "Anchor_Vessels",
+      "features": [
+        "htn",
+        "bp",
+        "dlp",
+        "ldl",
+        "hdl",
+        "tg",
+        "weak_peripheral_pulse",
+        "fh"
+      ]
+    },
+    {
+      "region": "lungs",
+      "display_name": "Lungs & smoking",
+      "mesh_names": [
+        "Organ_Lungs"
+      ],
+      "camera_anchor": "Anchor_Lungs",
+      "features": [
+        "current_smoker",
+        "ex_smoker",
+        "airway_disease",
+        "lung_rales",
+        "dyspnea"
+      ]
+    },
+    {
+      "region": "kidneys",
+      "display_name": "Kidneys",
+      "mesh_names": [
+        "Organ_Kidneys"
+      ],
+      "camera_anchor": "Anchor_Kidneys",
+      "features": [
+        "cr",
+        "bun",
+        "crf"
+      ]
+    },
+    {
+      "region": "pancreas",
+      "display_name": "Pancreas / glucose metabolism",
+      "mesh_names": [
+        "Organ_Pancreas"
+      ],
+      "camera_anchor": "Anchor_Pancreas",
+      "features": [
+        "dm",
+        "fbs"
+      ]
+    },
+    {
+      "region": "thyroid",
+      "display_name": "Thyroid",
+      "mesh_names": [
+        "Organ_Thyroid"
+      ],
+      "camera_anchor": "Anchor_Thyroid",
+      "features": [
+        "thyroid_disease"
+      ]
+    },
+    {
+      "region": "brain",
+      "display_name": "Brain",
+      "mesh_names": [
+        "Organ_Brain"
+      ],
+      "camera_anchor": "Anchor_Brain",
+      "features": [
+        "cva"
+      ]
+    },
+    {
+      "region": "blood",
+      "display_name": "Blood tests (circulating)",
+      "mesh_names": [],
+      "camera_anchor": "Anchor_Blood",
+      "features": [
+        "hb",
+        "wbc",
+        "lymph",
+        "neut",
+        "plt",
+        "esr",
+        "k",
+        "na"
+      ]
+    },
+    {
+      "region": "legs",
+      "display_name": "Legs",
+      "mesh_names": [
+        "Organ_Legs"
+      ],
+      "camera_anchor": "Anchor_Legs",
+      "features": [
+        "edema"
+      ]
+    },
+    {
+      "region": "whole_body",
+      "display_name": "Whole body",
+      "mesh_names": [
+        "Torso_Shell"
+      ],
+      "camera_anchor": "Anchor_WholeBody",
+      "features": [
+        "age",
+        "sex",
+        "weight",
+        "length",
+        "bmi",
+        "obesity"
+      ]
+    }
+  ],
+  "region_tooltip": "{display_name}: location of a contributing risk factor - NOT the location of disease. Net effect on {target} risk: {direction} ({features}).",
+  "modifiable": {
+    "features": [
+      "bp",
+      "ldl",
+      "hdl",
+      "tg",
+      "fbs",
+      "current_smoker",
+      "weight",
+      "bmi",
+      "dm",
+      "htn",
+      "dlp"
+    ],
+    "derived_updates": "weight <-> bmi are kept consistent using height (length); obesity is re-derived as BMI >= 25 (the dataset's definition). Setting current_smoker=1 sets ex_smoker=0; quitting (1 -> 0) sets ex_smoker=1.",
+    "obesity_bmi_cutoff": 25.0,
+    "note": "Model-estimated change only. The models are correlational, not causal: this is NOT a treatment effect and must not be read as the benefit of an intervention."
+  },
+  "style": {
+    "color_scale": {
+      "interpolation": "CIELAB",
+      "stops": [
+        [
+          0.0,
+          "#E8E2D8"
+        ],
+        [
+          0.3,
+          "#F2B45A"
+        ],
+        [
+          0.6,
+          "#E4572E"
+        ],
+        [
+          1.0,
+          "#8E1B1B"
+        ]
+      ],
+      "meaning": "calibrated probability of >=50% stenosis (same scale for every vessel)"
+    },
+    "vessel": {
+      "opacity": 1.0,
+      "emissive_unflagged": 0.0,
+      "emissive_flagged": 0.45,
+      "pulse_hz_unflagged": 0.0,
+      "pulse_hz_min": 0.6,
+      "pulse_hz_max": 1.6,
+      "outline_color": "#FFFFFF",
+      "badge_text": "Stenosis likely",
+      "tooltip": "{display_name} - {short_description} Model-estimated probability of >=50% stenosis: {prob:.0%} (decision threshold {threshold:.0%}){flag_text}. Model reliability: {reliability} (hold-out AUC {holdout_auc:.2f}). Whole-vessel estimate: the dataset has no lesion location.",
+      "flag_text": " - at/above threshold: STENOSIS LIKELY"
+    },
+    "territory": {
+      "opacity": 0.35,
+      "default_visible": false
+    },
+    "heart_tiers_note": "Tier tints are deliberately subtle tissue tones (lighter than the vessel scale mid-points) so coronaries keep contrast; the tier is carried mainly by emissive pulse + HUD text.",
+    "heart_tiers": {
+      "Low": {
+        "color": "#EDE0D9",
+        "emissive": 0.0,
+        "pulse_hz": 0.0
+      },
+      "Moderate": {
+        "color": "#E9D0C3",
+        "emissive": 0.15,
+        "pulse_hz": 0.5
+      },
+      "High": {
+        "color": "#E2B8A8",
+        "emissive": 0.35,
+        "pulse_hz": 1.0
+      }
+    },
+    "reliability": [
+      {
+        "badge": "High",
+        "min_auc": 0.85
+      },
+      {
+        "badge": "Moderate",
+        "min_auc": 0.75
+      },
+      {
+        "badge": "Limited",
+        "min_auc": 0.0
+      }
+    ],
+    "regions": {
+      "top_n": 3,
+      "raises_color": "#E4572E",
+      "lowers_color": "#3B7DD8",
+      "raises_icon": "arrow_up",
+      "lowers_icon": "arrow_down"
+    },
+    "top_drivers_n": 3,
+    "latency_budget_ms": {
+      "scene_state": 5,
+      "sensitivity_curve": 1500
+    },
+    "sensitivity_points": 15
+  },
+  "asset": {
+    "format": "glTF 2.0 binary (.glb)",
+    "up_axis": "Y",
+    "units": "metres",
+    "origin": "heart centroid",
+    "max_triangles": 150000,
+    "max_file_mb": 10,
+    "compression": "KHR_draco_mesh_compression",
+    "materials": "exactly 1 material per mesh; base colour set at runtime; no baked colours or textures on coronary meshes",
+    "sources": [
+      {
+        "name": "Procedurally generated in this repo",
+        "url": "blender/build_heart.py",
+        "license": "CC0 1.0 (public domain dedication)",
+        "author": "Track A team",
+        "attribution": "none required",
+        "notes": "Parametric heart surface, swept coronary tubes, lofted body; no third-party meshes used."
+      }
+    ],
+    "candidate_open_sources_not_used": [
+      {
+        "name": "BodyParts3D (DBCLS)",
+        "url": "https://lifesciencedb.jp/bp3d/",
+        "license": "CC BY-SA 2.1 JP"
+      },
+      {
+        "name": "NIH 3D Print Exchange",
+        "url": "https://3d.nih.gov/",
+        "license": "per model"
+      }
+    ]
+  }
+}

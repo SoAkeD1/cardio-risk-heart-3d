@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "asset-preview",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["blender/serve_preview.py", "8765"],
+      "port": 8765
+    }
+  ]
+}

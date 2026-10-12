@@ -1,0 +1,500 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "scene_state.schema.json",
+ "title": "Track A scene state",
+ "type": "object",
+ "required": [
+  "version",
+  "meshes",
+  "vessels",
+  "heart",
+  "regions",
+  "legend",
+  "warnings",
+  "disclaimer"
+ ],
+ "properties": {
+  "version": {
+   "const": "1.0"
+  },
+  "target_focus": {
+   "enum": [
+    "cad",
+    "lad",
+    "lcx",
+    "rca"
+   ]
+  },
+  "focus_camera_anchor": {
+   "type": "string"
+  },
+  "show_territories": {
+   "type": "boolean"
+  },
+  "meshes": {
+   "type": "object",
+   "additionalProperties": {
+    "type": "object",
+    "required": [
+     "color",
+     "emissive",
+     "opacity",
+     "pulse_hz",
+     "flagged",
+     "target",
+     "visible",
+     "tooltip"
+    ],
+    "properties": {
+     "color": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+     },
+     "emissive": {
+      "type": "number"
+     },
+     "opacity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "pulse_hz": {
+      "type": "number",
+      "minimum": 0
+     },
+     "flagged": {
+      "type": "boolean"
+     },
+     "target": {
+      "enum": [
+       "cad",
+       "lad",
+       "lcx",
+       "rca",
+       null
+      ]
+     },
+     "visible": {
+      "type": "boolean"
+     },
+     "outline_color": {
+      "oneOf": [
+       {
+        "type": "string",
+        "pattern": "^#[0-9A-Fa-f]{6}$"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "badge": {
+      "type": [
+       "string",
+       "null"
+      ]
+     },
+     "tooltip": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "vessels": {
+   "type": "object",
+   "required": [
+    "lad",
+    "lcx",
+    "rca"
+   ],
+   "properties": {
+    "lad": {
+     "type": "object",
+     "required": [
+      "prob",
+      "threshold",
+      "flagged",
+      "label",
+      "reliability",
+      "holdout_auc",
+      "top_drivers",
+      "tooltip",
+      "camera_anchor",
+      "color"
+     ],
+     "properties": {
+      "prob": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "threshold": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "flagged": {
+       "type": "boolean"
+      },
+      "label": {
+       "type": "string"
+      },
+      "reliability": {
+       "enum": [
+        "High",
+        "Moderate",
+        "Limited"
+       ]
+      },
+      "holdout_auc": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "top_drivers": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "label",
+         "value",
+         "unit",
+         "contribution_pct",
+         "direction"
+        ],
+        "properties": {
+         "label": {
+          "type": "string"
+         },
+         "unit": {
+          "type": "string"
+         },
+         "contribution_pct": {
+          "type": "number"
+         },
+         "direction": {
+          "enum": [
+           "raises risk",
+           "lowers risk"
+          ]
+         }
+        }
+       },
+       "maxItems": 10
+      },
+      "tooltip": {
+       "type": "string"
+      },
+      "camera_anchor": {
+       "type": "string"
+      },
+      "color": {
+       "type": "string",
+       "pattern": "^#[0-9A-Fa-f]{6}$"
+      },
+      "badge": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "lcx": {
+     "type": "object",
+     "required": [
+      "prob",
+      "threshold",
+      "flagged",
+      "label",
+      "reliability",
+      "holdout_auc",
+      "top_drivers",
+      "tooltip",
+      "camera_anchor",
+      "color"
+     ],
+     "properties": {
+      "prob": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "threshold": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "flagged": {
+       "type": "boolean"
+      },
+      "label": {
+       "type": "string"
+      },
+      "reliability": {
+       "enum": [
+        "High",
+        "Moderate",
+        "Limited"
+       ]
+      },
+      "holdout_auc": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "top_drivers": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "label",
+         "value",
+         "unit",
+         "contribution_pct",
+         "direction"
+        ],
+        "properties": {
+         "label": {
+          "type": "string"
+         },
+         "unit": {
+          "type": "string"
+         },
+         "contribution_pct": {
+          "type": "number"
+         },
+         "direction": {
+          "enum": [
+           "raises risk",
+           "lowers risk"
+          ]
+         }
+        }
+       },
+       "maxItems": 10
+      },
+      "tooltip": {
+       "type": "string"
+      },
+      "camera_anchor": {
+       "type": "string"
+      },
+      "color": {
+       "type": "string",
+       "pattern": "^#[0-9A-Fa-f]{6}$"
+      },
+      "badge": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    },
+    "rca": {
+     "type": "object",
+     "required": [
+      "prob",
+      "threshold",
+      "flagged",
+      "label",
+      "reliability",
+      "holdout_auc",
+      "top_drivers",
+      "tooltip",
+      "camera_anchor",
+      "color"
+     ],
+     "properties": {
+      "prob": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "threshold": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "flagged": {
+       "type": "boolean"
+      },
+      "label": {
+       "type": "string"
+      },
+      "reliability": {
+       "enum": [
+        "High",
+        "Moderate",
+        "Limited"
+       ]
+      },
+      "holdout_auc": {
+       "type": "number",
+       "minimum": 0,
+       "maximum": 1
+      },
+      "top_drivers": {
+       "type": "array",
+       "items": {
+        "type": "object",
+        "required": [
+         "label",
+         "value",
+         "unit",
+         "contribution_pct",
+         "direction"
+        ],
+        "properties": {
+         "label": {
+          "type": "string"
+         },
+         "unit": {
+          "type": "string"
+         },
+         "contribution_pct": {
+          "type": "number"
+         },
+         "direction": {
+          "enum": [
+           "raises risk",
+           "lowers risk"
+          ]
+         }
+        }
+       },
+       "maxItems": 10
+      },
+      "tooltip": {
+       "type": "string"
+      },
+      "camera_anchor": {
+       "type": "string"
+      },
+      "color": {
+       "type": "string",
+       "pattern": "^#[0-9A-Fa-f]{6}$"
+      },
+      "badge": {
+       "type": [
+        "string",
+        "null"
+       ]
+      }
+     }
+    }
+   },
+   "additionalProperties": false
+  },
+  "heart": {
+   "type": "object",
+   "required": [
+    "cad_prob",
+    "risk_tier",
+    "expected_stenotic_vessels"
+   ],
+   "properties": {
+    "cad_prob": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 1
+    },
+    "risk_tier": {
+     "enum": [
+      "Low",
+      "Moderate",
+      "High"
+     ]
+    },
+    "expected_stenotic_vessels": {
+     "type": "number",
+     "minimum": 0,
+     "maximum": 3
+    }
+   }
+  },
+  "regions": {
+   "type": "array",
+   "items": {
+    "type": "object",
+    "required": [
+     "region",
+     "mesh_names",
+     "intensity",
+     "direction",
+     "features",
+     "tooltip"
+    ],
+    "properties": {
+     "region": {
+      "type": "string"
+     },
+     "mesh_names": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "intensity": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+     },
+     "direction": {
+      "enum": [
+       "raises",
+       "lowers"
+      ]
+     },
+     "features": {
+      "type": "array",
+      "items": {
+       "type": "string"
+      }
+     },
+     "tooltip": {
+      "type": "string"
+     },
+     "color": {
+      "type": "string",
+      "pattern": "^#[0-9A-Fa-f]{6}$"
+     },
+     "icon": {
+      "type": "string"
+     }
+    }
+   }
+  },
+  "legend": {
+   "type": "object",
+   "required": [
+    "stops",
+    "threshold_markers"
+   ],
+   "properties": {
+    "stops": {
+     "type": "array",
+     "minItems": 2
+    },
+    "threshold_markers": {
+     "type": "object",
+     "required": [
+      "lad",
+      "lcx",
+      "rca"
+     ]
+    }
+   }
+  },
+  "warnings": {
+   "type": "array",
+   "items": {
+    "type": "string"
+   }
+  },
+  "disclaimer": {
+   "const": "For decision support and educational purposes only. Not a substitute for formal diagnostic imaging or clinical judgement."
+  }
+ }
+}

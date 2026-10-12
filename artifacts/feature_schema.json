@@ -1,0 +1,978 @@
+{
+ "dataset": "Alizadehsani, R., Roshanzamir, M., & Sani, Z. (2017). Extension of Z-Alizadeh Sani [Dataset]. UCI Machine Learning Repository, id 411. https://doi.org/10.24432/C5Q31M",
+ "groups": [
+  "demographic",
+  "risk factor",
+  "examination",
+  "ECG",
+  "lab",
+  "echo"
+ ],
+ "features": [
+  {
+   "name": "age",
+   "original_name": "Age",
+   "label": "Age",
+   "group": "demographic",
+   "type": "numeric",
+   "unit": "years",
+   "used_by_model": true,
+   "min": 30.0,
+   "max": 86.0,
+   "default": 57.0,
+   "hard_limits": [
+    18,
+    110
+   ]
+  },
+  {
+   "name": "weight",
+   "original_name": "Weight",
+   "label": "Weight",
+   "group": "demographic",
+   "type": "numeric",
+   "unit": "kg",
+   "used_by_model": true,
+   "min": 48.0,
+   "max": 120.0,
+   "default": 74.0,
+   "hard_limits": [
+    30,
+    250
+   ]
+  },
+  {
+   "name": "length",
+   "original_name": "Length",
+   "label": "Height",
+   "group": "demographic",
+   "type": "numeric",
+   "unit": "cm",
+   "used_by_model": true,
+   "min": 145.0,
+   "max": 188.0,
+   "default": 165.0,
+   "hard_limits": [
+    120,
+    220
+   ]
+  },
+  {
+   "name": "sex",
+   "original_name": "Sex",
+   "label": "Sex (male)",
+   "group": "demographic",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    "Male",
+    "Female"
+   ],
+   "encoding": {
+    "Male": 1,
+    "Female": 0
+   },
+   "default": "Male"
+  },
+  {
+   "name": "bmi",
+   "original_name": "BMI",
+   "label": "BMI",
+   "group": "demographic",
+   "type": "numeric",
+   "unit": "kg/m²",
+   "used_by_model": true,
+   "min": 18.36547291092746,
+   "max": 40.90065778377467,
+   "default": 26.84,
+   "hard_limits": [
+    12,
+    70
+   ]
+  },
+  {
+   "name": "dm",
+   "original_name": "DM",
+   "label": "Diabetes mellitus",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "htn",
+   "original_name": "HTN",
+   "label": "Hypertension",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 1
+  },
+  {
+   "name": "current_smoker",
+   "original_name": "Current Smoker",
+   "label": "Current smoker",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "ex_smoker",
+   "original_name": "EX-Smoker",
+   "label": "Ex-smoker",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "fh",
+   "original_name": "FH",
+   "label": "Family history of CAD",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "obesity",
+   "original_name": "Obesity",
+   "label": "Obesity",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 1
+  },
+  {
+   "name": "crf",
+   "original_name": "CRF",
+   "label": "Chronic renal failure",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "cva",
+   "original_name": "CVA",
+   "label": "Prior stroke (CVA)",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "airway_disease",
+   "original_name": "Airway disease",
+   "label": "Airway disease",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "thyroid_disease",
+   "original_name": "Thyroid Disease",
+   "label": "Thyroid disease",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "chf",
+   "original_name": "CHF",
+   "label": "Congestive heart failure",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "dlp",
+   "original_name": "DLP",
+   "label": "Dyslipidaemia",
+   "group": "risk factor",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "bp",
+   "original_name": "BP",
+   "label": "Systolic blood pressure",
+   "group": "examination",
+   "type": "numeric",
+   "unit": "mmHg",
+   "used_by_model": true,
+   "min": 90.0,
+   "max": 180.0,
+   "default": 130.0,
+   "hard_limits": [
+    60,
+    260
+   ]
+  },
+  {
+   "name": "pr",
+   "original_name": "PR",
+   "label": "Pulse rate",
+   "group": "examination",
+   "type": "numeric",
+   "unit": "bpm",
+   "used_by_model": true,
+   "min": 60.0,
+   "max": 110.0,
+   "default": 70.0,
+   "hard_limits": [
+    30,
+    200
+   ]
+  },
+  {
+   "name": "edema",
+   "original_name": "Edema",
+   "label": "Edema",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "weak_peripheral_pulse",
+   "original_name": "Weak Peripheral Pulse",
+   "label": "Weak peripheral pulse",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "lung_rales",
+   "original_name": "Lung rales",
+   "label": "Lung rales",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "systolic_murmur",
+   "original_name": "Systolic Murmur",
+   "label": "Systolic murmur",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "diastolic_murmur",
+   "original_name": "Diastolic Murmur",
+   "label": "Diastolic murmur",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "typical_chest_pain",
+   "original_name": "Typical Chest Pain",
+   "label": "Typical chest pain",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 1
+  },
+  {
+   "name": "dyspnea",
+   "original_name": "Dyspnea",
+   "label": "Dyspnea",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "function_class",
+   "original_name": "Function Class",
+   "label": "Functional class",
+   "group": "examination",
+   "type": "ordinal",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    "0",
+    "1",
+    "2",
+    "3"
+   ],
+   "encoding": {
+    "0": 0,
+    "1": 1,
+    "2": 2,
+    "3": 3
+   },
+   "default": 0
+  },
+  {
+   "name": "atypical",
+   "original_name": "Atypical",
+   "label": "Atypical chest pain",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "nonanginal",
+   "original_name": "Nonanginal",
+   "label": "Non-anginal chest pain",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "exertional_cp",
+   "original_name": "Exertional CP",
+   "label": "Exertional chest pain",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": false,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "lowth_ang",
+   "original_name": "LowTH Ang",
+   "label": "Low-threshold angina",
+   "group": "examination",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "q_wave",
+   "original_name": "Q Wave",
+   "label": "Q wave",
+   "group": "ECG",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "st_elevation",
+   "original_name": "St Elevation",
+   "label": "ST elevation",
+   "group": "ECG",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "st_depression",
+   "original_name": "St Depression",
+   "label": "ST depression",
+   "group": "ECG",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "tinversion",
+   "original_name": "Tinversion",
+   "label": "T-wave inversion",
+   "group": "ECG",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "lvh",
+   "original_name": "LVH",
+   "label": "Left ventricular hypertrophy",
+   "group": "ECG",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "poor_r_progression",
+   "original_name": "Poor R Progression",
+   "label": "Poor R-wave progression",
+   "group": "ECG",
+   "type": "binary",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    0,
+    1
+   ],
+   "encoding": {
+    "Y": 1,
+    "N": 0
+   },
+   "default": 0
+  },
+  {
+   "name": "bbb",
+   "original_name": "BBB",
+   "label": "Bundle branch block",
+   "group": "ECG",
+   "type": "categorical",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    "N",
+    "LBBB",
+    "RBBB"
+   ],
+   "encoding": {
+    "N": 0,
+    "LBBB": 1,
+    "RBBB": 2
+   },
+   "default": "N"
+  },
+  {
+   "name": "fbs",
+   "original_name": "FBS",
+   "label": "Fasting blood sugar",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mg/dL",
+   "used_by_model": true,
+   "min": 62.0,
+   "max": 400.0,
+   "default": 99.5,
+   "hard_limits": [
+    30,
+    700
+   ]
+  },
+  {
+   "name": "cr",
+   "original_name": "CR",
+   "label": "Creatinine",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mg/dL",
+   "used_by_model": true,
+   "min": 0.5,
+   "max": 2.2,
+   "default": 1.0,
+   "hard_limits": [
+    0.2,
+    15
+   ]
+  },
+  {
+   "name": "tg",
+   "original_name": "TG",
+   "label": "Triglycerides",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mg/dL",
+   "used_by_model": true,
+   "min": 37.0,
+   "max": 1050.0,
+   "default": 117.5,
+   "hard_limits": [
+    20,
+    3000
+   ]
+  },
+  {
+   "name": "ldl",
+   "original_name": "LDL",
+   "label": "LDL cholesterol",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mg/dL",
+   "used_by_model": true,
+   "min": 18.0,
+   "max": 232.0,
+   "default": 100.0,
+   "hard_limits": [
+    5,
+    400
+   ]
+  },
+  {
+   "name": "hdl",
+   "original_name": "HDL",
+   "label": "HDL cholesterol",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mg/dL",
+   "used_by_model": true,
+   "min": 15.9,
+   "max": 111.0,
+   "default": 40.0,
+   "hard_limits": [
+    5,
+    150
+   ]
+  },
+  {
+   "name": "bun",
+   "original_name": "BUN",
+   "label": "Blood urea nitrogen",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mg/dL",
+   "used_by_model": true,
+   "min": 8.0,
+   "max": 52.0,
+   "default": 16.0,
+   "hard_limits": [
+    2,
+    150
+   ]
+  },
+  {
+   "name": "esr",
+   "original_name": "ESR",
+   "label": "ESR",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mm/h",
+   "used_by_model": true,
+   "min": 1.0,
+   "max": 90.0,
+   "default": 15.0,
+   "hard_limits": [
+    0,
+    150
+   ]
+  },
+  {
+   "name": "hb",
+   "original_name": "HB",
+   "label": "Haemoglobin",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "g/dL",
+   "used_by_model": true,
+   "min": 9.0,
+   "max": 17.6,
+   "default": 13.3,
+   "hard_limits": [
+    4,
+    22
+   ]
+  },
+  {
+   "name": "k",
+   "original_name": "K",
+   "label": "Potassium",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mEq/L",
+   "used_by_model": true,
+   "min": 3.0,
+   "max": 6.6,
+   "default": 4.3,
+   "hard_limits": [
+    2,
+    7
+   ]
+  },
+  {
+   "name": "na",
+   "original_name": "Na",
+   "label": "Sodium",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "mEq/L",
+   "used_by_model": true,
+   "min": 130.0,
+   "max": 156.0,
+   "default": 141.0,
+   "hard_limits": [
+    110,
+    170
+   ]
+  },
+  {
+   "name": "wbc",
+   "original_name": "WBC",
+   "label": "White blood cells",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "cells/µL",
+   "used_by_model": true,
+   "min": 3700.0,
+   "max": 18000.0,
+   "default": 7300.0,
+   "hard_limits": [
+    1000,
+    50000
+   ]
+  },
+  {
+   "name": "lymph",
+   "original_name": "Lymph",
+   "label": "Lymphocytes",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "%",
+   "used_by_model": true,
+   "min": 7.0,
+   "max": 60.0,
+   "default": 32.0,
+   "hard_limits": [
+    0,
+    100
+   ]
+  },
+  {
+   "name": "neut",
+   "original_name": "Neut",
+   "label": "Neutrophils",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "%",
+   "used_by_model": true,
+   "min": 32.0,
+   "max": 86.0,
+   "default": 60.0,
+   "hard_limits": [
+    0,
+    100
+   ]
+  },
+  {
+   "name": "plt",
+   "original_name": "PLT",
+   "label": "Platelets",
+   "group": "lab",
+   "type": "numeric",
+   "unit": "×10³/µL",
+   "used_by_model": true,
+   "min": 25.0,
+   "max": 742.0,
+   "default": 210.0,
+   "hard_limits": [
+    10,
+    1500
+   ]
+  },
+  {
+   "name": "ef_tte",
+   "original_name": "EF-TTE",
+   "label": "EF-TTE (ejection fraction)",
+   "group": "echo",
+   "type": "numeric",
+   "unit": "%",
+   "used_by_model": true,
+   "min": 15.0,
+   "max": 60.0,
+   "default": 50.0,
+   "hard_limits": [
+    5,
+    80
+   ]
+  },
+  {
+   "name": "region_rwma",
+   "original_name": "Region RWMA",
+   "label": "Regional wall-motion abnormality",
+   "group": "echo",
+   "type": "ordinal",
+   "unit": "regions",
+   "used_by_model": true,
+   "allowed_values": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4"
+   ],
+   "encoding": {
+    "0": 0,
+    "1": 1,
+    "2": 2,
+    "3": 3,
+    "4": 4
+   },
+   "default": 0
+  },
+  {
+   "name": "vhd",
+   "original_name": "VHD",
+   "label": "Valvular heart disease",
+   "group": "echo",
+   "type": "ordinal",
+   "unit": "",
+   "used_by_model": true,
+   "allowed_values": [
+    "N",
+    "mild",
+    "Moderate",
+    "Severe"
+   ],
+   "encoding": {
+    "N": 0,
+    "mild": 1,
+    "Moderate": 2,
+    "Severe": 3
+   },
+   "default": "mild"
+  }
+ ],
+ "note": "Region RWMA is an echo feature only - NOT an anatomical coordinate; never map it onto the 3D coronary model."
+}

@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Heart Asset Preview</title>
+<style>
+  :root { --bg-top: #f4f1ed; --bg-bottom: #d8d3cd; --ink: #3a3530; --panel: rgba(255,255,255,.82); }
+  html, body { margin: 0; height: 100%; background: linear-gradient(var(--bg-top), var(--bg-bottom)); color: var(--ink);
+    font: 13px/1.4 system-ui, -apple-system, "Segoe UI", sans-serif; overflow: hidden; }
+  #c { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  #ui { position: fixed; top: 12px; left: 12px; background: var(--panel); border-radius: 10px; padding: 10px 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.08); max-width: min(360px, calc(100vw - 48px)); }
+  #ui button { margin: 2px 4px 2px 0; padding: 4px 9px; border: 1px solid #c9c2b8; background: #fff; border-radius: 6px;
+    cursor: pointer; color: var(--ink); }
+  #ui button.on { background: #3a3530; color: #fff; border-color: #3a3530; }
+  #log { margin-top: 6px; white-space: pre-wrap; font: 12px/1.35 ui-monospace, Consolas, monospace; }
+</style>
+<script type="importmap">
+{ "imports": {
+    "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <div><b>Track A asset preview</b> (smoke test, not the app)</div>
+  <div>
+    <button id="bFull" class="on">heart.glb</button><button id="bLite">heart_lite.glb</button>
+    <button id="bHeart" class="on">Heart</button><button id="bBody">Body</button>
+    <button id="bTerr">Territories</button>
+  </div>
+  <div id="log">loading…</div>
+</div>
+<script type="module">
+import * as THREE from "three";
+import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DRACOLoader } from "three/addons/loaders/DRACOLoader.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+
+const params = new URLSearchParams(location.search);
+const logEl = document.getElementById("log");
+const lines = [];
+const log = (s) => { lines.push(s); logEl.textContent = lines.slice(-14).join("\n"); console.log(s); };
+// Demo risk colours = cardio_ml.anatomy.color_for(0.85 / 0.40 / 0.15)
+const DEMO = { Coronary_LAD: "#AD3222", Coronary_LCX: "#EF974B", Coronary_RCA: "#F1CB99" };
+
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, preserveDrawingBuffer: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 0.005, 50);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+// soft studio lighting: key + fill + rim + ambient
+scene.add(new THREE.HemisphereLight(0xf6f2ee, 0xc9c2b8, 1.1));
+const key = new THREE.DirectionalLight(0xfff4ea, 1.6); key.position.set(-1, 1.2, 1.2); scene.add(key);
+const fill = new THREE.DirectionalLight(0xeef2ff, 0.55); fill.position.set(1.2, 0.2, 0.9); scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffffff, 0.9); rim.position.set(0.3, 1, -1.4); scene.add(rim);
+
+const draco = new DRACOLoader().setDecoderPath("https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/");
+const loader = new GLTFLoader().setDRACOLoader(draco);
+let root = null, nodes = {}, mode = "heart", showTerr = false;
+
+function resize() {
+  const w = innerWidth, h = innerHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix();
+}
+addEventListener("resize", resize); resize();
+
+function applyView(name) {             // Extra_View_* : position = camera, local -Z aims at extras.target
+  const v = nodes[name]; if (!v) return;
+  v.updateWorldMatrix(true, false);
+  camera.position.setFromMatrixPosition(v.matrixWorld);
+  camera.quaternion.setFromRotationMatrix(v.matrixWorld);
+  const t = v.userData.target;                        // stored in Blender coords -> glTF (x, z, -y)
+  controls.target.set(t[0], t[2], -t[1]);
+  controls.update();
+}
+
+function setMode(m) {
+  mode = m;
+  for (const [n, o] of Object.entries(nodes)) {
+    if (n === "Body") o.visible = (m === "body");
+  }
+  applyView(m === "body" ? "Extra_View_Body" : "Extra_View_Front");
+  document.getElementById("bHeart").classList.toggle("on", m === "heart");
+  document.getElementById("bBody").classList.toggle("on", m === "body");
+}
+
+function setTerritories(on) {
+  showTerr = on;
+  for (const k of ["LAD", "LCX", "RCA"]) {
+    const t = nodes["Territory_" + k]; if (!t) continue;
+    t.visible = on;
+    t.material.color.set(DEMO["Coronary_" + k]); t.material.opacity = 0.35;
+    t.material.depthWrite = false; t.material.polygonOffset = true; t.material.polygonOffsetFactor = -1;
+  }
+  document.getElementById("bTerr").classList.toggle("on", on);
+}
+
+function load(file) {
+  if (root) { scene.remove(root); root = null; }
+  const t0 = performance.now();
+  loader.load(file, (gltf) => {
+    root = gltf.scene; scene.add(root); nodes = {};
+    let tris = 0;
+    root.traverse((o) => {
+      nodes[o.name] = o;
+      if (o.isMesh) {
+        tris += (o.geometry.index ? o.geometry.index.count : o.geometry.attributes.position.count) / 3;
+        if (o.name.startsWith("Extra_Hit_")) { o.material.transparent = true; o.material.opacity = 0; o.material.depthWrite = false; }
+        if (o.name === "Torso_Shell") { o.material.depthWrite = false; o.renderOrder = 2; }
+        if (DEMO[o.name]) o.material.color.set(DEMO[o.name]);
+      }
+    });
+    log(`${file}: loaded in ${(performance.now() - t0).toFixed(0)} ms, ${tris.toLocaleString()} triangles`);
+    setTerritories(false);
+    setMode(mode);
+    requestAnimationFrame(() => setTimeout(() => { clickTest(); measureFps(file); }, 400));
+  }, undefined, (e) => log("ERROR loading " + file + ": " + e.message));
+}
+
+const ray = new THREE.Raycaster();
+function pick(ndc) {
+  ray.setFromCamera(ndc, camera);
+  const hits = ray.intersectObjects(root.children, true).filter((h) => h.object.visible);
+  const hit = hits.find((h) => h.object.name.startsWith("Extra_Hit_"));
+  return hit ? hit.object.name.replace("Extra_Hit_", "").toLowerCase() : null;
+}
+canvas.addEventListener("pointerdown", (e) => {
+  const ndc = new THREE.Vector2(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1);
+  log("click -> " + (pick(ndc) || "(no vessel)"));
+});
+function clickTest() {                   // synthetic click on the middle of each hit proxy
+  const res = [];
+  for (const k of ["LAD", "LCX", "RCA"]) {
+    const h = nodes["Extra_Hit_" + k]; if (!h) continue;
+    const pos = h.geometry.attributes.position;
+    // click the proxy's front-most point (what a user can actually see/click; Draco reorders vertices)
+    let best = null, bestD = Infinity;
+    const v = new THREE.Vector3();
+    for (let i = 0; i < pos.count; i++) {
+      v.fromBufferAttribute(pos, i).applyMatrix4(h.matrixWorld);
+      const d = v.distanceTo(camera.position);
+      if (d < bestD) { bestD = d; best = v.clone(); }
+    }
+    const p = best.project(camera);
+    res.push(`${k}->${pick(new THREE.Vector2(p.x, p.y)) || "miss"}`);
+  }
+  log("hit-proxy click test (front view): " + res.join(", "));
+}
+
+let frames = 0, fpsStart = 0, fpsFile = null, fpsDone = null;
+function measureFps(file) {
+  frames = 0; fpsStart = performance.now(); fpsFile = file; controls.autoRotate = true; controls.autoRotateSpeed = 4;
+  fpsDone = () => {
+    const fps = frames / ((performance.now() - fpsStart) / 1000);
+    controls.autoRotate = false;
+    log(`${file}: ${fps.toFixed(1)} fps over 5 s auto-rotate (${innerWidth}x${innerHeight} @${renderer.getPixelRatio()}x)`);
+    window.__fps = window.__fps || {}; window.__fps[file] = fps;
+    applyView(mode === "body" ? "Extra_View_Body" : "Extra_View_Front");
+    if (params.get("save") && file.endsWith("heart.glb")) setTimeout(saveShot, 300);
+  };
+}
+function bench(n = 150) {               // synchronous render + gl.finish(): independent of rAF throttling
+  const gl = renderer.getContext();
+  const r = camera.position.distanceTo(controls.target), t = controls.target;
+  const t0 = performance.now();
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2;
+    camera.position.set(t.x + r * Math.sin(a), camera.position.y, t.z + r * Math.cos(a));
+    camera.lookAt(t);
+    renderer.render(scene, camera);
+    gl.finish();
+  }
+  const ms = (performance.now() - t0) / n;
+  const info = gl.getExtension("WEBGL_debug_renderer_info");
+  const gpu = info ? gl.getParameter(info.UNMASKED_RENDERER_WEBGL) : "unknown GPU";
+  applyView(mode === "body" ? "Extra_View_Body" : "Extra_View_Front");
+  log(`bench: ${ms.toFixed(2)} ms/frame -> ~${(1000 / ms).toFixed(0)} fps (${n} frames, ${gpu})`);
+  window.__bench = { ms, fps: 1000 / ms, gpu };
+  return window.__bench;
+}
+window.bench = bench;
+window.clickTest = () => { clickTest(); return lines[lines.length - 1]; };
+window.saveShot = () => saveShot();
+function saveShot() {
+  scene.background = new THREE.Color(0xe8e4df);     // the CSS gradient is not part of the canvas
+  renderer.render(scene, camera);
+  scene.background = null;
+  canvas.toBlob((b) => fetch("/save?name=web_preview.png", { method: "POST", body: b })
+    .then((r) => log("screenshot saved: " + r.status)).catch((e) => log("save failed " + e)));
+}
+
+renderer.setAnimationLoop(() => {
+  controls.update();
+  renderer.render(scene, camera);
+  if (fpsDone) { frames++; if (performance.now() - fpsStart > 5000) { const f = fpsDone; fpsDone = null; f(); } }
+});
+
+const FULL = "../artifacts/heart.glb", LITE = "../artifacts/heart_lite.glb";
+document.getElementById("bFull").onclick = () => { load(FULL); bFull.classList.add("on"); bLite.classList.remove("on"); };
+document.getElementById("bLite").onclick = () => { load(LITE); bLite.classList.add("on"); bFull.classList.remove("on"); };
+document.getElementById("bHeart").onclick = () => setMode("heart");
+document.getElementById("bBody").onclick = () => setMode("body");
+document.getElementById("bTerr").onclick = () => setTerritories(!showTerr);
+load(params.get("file") === "lite" ? LITE : FULL);
+</script>
+</body>
+</html>

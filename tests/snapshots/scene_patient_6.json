@@ -1,0 +1,388 @@
+{
+ "version": "1.0",
+ "target_focus": "cad",
+ "focus_camera_anchor": "Anchor_Heart",
+ "show_territories": false,
+ "meshes": {
+  "Coronary_LAD": {
+   "color": "#911E1C",
+   "opacity": 1.0,
+   "flagged": true,
+   "emissive": 0.45,
+   "pulse_hz": 1.57,
+   "outline_color": "#FFFFFF",
+   "badge": "Stenosis likely",
+   "target": "lad",
+   "visible": true,
+   "tooltip": "Left Anterior Descending (LAD) - Supplies blood to the front of the heart. Model-estimated probability of >=50% stenosis: 98% (decision threshold 46%) - at/above threshold: STENOSIS LIKELY. Model reliability: Moderate (hold-out AUC 0.83). Whole-vessel estimate: the dataset has no lesion location."
+  },
+  "Territory_LAD": {
+   "color": "#911E1C",
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": "lad",
+   "outline_color": null,
+   "badge": null,
+   "visible": false,
+   "opacity": 0.0,
+   "tooltip": "Typical perfusion territory (right-dominant anatomy assumed); individual anatomy varies. Colour is derived from the vessel prediction, never from Region RWMA."
+  },
+  "Coronary_LCX": {
+   "color": "#F0A451",
+   "opacity": 1.0,
+   "flagged": true,
+   "emissive": 0.45,
+   "pulse_hz": 0.693,
+   "outline_color": "#FFFFFF",
+   "badge": "Stenosis likely",
+   "target": "lcx",
+   "visible": true,
+   "tooltip": "Left Circumflex (LCX) - Supplies blood to the side and back of the heart. Model-estimated probability of >=50% stenosis: 36% (decision threshold 29%) - at/above threshold: STENOSIS LIKELY. Model reliability: Moderate (hold-out AUC 0.77). Whole-vessel estimate: the dataset has no lesion location."
+  },
+  "Territory_LCX": {
+   "color": "#F0A451",
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": "lcx",
+   "outline_color": null,
+   "badge": null,
+   "visible": false,
+   "opacity": 0.0,
+   "tooltip": "Typical perfusion territory (right-dominant anatomy assumed); individual anatomy varies. Colour is derived from the vessel prediction, never from Region RWMA."
+  },
+  "Coronary_RCA": {
+   "color": "#F0A451",
+   "opacity": 1.0,
+   "flagged": true,
+   "emissive": 0.45,
+   "pulse_hz": 0.712,
+   "outline_color": "#FFFFFF",
+   "badge": "Stenosis likely",
+   "target": "rca",
+   "visible": true,
+   "tooltip": "Right Coronary Artery (RCA) - Supplies blood to the right side and bottom of the heart. Model-estimated probability of >=50% stenosis: 36% (decision threshold 27%) - at/above threshold: STENOSIS LIKELY. Model reliability: Limited (hold-out AUC 0.74). Whole-vessel estimate: the dataset has no lesion location."
+  },
+  "Territory_RCA": {
+   "color": "#F0A451",
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": "rca",
+   "outline_color": null,
+   "badge": null,
+   "visible": false,
+   "opacity": 0.0,
+   "tooltip": "Typical perfusion territory (right-dominant anatomy assumed); individual anatomy varies. Colour is derived from the vessel prediction, never from Region RWMA."
+  },
+  "Coronary_LM": {
+   "color": "#C9C2B8",
+   "opacity": 1.0,
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": null,
+   "outline_color": null,
+   "badge": null,
+   "visible": true,
+   "tooltip": "Left main: not modelled - no label in dataset."
+  },
+  "Coronary_Branches": {
+   "color": "#C9C2B8",
+   "opacity": 1.0,
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": null,
+   "outline_color": null,
+   "badge": null,
+   "visible": true,
+   "tooltip": "Diagonal and other branches: not modelled - no label in dataset."
+  },
+  "Aorta": {
+   "color": "#D9CFC4",
+   "opacity": 1.0,
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": null,
+   "outline_color": null,
+   "badge": null,
+   "visible": true,
+   "tooltip": "Aorta (anatomical context)."
+  },
+  "Torso_Shell": {
+   "color": "#F1ECE6",
+   "opacity": 0.18,
+   "emissive": 0.0,
+   "pulse_hz": 0.0,
+   "flagged": false,
+   "target": null,
+   "outline_color": null,
+   "badge": null,
+   "visible": true,
+   "tooltip": "Torso (anatomical context)."
+  },
+  "Heart_Myocardium": {
+   "color": "#E2B8A8",
+   "opacity": 1.0,
+   "emissive": 0.35,
+   "pulse_hz": 1.0,
+   "flagged": true,
+   "target": "cad",
+   "outline_color": null,
+   "badge": null,
+   "visible": true,
+   "tooltip": "Overall CAD risk tier: High (model-estimated CAD probability 99%). Expected number of stenotic vessels: 1.7 of 3 (shown as a number only, not drawn on the heart)."
+  }
+ },
+ "vessels": {
+  "lad": {
+   "prob": 0.984,
+   "threshold": 0.465,
+   "flagged": true,
+   "label": "Stenotic",
+   "color": "#911E1C",
+   "badge": "Stenosis likely",
+   "reliability": "Moderate",
+   "holdout_auc": 0.832,
+   "top_drivers": [
+    {
+     "label": "Regional wall-motion abnormality",
+     "value": 4,
+     "unit": "regions",
+     "contribution_pct": 19.71,
+     "direction": "raises risk"
+    },
+    {
+     "label": "EF-TTE (ejection fraction)",
+     "value": 40.0,
+     "unit": "%",
+     "contribution_pct": 10.91,
+     "direction": "raises risk"
+    },
+    {
+     "label": "Typical chest pain",
+     "value": 1,
+     "unit": "",
+     "contribution_pct": 8.8,
+     "direction": "raises risk"
+    }
+   ],
+   "tooltip": "Left Anterior Descending (LAD) - Supplies blood to the front of the heart. Model-estimated probability of >=50% stenosis: 98% (decision threshold 46%) - at/above threshold: STENOSIS LIKELY. Model reliability: Moderate (hold-out AUC 0.83). Whole-vessel estimate: the dataset has no lesion location.",
+   "display_name": "Left Anterior Descending (LAD)",
+   "camera_anchor": "Anchor_LAD",
+   "mesh_names": [
+    "Coronary_LAD"
+   ]
+  },
+  "lcx": {
+   "prob": 0.356,
+   "threshold": 0.29,
+   "flagged": true,
+   "label": "Stenotic",
+   "color": "#F0A451",
+   "badge": "Stenosis likely",
+   "reliability": "Moderate",
+   "holdout_auc": 0.768,
+   "top_drivers": [
+    {
+     "label": "Fasting blood sugar",
+     "value": 80.0,
+     "unit": "mg/dL",
+     "contribution_pct": 17.01,
+     "direction": "lowers risk"
+    },
+    {
+     "label": "Age",
+     "value": 55.0,
+     "unit": "years",
+     "contribution_pct": 10.31,
+     "direction": "lowers risk"
+    },
+    {
+     "label": "Creatinine",
+     "value": 0.8,
+     "unit": "mg/dL",
+     "contribution_pct": 9.91,
+     "direction": "lowers risk"
+    }
+   ],
+   "tooltip": "Left Circumflex (LCX) - Supplies blood to the side and back of the heart. Model-estimated probability of >=50% stenosis: 36% (decision threshold 29%) - at/above threshold: STENOSIS LIKELY. Model reliability: Moderate (hold-out AUC 0.77). Whole-vessel estimate: the dataset has no lesion location.",
+   "display_name": "Left Circumflex (LCX)",
+   "camera_anchor": "Anchor_LCX",
+   "mesh_names": [
+    "Coronary_LCX"
+   ]
+  },
+  "rca": {
+   "prob": 0.356,
+   "threshold": 0.275,
+   "flagged": true,
+   "label": "Stenotic",
+   "color": "#F0A451",
+   "badge": "Stenosis likely",
+   "reliability": "Limited",
+   "holdout_auc": 0.741,
+   "top_drivers": [
+    {
+     "label": "Neutrophils",
+     "value": 33.0,
+     "unit": "%",
+     "contribution_pct": 14.82,
+     "direction": "lowers risk"
+    },
+    {
+     "label": "Lymphocytes",
+     "value": 58.0,
+     "unit": "%",
+     "contribution_pct": 14.82,
+     "direction": "lowers risk"
+    },
+    {
+     "label": "Diabetes mellitus",
+     "value": 0,
+     "unit": "",
+     "contribution_pct": 14.14,
+     "direction": "lowers risk"
+    }
+   ],
+   "tooltip": "Right Coronary Artery (RCA) - Supplies blood to the right side and bottom of the heart. Model-estimated probability of >=50% stenosis: 36% (decision threshold 27%) - at/above threshold: STENOSIS LIKELY. Model reliability: Limited (hold-out AUC 0.74). Whole-vessel estimate: the dataset has no lesion location.",
+   "display_name": "Right Coronary Artery (RCA)",
+   "camera_anchor": "Anchor_RCA",
+   "mesh_names": [
+    "Coronary_RCA"
+   ]
+  }
+ },
+ "heart": {
+  "cad_prob": 0.986,
+  "threshold": 0.195,
+  "label": "CAD",
+  "risk_tier": "High",
+  "expected_stenotic_vessels": 1.697,
+  "reliability": "High",
+  "holdout_auc": 0.895,
+  "tooltip": "Overall CAD risk tier: High (model-estimated CAD probability 99%). Expected number of stenotic vessels: 1.7 of 3 (shown as a number only, not drawn on the heart).",
+  "camera_anchor": "Anchor_Heart"
+ },
+ "regions": [
+  {
+   "region": "heart",
+   "display_name": "Heart",
+   "mesh_names": [
+    "Heart_Myocardium"
+   ],
+   "camera_anchor": "Anchor_Heart",
+   "intensity": 1.0,
+   "net_shap": 0.254,
+   "direction": "raises",
+   "color": "#E4572E",
+   "icon": "arrow_up",
+   "features": [
+    "Typical chest pain",
+    "EF-TTE (ejection fraction)",
+    "Atypical chest pain",
+    "Non-anginal chest pain",
+    "Regional wall-motion abnormality",
+    "ST elevation",
+    "Q wave",
+    "T-wave inversion",
+    "ST depression",
+    "Bundle branch block",
+    "Left ventricular hypertrophy",
+    "Poor R-wave progression",
+    "Pulse rate",
+    "Systolic murmur",
+    "Diastolic murmur",
+    "Functional class",
+    "Congestive heart failure",
+    "Low-threshold angina",
+    "Valvular heart disease",
+    "Exertional chest pain"
+   ],
+   "tooltip": "Heart: location of a contributing risk factor - NOT the location of disease. Net effect on CAD (Cath) risk: raises risk (Typical chest pain, EF-TTE (ejection fraction), Atypical chest pain, Non-anginal chest pain, Regional wall-motion abnormality, ST elevation, Q wave, T-wave inversion, ST depression, Bundle branch block, Left ventricular hypertrophy, Poor R-wave progression, Pulse rate, Systolic murmur, Diastolic murmur, Functional class, Congestive heart failure, Low-threshold angina, Valvular heart disease, Exertional chest pain)."
+  },
+  {
+   "region": "vessels",
+   "display_name": "Blood vessels & lipids",
+   "mesh_names": [
+    "Aorta"
+   ],
+   "camera_anchor": "Anchor_Vessels",
+   "intensity": 0.246,
+   "net_shap": -0.063,
+   "direction": "lowers",
+   "color": "#3B7DD8",
+   "icon": "arrow_down",
+   "features": [
+    "Hypertension",
+    "Triglycerides",
+    "HDL cholesterol",
+    "Systolic blood pressure",
+    "Weak peripheral pulse",
+    "Family history of CAD",
+    "Dyslipidaemia",
+    "LDL cholesterol"
+   ],
+   "tooltip": "Blood vessels & lipids: location of a contributing risk factor - NOT the location of disease. Net effect on CAD (Cath) risk: lowers risk (Hypertension, Triglycerides, HDL cholesterol, Systolic blood pressure, Weak peripheral pulse, Family history of CAD, Dyslipidaemia, LDL cholesterol)."
+  },
+  {
+   "region": "pancreas",
+   "display_name": "Pancreas / glucose metabolism",
+   "mesh_names": [
+    "Organ_Pancreas"
+   ],
+   "camera_anchor": "Anchor_Pancreas",
+   "intensity": 0.149,
+   "net_shap": -0.038,
+   "direction": "lowers",
+   "color": "#3B7DD8",
+   "icon": "arrow_down",
+   "features": [
+    "Fasting blood sugar",
+    "Diabetes mellitus"
+   ],
+   "tooltip": "Pancreas / glucose metabolism: location of a contributing risk factor - NOT the location of disease. Net effect on CAD (Cath) risk: lowers risk (Fasting blood sugar, Diabetes mellitus)."
+  }
+ ],
+ "legend": {
+  "stops": [
+   {
+    "p": 0.0,
+    "color": "#E8E2D8"
+   },
+   {
+    "p": 0.3,
+    "color": "#F2B45A"
+   },
+   {
+    "p": 0.6,
+    "color": "#E4572E"
+   },
+   {
+    "p": 1.0,
+    "color": "#8E1B1B"
+   }
+  ],
+  "meaning": "calibrated probability of >=50% stenosis (same scale for every vessel)",
+  "threshold_markers": {
+   "lad": 0.465,
+   "lcx": 0.29,
+   "rca": 0.275
+  },
+  "reliability_cutoffs": {
+   "High": 0.85,
+   "Moderate": 0.75,
+   "Limited": 0.0
+  },
+  "risk_tiers": [
+   "Low",
+   "Moderate",
+   "High"
+  ]
+ },
+ "warnings": [],
+ "disclaimer": "For decision support and educational purposes only. Not a substitute for formal diagnostic imaging or clinical judgement."
+}

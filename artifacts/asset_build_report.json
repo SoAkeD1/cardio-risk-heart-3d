@@ -1,0 +1,415 @@
+{
+ "lite": {
+  "variant": "lite",
+  "arch_apex_above_heart_base_cm": 5.03,
+  "aorta_emerges_at_arc_cm": 6.35,
+  "aorta_min_clearance_from_heart_mm": 0.98,
+  "centreline_to_myocardium": {
+   "lm": {
+    "min_mm": 1.76,
+    "median_mm": 2.0,
+    "max_mm": 6.94
+   },
+   "lad": {
+    "min_mm": 1.87,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "lcx": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "rca": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch0": {
+    "min_mm": 1.89,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch1": {
+    "min_mm": 1.89,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch2": {
+    "min_mm": 1.89,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch3": {
+    "min_mm": 1.9,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch4": {
+    "min_mm": 1.89,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   }
+  },
+  "max_bend_deg": {
+   "lm": {
+    "segments": 21.4,
+    "chord_4mm": 21.4
+   },
+   "lad": {
+    "segments": 19.4,
+    "chord_4mm": 19.4
+   },
+   "lcx": {
+    "segments": 11.7,
+    "chord_4mm": 11.7
+   },
+   "rca": {
+    "segments": 29.5,
+    "chord_4mm": 29.5
+   },
+   "branch0": {
+    "segments": 7.9,
+    "chord_4mm": 7.9
+   },
+   "branch1": {
+    "segments": 7.8,
+    "chord_4mm": 7.8
+   },
+   "branch2": {
+    "segments": 8.7,
+    "chord_4mm": 8.7
+   },
+   "branch3": {
+    "segments": 7.9,
+    "chord_4mm": 7.9
+   },
+   "branch4": {
+    "segments": 7.7,
+    "chord_4mm": 7.7
+   }
+  },
+  "coronary_theta_start_mid_end": {
+   "lm": [
+    -29.9,
+    -23.0,
+    -28.8
+   ],
+   "lad": [
+    -32.7,
+    -72.3,
+    93.2
+   ],
+   "lcx": [
+    -26.5,
+    11.3,
+    70.8
+   ],
+   "rca": [
+    -149.2,
+    110.0,
+    96.1
+   ]
+  },
+  "territory_alpha": {
+   "Territory_LAD": {
+    "min": 0.0,
+    "feathered_fraction": 0.17
+   },
+   "Territory_LCX": {
+    "min": 0.0,
+    "feathered_fraction": 0.242
+   },
+   "Territory_RCA": {
+    "min": 0.0,
+    "feathered_fraction": 0.154
+   }
+  },
+  "territory_boundaries_deg": {
+   "lad|lcx": [
+    -18,
+    -14
+   ],
+   "lcx|rca": [
+    52,
+    70
+   ],
+   "rca|lad": [
+    -105,
+    -115
+   ],
+   "apical_cap_below_zp": -0.05
+  },
+  "triangles": {
+   "Heart_Myocardium": 9850,
+   "Aorta": 2624,
+   "Coronary_LM": 256,
+   "Coronary_LAD": 848,
+   "Coronary_LCX": 496,
+   "Coronary_RCA": 800,
+   "Coronary_Branches": 1512,
+   "Extra_Hit_LAD": 612,
+   "Extra_Hit_LCX": 348,
+   "Extra_Hit_RCA": 576,
+   "Territory_LAD": 1962,
+   "Territory_LCX": 960,
+   "Territory_RCA": 2352,
+   "Torso_Shell": 7880,
+   "Organ_Lungs": 1970,
+   "Organ_Kidneys": 1970,
+   "Organ_Pancreas": 1970,
+   "Organ_Thyroid": 428,
+   "Organ_Brain": 1970,
+   "Organ_Legs": 1970
+  },
+  "triangles_total": 41354,
+  "apex_direction_xyz": [
+   0.516,
+   -0.442,
+   -0.734
+  ],
+  "apex_is_left_anterior_inferior": true,
+  "territory_gap_fraction": 0.0,
+  "territory_overlap_fraction": 0.0
+ },
+ "full": {
+  "variant": "full",
+  "arch_apex_above_heart_base_cm": 5.04,
+  "aorta_emerges_at_arc_cm": 6.41,
+  "aorta_min_clearance_from_heart_mm": 1.05,
+  "centreline_to_myocardium": {
+   "lm": {
+    "min_mm": 1.76,
+    "median_mm": 1.93,
+    "max_mm": 6.58
+   },
+   "lad": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "lcx": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "rca": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 3.27
+   },
+   "branch0": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch1": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch2": {
+    "min_mm": 1.89,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch3": {
+    "min_mm": 1.89,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   },
+   "branch4": {
+    "min_mm": 1.88,
+    "median_mm": 1.9,
+    "max_mm": 1.9
+   }
+  },
+  "max_bend_deg": {
+   "lm": {
+    "segments": 13.9,
+    "chord_4mm": 27.2
+   },
+   "lad": {
+    "segments": 20.0,
+    "chord_4mm": 26.8
+   },
+   "lcx": {
+    "segments": 17.0,
+    "chord_4mm": 22.4
+   },
+   "rca": {
+    "segments": 19.1,
+    "chord_4mm": 20.2
+   },
+   "branch0": {
+    "segments": 10.6,
+    "chord_4mm": 7.4
+   },
+   "branch1": {
+    "segments": 8.6,
+    "chord_4mm": 11.2
+   },
+   "branch2": {
+    "segments": 7.8,
+    "chord_4mm": 11.4
+   },
+   "branch3": {
+    "segments": 5.8,
+    "chord_4mm": 10.6
+   },
+   "branch4": {
+    "segments": 7.9,
+    "chord_4mm": 12.0
+   }
+  },
+  "coronary_theta_start_mid_end": {
+   "lm": [
+    -35.1,
+    -24.0,
+    -29.1
+   ],
+   "lad": [
+    -30.9,
+    -71.3,
+    93.1
+   ],
+   "lcx": [
+    -28.0,
+    11.2,
+    70.8
+   ],
+   "rca": [
+    -121.3,
+    131.0,
+    95.3
+   ]
+  },
+  "territory_alpha": {
+   "Territory_LAD": {
+    "min": 0.0,
+    "feathered_fraction": 0.147
+   },
+   "Territory_LCX": {
+    "min": 0.0,
+    "feathered_fraction": 0.215
+   },
+   "Territory_RCA": {
+    "min": 0.0,
+    "feathered_fraction": 0.141
+   }
+  },
+  "territory_boundaries_deg": {
+   "lad|lcx": [
+    -18,
+    -14
+   ],
+   "lcx|rca": [
+    52,
+    70
+   ],
+   "rca|lad": [
+    -105,
+    -115
+   ],
+   "apical_cap_below_zp": -0.05
+  },
+  "triangles": {
+   "Heart_Myocardium": 24624,
+   "Aorta": 9856,
+   "Coronary_LM": 600,
+   "Coronary_LAD": 2376,
+   "Coronary_LCX": 1320,
+   "Coronary_RCA": 2640,
+   "Coronary_Branches": 4280,
+   "Extra_Hit_LAD": 1164,
+   "Extra_Hit_LCX": 636,
+   "Extra_Hit_RCA": 1296,
+   "Territory_LAD": 8222,
+   "Territory_LCX": 4018,
+   "Territory_RCA": 9800,
+   "Torso_Shell": 19700,
+   "Organ_Lungs": 4924,
+   "Organ_Kidneys": 4924,
+   "Organ_Pancreas": 4924,
+   "Organ_Thyroid": 1056,
+   "Organ_Brain": 4924,
+   "Organ_Legs": 4924
+  },
+  "triangles_total": 116208,
+  "apex_direction_xyz": [
+   0.527,
+   -0.443,
+   -0.726
+  ],
+  "apex_is_left_anterior_inferior": true,
+  "territory_gap_fraction": 0.0,
+  "territory_overlap_fraction": 0.0
+ },
+ "anchors": {
+  "Anchor_LAD": [
+   0.0333,
+   -0.0614,
+   0.0051
+  ],
+  "Anchor_LCX": [
+   0.0521,
+   0.0391,
+   0.0281
+  ],
+  "Anchor_RCA": [
+   -0.038,
+   0.0369,
+   -0.0418
+  ],
+  "Anchor_Heart": [
+   0.0124,
+   -0.0622,
+   0.0062
+  ],
+  "Anchor_Vessels": [
+   -0.0105,
+   0.0337,
+   0.1106
+  ],
+  "Anchor_Blood": [
+   0.0505,
+   0.0922,
+   -0.0206
+  ],
+  "Anchor_Lungs": [
+   -0.105,
+   -0.1029,
+   0.02
+  ],
+  "Anchor_Kidneys": [
+   0.065,
+   0.0999,
+   -0.19
+  ],
+  "Anchor_Pancreas": [
+   -0.0065,
+   -0.0413,
+   -0.1678
+  ],
+  "Anchor_Thyroid": [
+   -0.0289,
+   -0.0664,
+   0.1925
+  ],
+  "Anchor_Brain": [
+   -0.0149,
+   -0.087,
+   0.3844
+  ],
+  "Anchor_Legs": [
+   0.085,
+   -0.0654,
+   -0.68
+  ],
+  "Anchor_WholeBody": [
+   -0.015,
+   -0.59,
+   -0.15
+  ]
+ }
+}
