@@ -1,0 +1,2075 @@
+{
+ "openapi": "3.1.0",
+ "info": {
+  "title": "CardioLens API",
+  "description": "Calibrated CAD and per-artery stenosis risk with explanations, what-if and a render-ready 3D scene state. Decision support and education only.",
+  "version": "1.0.0"
+ },
+ "paths": {
+  "/api/health": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Health",
+    "operationId": "health_api_health_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Health"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/schema": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Schema",
+    "operationId": "schema_api_schema_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SchemaResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/examples": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Examples",
+    "operationId": "examples_api_examples_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ExamplesResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/predict": {
+   "post": {
+    "tags": [
+     "prediction"
+    ],
+    "summary": "Predict",
+    "operationId": "predict_api_predict_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PredictIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PredictOut"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Entity",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/what-if": {
+   "post": {
+    "tags": [
+     "prediction"
+    ],
+    "summary": "What If",
+    "operationId": "what_if_api_what_if_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/WhatIfIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/WhatIfOut"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Entity",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/sensitivity": {
+   "post": {
+    "tags": [
+     "prediction"
+    ],
+    "summary": "Sensitivity",
+    "operationId": "sensitivity_api_sensitivity_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/SensitivityIn"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SensitivityOut"
+        }
+       }
+      }
+     },
+     "400": {
+      "description": "Bad Request",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     },
+     "422": {
+      "description": "Unprocessable Entity",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ErrorResponse"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/model-card": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Model Card",
+    "operationId": "model_card_api_model_card_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ModelCard"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/anatomy-map": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Anatomy Map",
+    "operationId": "anatomy_map_api_anatomy_map_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Anatomy Map Api Anatomy Map Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  },
+  "/api/viewer-look": {
+   "get": {
+    "tags": [
+     "meta"
+    ],
+    "summary": "Viewer Look",
+    "operationId": "viewer_look_api_viewer_look_get",
+    "responses": {
+     "200": {
+      "description": "Successful Response",
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": true,
+         "type": "object",
+         "title": "Response Viewer Look Api Viewer Look Get"
+        }
+       }
+      }
+     }
+    }
+   }
+  }
+ },
+ "components": {
+  "schemas": {
+   "Attribution": {
+    "properties": {
+     "what": {
+      "type": "string",
+      "title": "What"
+     },
+     "text": {
+      "type": "string",
+      "title": "Text"
+     },
+     "url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Url"
+     },
+     "license": {
+      "type": "string",
+      "title": "License"
+     }
+    },
+    "type": "object",
+    "required": [
+     "what",
+     "text",
+     "license"
+    ],
+    "title": "Attribution"
+   },
+   "Contribution": {
+    "properties": {
+     "feature": {
+      "type": "string",
+      "title": "Feature"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "group": {
+      "type": "string",
+      "title": "Group"
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "string"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     },
+     "unit": {
+      "type": "string",
+      "title": "Unit"
+     },
+     "shap": {
+      "type": "number",
+      "title": "Shap"
+     },
+     "contribution_pct": {
+      "type": "number",
+      "title": "Contribution Pct"
+     },
+     "direction": {
+      "type": "string",
+      "title": "Direction"
+     }
+    },
+    "type": "object",
+    "required": [
+     "feature",
+     "label",
+     "group",
+     "value",
+     "unit",
+     "shap",
+     "contribution_pct",
+     "direction"
+    ],
+    "title": "Contribution"
+   },
+   "Driver": {
+    "properties": {
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "value": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "string"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value"
+     },
+     "unit": {
+      "type": "string",
+      "title": "Unit"
+     },
+     "contribution_pct": {
+      "type": "number",
+      "title": "Contribution Pct"
+     },
+     "direction": {
+      "type": "string",
+      "title": "Direction"
+     }
+    },
+    "type": "object",
+    "required": [
+     "label",
+     "value",
+     "unit",
+     "contribution_pct",
+     "direction"
+    ],
+    "title": "Driver"
+   },
+   "ErrorBody": {
+    "properties": {
+     "code": {
+      "type": "string",
+      "title": "Code"
+     },
+     "message": {
+      "type": "string",
+      "title": "Message"
+     },
+     "fields": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "string"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fields"
+     }
+    },
+    "type": "object",
+    "required": [
+     "code",
+     "message"
+    ],
+    "title": "ErrorBody"
+   },
+   "ErrorResponse": {
+    "properties": {
+     "error": {
+      "$ref": "#/components/schemas/ErrorBody"
+     }
+    },
+    "type": "object",
+    "required": [
+     "error"
+    ],
+    "title": "ErrorResponse"
+   },
+   "Example": {
+    "properties": {
+     "id": {
+      "type": "string",
+      "title": "Id"
+     },
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "subtitle": {
+      "type": "string",
+      "title": "Subtitle"
+     },
+     "features": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Features"
+     },
+     "true_labels": {
+      "additionalProperties": {
+       "type": "boolean"
+      },
+      "type": "object",
+      "title": "True Labels"
+     }
+    },
+    "type": "object",
+    "required": [
+     "id",
+     "title",
+     "subtitle",
+     "features",
+     "true_labels"
+    ],
+    "title": "Example"
+   },
+   "ExamplesResponse": {
+    "properties": {
+     "examples": {
+      "items": {
+       "$ref": "#/components/schemas/Example"
+      },
+      "type": "array",
+      "title": "Examples"
+     },
+     "note": {
+      "type": "string",
+      "title": "Note"
+     }
+    },
+    "type": "object",
+    "required": [
+     "examples",
+     "note"
+    ],
+    "title": "ExamplesResponse"
+   },
+   "FeatureSpec": {
+    "properties": {
+     "name": {
+      "type": "string",
+      "title": "Name"
+     },
+     "original_name": {
+      "type": "string",
+      "title": "Original Name"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "group": {
+      "type": "string",
+      "title": "Group"
+     },
+     "type": {
+      "type": "string",
+      "enum": [
+       "numeric",
+       "binary",
+       "ordinal",
+       "categorical"
+      ],
+      "title": "Type"
+     },
+     "unit": {
+      "type": "string",
+      "title": "Unit"
+     },
+     "min": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Min"
+     },
+     "max": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Max"
+     },
+     "hard_min": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hard Min"
+     },
+     "hard_max": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Hard Max"
+     },
+     "step": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Step"
+     },
+     "default": {
+      "anyOf": [
+       {
+        "type": "number"
+       },
+       {
+        "type": "integer"
+       },
+       {
+        "type": "string"
+       },
+       {
+        "type": "boolean"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Default"
+     },
+     "allowed_values": {
+      "anyOf": [
+       {
+        "items": {
+         "anyOf": [
+          {
+           "type": "string"
+          },
+          {
+           "type": "integer"
+          }
+         ]
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Allowed Values"
+     },
+     "value_labels": {
+      "anyOf": [
+       {
+        "additionalProperties": {
+         "type": "string"
+        },
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Value Labels"
+     },
+     "normal_range": {
+      "anyOf": [
+       {
+        "items": {
+         "type": "number"
+        },
+        "type": "array"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Normal Range"
+     },
+     "modifiable": {
+      "type": "boolean",
+      "title": "Modifiable"
+     },
+     "used_by_model": {
+      "type": "boolean",
+      "title": "Used By Model"
+     },
+     "help": {
+      "type": "string",
+      "title": "Help"
+     }
+    },
+    "type": "object",
+    "required": [
+     "name",
+     "original_name",
+     "label",
+     "group",
+     "type",
+     "unit",
+     "default",
+     "modifiable",
+     "used_by_model",
+     "help"
+    ],
+    "title": "FeatureSpec"
+   },
+   "Figure": {
+    "properties": {
+     "title": {
+      "type": "string",
+      "title": "Title"
+     },
+     "path": {
+      "type": "string",
+      "title": "Path"
+     }
+    },
+    "type": "object",
+    "required": [
+     "title",
+     "path"
+    ],
+    "title": "Figure"
+   },
+   "Group": {
+    "properties": {
+     "key": {
+      "type": "string",
+      "title": "Key"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "order": {
+      "type": "integer",
+      "title": "Order"
+     }
+    },
+    "type": "object",
+    "required": [
+     "key",
+     "label",
+     "order"
+    ],
+    "title": "Group"
+   },
+   "Health": {
+    "properties": {
+     "status": {
+      "type": "string",
+      "const": "ok",
+      "title": "Status"
+     },
+     "models": {
+      "additionalProperties": {
+       "type": "string"
+      },
+      "type": "object",
+      "title": "Models"
+     },
+     "vessel_strategy": {
+      "type": "string",
+      "title": "Vessel Strategy"
+     },
+     "loaded_at": {
+      "type": "string",
+      "title": "Loaded At"
+     },
+     "load_ms": {
+      "type": "number",
+      "title": "Load Ms"
+     },
+     "version": {
+      "type": "string",
+      "title": "Version"
+     }
+    },
+    "type": "object",
+    "required": [
+     "status",
+     "models",
+     "vessel_strategy",
+     "loaded_at",
+     "load_ms",
+     "version"
+    ],
+    "title": "Health"
+   },
+   "LegendStop": {
+    "properties": {
+     "p": {
+      "type": "number",
+      "title": "P"
+     },
+     "color": {
+      "type": "string",
+      "title": "Color"
+     }
+    },
+    "type": "object",
+    "required": [
+     "p",
+     "color"
+    ],
+    "title": "LegendStop"
+   },
+   "MetricCI": {
+    "properties": {
+     "value": {
+      "type": "number",
+      "title": "Value"
+     },
+     "ci_low": {
+      "type": "number",
+      "title": "Ci Low"
+     },
+     "ci_high": {
+      "type": "number",
+      "title": "Ci High"
+     }
+    },
+    "type": "object",
+    "required": [
+     "value",
+     "ci_low",
+     "ci_high"
+    ],
+    "title": "MetricCI"
+   },
+   "ModelCard": {
+    "properties": {
+     "dataset_citation": {
+      "type": "string",
+      "title": "Dataset Citation"
+     },
+     "n_patients": {
+      "type": "integer",
+      "title": "N Patients"
+     },
+     "n_holdout": {
+      "type": "integer",
+      "title": "N Holdout"
+     },
+     "single_centre": {
+      "type": "boolean",
+      "title": "Single Centre"
+     },
+     "validation": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Validation"
+     },
+     "targets": {
+      "items": {
+       "$ref": "#/components/schemas/TargetCard"
+      },
+      "type": "array",
+      "title": "Targets"
+     },
+     "risk_tiers": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "string"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Risk Tiers"
+     },
+     "reliability_cutoffs": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Reliability Cutoffs"
+     },
+     "calibration": {
+      "items": {
+       "additionalProperties": {
+        "anyOf": [
+         {
+          "type": "string"
+         },
+         {
+          "type": "number"
+         }
+        ]
+       },
+       "type": "object"
+      },
+      "type": "array",
+      "title": "Calibration"
+     },
+     "limitations": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Limitations"
+     },
+     "figures": {
+      "items": {
+       "$ref": "#/components/schemas/Figure"
+      },
+      "type": "array",
+      "title": "Figures"
+     },
+     "attributions": {
+      "items": {
+       "$ref": "#/components/schemas/Attribution"
+      },
+      "type": "array",
+      "title": "Attributions"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "dataset_citation",
+     "n_patients",
+     "n_holdout",
+     "single_centre",
+     "validation",
+     "targets",
+     "risk_tiers",
+     "reliability_cutoffs",
+     "calibration",
+     "limitations",
+     "figures",
+     "attributions",
+     "disclaimer"
+    ],
+    "title": "ModelCard"
+   },
+   "PredictIn": {
+    "properties": {
+     "features": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Features"
+     },
+     "k": {
+      "type": "integer",
+      "maximum": 55.0,
+      "minimum": 1.0,
+      "title": "K",
+      "default": 8
+     },
+     "focus": {
+      "type": "string",
+      "enum": [
+       "cad",
+       "lad",
+       "lcx",
+       "rca"
+      ],
+      "title": "Focus",
+      "default": "cad"
+     },
+     "show_territories": {
+      "type": "boolean",
+      "title": "Show Territories",
+      "default": false
+     }
+    },
+    "type": "object",
+    "title": "PredictIn",
+    "example": {
+     "features": {
+      "age": 63,
+      "dm": 1,
+      "ldl": 160
+     }
+    }
+   },
+   "PredictOut": {
+    "properties": {
+     "prediction": {
+      "$ref": "#/components/schemas/Prediction"
+     },
+     "contributions": {
+      "additionalProperties": {
+       "items": {
+        "$ref": "#/components/schemas/Contribution"
+       },
+       "type": "array"
+      },
+      "type": "object",
+      "title": "Contributions",
+      "description": "All raw-feature contributions per target (for 'Show all features' and the measurement table)"
+     },
+     "scene": {
+      "$ref": "#/components/schemas/Scene"
+     },
+     "summary_text": {
+      "type": "string",
+      "title": "Summary Text"
+     },
+     "resolved_features": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Resolved Features"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     },
+     "latency_ms": {
+      "type": "number",
+      "title": "Latency Ms"
+     }
+    },
+    "type": "object",
+    "required": [
+     "prediction",
+     "contributions",
+     "scene",
+     "summary_text",
+     "resolved_features",
+     "warnings",
+     "disclaimer",
+     "latency_ms"
+    ],
+    "title": "PredictOut"
+   },
+   "Prediction": {
+    "properties": {
+     "cad": {
+      "$ref": "#/components/schemas/TargetPrediction"
+     },
+     "lad": {
+      "$ref": "#/components/schemas/TargetPrediction"
+     },
+     "lcx": {
+      "$ref": "#/components/schemas/TargetPrediction"
+     },
+     "rca": {
+      "$ref": "#/components/schemas/TargetPrediction"
+     },
+     "expected_stenotic_vessels": {
+      "type": "number",
+      "title": "Expected Stenotic Vessels"
+     },
+     "explanations": {
+      "additionalProperties": {
+       "items": {
+        "$ref": "#/components/schemas/Contribution"
+       },
+       "type": "array"
+      },
+      "type": "object",
+      "title": "Explanations"
+     },
+     "group_contributions": {
+      "additionalProperties": {
+       "additionalProperties": {
+        "type": "number"
+       },
+       "type": "object"
+      },
+      "type": "object",
+      "title": "Group Contributions"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cad",
+     "lad",
+     "lcx",
+     "rca",
+     "expected_stenotic_vessels",
+     "explanations",
+     "group_contributions",
+     "warnings",
+     "disclaimer"
+    ],
+    "title": "Prediction"
+   },
+   "Scene": {
+    "properties": {
+     "version": {
+      "type": "string",
+      "title": "Version"
+     },
+     "target_focus": {
+      "type": "string",
+      "enum": [
+       "cad",
+       "lad",
+       "lcx",
+       "rca"
+      ],
+      "title": "Target Focus"
+     },
+     "focus_camera_anchor": {
+      "type": "string",
+      "title": "Focus Camera Anchor"
+     },
+     "show_territories": {
+      "type": "boolean",
+      "title": "Show Territories"
+     },
+     "meshes": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/SceneMesh"
+      },
+      "type": "object",
+      "title": "Meshes"
+     },
+     "vessels": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/SceneVessel"
+      },
+      "type": "object",
+      "title": "Vessels"
+     },
+     "heart": {
+      "$ref": "#/components/schemas/SceneHeart"
+     },
+     "regions": {
+      "items": {
+       "$ref": "#/components/schemas/SceneRegion"
+      },
+      "type": "array",
+      "title": "Regions"
+     },
+     "legend": {
+      "$ref": "#/components/schemas/SceneLegend"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Warnings"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     }
+    },
+    "type": "object",
+    "required": [
+     "version",
+     "target_focus",
+     "focus_camera_anchor",
+     "show_territories",
+     "meshes",
+     "vessels",
+     "heart",
+     "regions",
+     "legend",
+     "warnings",
+     "disclaimer"
+    ],
+    "title": "Scene"
+   },
+   "SceneHeart": {
+    "properties": {
+     "cad_prob": {
+      "type": "number",
+      "title": "Cad Prob"
+     },
+     "threshold": {
+      "type": "number",
+      "title": "Threshold"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "risk_tier": {
+      "type": "string",
+      "enum": [
+       "Low",
+       "Moderate",
+       "High"
+      ],
+      "title": "Risk Tier"
+     },
+     "expected_stenotic_vessels": {
+      "type": "number",
+      "title": "Expected Stenotic Vessels"
+     },
+     "reliability": {
+      "type": "string",
+      "title": "Reliability"
+     },
+     "holdout_auc": {
+      "type": "number",
+      "title": "Holdout Auc"
+     },
+     "tooltip": {
+      "type": "string",
+      "title": "Tooltip"
+     },
+     "camera_anchor": {
+      "type": "string",
+      "title": "Camera Anchor"
+     }
+    },
+    "type": "object",
+    "required": [
+     "cad_prob",
+     "threshold",
+     "label",
+     "risk_tier",
+     "expected_stenotic_vessels",
+     "reliability",
+     "holdout_auc",
+     "tooltip",
+     "camera_anchor"
+    ],
+    "title": "SceneHeart"
+   },
+   "SceneLegend": {
+    "properties": {
+     "stops": {
+      "items": {
+       "$ref": "#/components/schemas/LegendStop"
+      },
+      "type": "array",
+      "title": "Stops"
+     },
+     "meaning": {
+      "type": "string",
+      "title": "Meaning"
+     },
+     "threshold_markers": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Threshold Markers"
+     },
+     "reliability_cutoffs": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Reliability Cutoffs"
+     },
+     "risk_tiers": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Risk Tiers"
+     }
+    },
+    "type": "object",
+    "required": [
+     "stops",
+     "meaning",
+     "threshold_markers",
+     "reliability_cutoffs",
+     "risk_tiers"
+    ],
+    "title": "SceneLegend"
+   },
+   "SceneMesh": {
+    "properties": {
+     "color": {
+      "type": "string",
+      "title": "Color"
+     },
+     "opacity": {
+      "type": "number",
+      "title": "Opacity"
+     },
+     "emissive": {
+      "type": "number",
+      "title": "Emissive"
+     },
+     "pulse_hz": {
+      "type": "number",
+      "title": "Pulse Hz"
+     },
+     "flagged": {
+      "type": "boolean",
+      "title": "Flagged"
+     },
+     "target": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Target"
+     },
+     "outline_color": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Outline Color"
+     },
+     "badge": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Badge"
+     },
+     "visible": {
+      "type": "boolean",
+      "title": "Visible"
+     },
+     "tooltip": {
+      "type": "string",
+      "title": "Tooltip"
+     }
+    },
+    "type": "object",
+    "required": [
+     "color",
+     "opacity",
+     "emissive",
+     "pulse_hz",
+     "flagged",
+     "target",
+     "outline_color",
+     "badge",
+     "visible",
+     "tooltip"
+    ],
+    "title": "SceneMesh"
+   },
+   "SceneRegion": {
+    "properties": {
+     "region": {
+      "type": "string",
+      "title": "Region"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     },
+     "mesh_names": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Mesh Names"
+     },
+     "camera_anchor": {
+      "type": "string",
+      "title": "Camera Anchor"
+     },
+     "intensity": {
+      "type": "number",
+      "title": "Intensity"
+     },
+     "net_shap": {
+      "type": "number",
+      "title": "Net Shap"
+     },
+     "direction": {
+      "type": "string",
+      "enum": [
+       "raises",
+       "lowers"
+      ],
+      "title": "Direction"
+     },
+     "color": {
+      "type": "string",
+      "title": "Color"
+     },
+     "icon": {
+      "type": "string",
+      "title": "Icon"
+     },
+     "features": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Features"
+     },
+     "tooltip": {
+      "type": "string",
+      "title": "Tooltip"
+     }
+    },
+    "type": "object",
+    "required": [
+     "region",
+     "display_name",
+     "mesh_names",
+     "camera_anchor",
+     "intensity",
+     "net_shap",
+     "direction",
+     "color",
+     "icon",
+     "features",
+     "tooltip"
+    ],
+    "title": "SceneRegion"
+   },
+   "SceneVessel": {
+    "properties": {
+     "prob": {
+      "type": "number",
+      "title": "Prob"
+     },
+     "threshold": {
+      "type": "number",
+      "title": "Threshold"
+     },
+     "flagged": {
+      "type": "boolean",
+      "title": "Flagged"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "color": {
+      "type": "string",
+      "title": "Color"
+     },
+     "badge": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Badge"
+     },
+     "reliability": {
+      "type": "string",
+      "title": "Reliability"
+     },
+     "holdout_auc": {
+      "type": "number",
+      "title": "Holdout Auc"
+     },
+     "top_drivers": {
+      "items": {
+       "$ref": "#/components/schemas/Driver"
+      },
+      "type": "array",
+      "title": "Top Drivers"
+     },
+     "tooltip": {
+      "type": "string",
+      "title": "Tooltip"
+     },
+     "display_name": {
+      "type": "string",
+      "title": "Display Name"
+     },
+     "camera_anchor": {
+      "type": "string",
+      "title": "Camera Anchor"
+     },
+     "mesh_names": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Mesh Names"
+     }
+    },
+    "type": "object",
+    "required": [
+     "prob",
+     "threshold",
+     "flagged",
+     "label",
+     "color",
+     "badge",
+     "reliability",
+     "holdout_auc",
+     "top_drivers",
+     "tooltip",
+     "display_name",
+     "camera_anchor",
+     "mesh_names"
+    ],
+    "title": "SceneVessel"
+   },
+   "SchemaResponse": {
+    "properties": {
+     "groups": {
+      "items": {
+       "$ref": "#/components/schemas/Group"
+      },
+      "type": "array",
+      "title": "Groups"
+     },
+     "features": {
+      "items": {
+       "$ref": "#/components/schemas/FeatureSpec"
+      },
+      "type": "array",
+      "title": "Features"
+     }
+    },
+    "type": "object",
+    "required": [
+     "groups",
+     "features"
+    ],
+    "title": "SchemaResponse"
+   },
+   "SensitivityIn": {
+    "properties": {
+     "features": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Features"
+     },
+     "feature": {
+      "type": "string",
+      "title": "Feature"
+     },
+     "n": {
+      "type": "integer",
+      "maximum": 60.0,
+      "minimum": 3.0,
+      "title": "N",
+      "default": 15
+     }
+    },
+    "type": "object",
+    "required": [
+     "feature"
+    ],
+    "title": "SensitivityIn",
+    "example": {
+     "features": {
+      "age": 63,
+      "dm": 1,
+      "ldl": 160
+     }
+    }
+   },
+   "SensitivityOut": {
+    "properties": {
+     "feature": {
+      "type": "string",
+      "title": "Feature"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "unit": {
+      "type": "string",
+      "title": "Unit"
+     },
+     "points": {
+      "items": {
+       "$ref": "#/components/schemas/SensitivityPoint"
+      },
+      "type": "array",
+      "title": "Points"
+     },
+     "current_value": {
+      "type": "number",
+      "title": "Current Value"
+     },
+     "note": {
+      "type": "string",
+      "title": "Note"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     },
+     "latency_ms": {
+      "type": "number",
+      "title": "Latency Ms"
+     }
+    },
+    "type": "object",
+    "required": [
+     "feature",
+     "label",
+     "unit",
+     "points",
+     "current_value",
+     "note",
+     "disclaimer",
+     "latency_ms"
+    ],
+    "title": "SensitivityOut"
+   },
+   "SensitivityPoint": {
+    "properties": {
+     "value": {
+      "type": "number",
+      "title": "Value"
+     },
+     "cad": {
+      "type": "number",
+      "title": "Cad"
+     },
+     "lad": {
+      "type": "number",
+      "title": "Lad"
+     },
+     "lcx": {
+      "type": "number",
+      "title": "Lcx"
+     },
+     "rca": {
+      "type": "number",
+      "title": "Rca"
+     }
+    },
+    "type": "object",
+    "required": [
+     "value",
+     "cad",
+     "lad",
+     "lcx",
+     "rca"
+    ],
+    "title": "SensitivityPoint"
+   },
+   "TargetCard": {
+    "properties": {
+     "key": {
+      "type": "string",
+      "enum": [
+       "cad",
+       "lad",
+       "lcx",
+       "rca"
+      ],
+      "title": "Key"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "model": {
+      "type": "string",
+      "title": "Model"
+     },
+     "strategy": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Strategy"
+     },
+     "calibration": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Calibration"
+     },
+     "holdout": {
+      "additionalProperties": {
+       "$ref": "#/components/schemas/MetricCI"
+      },
+      "type": "object",
+      "title": "Holdout"
+     },
+     "nested_cv": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Nested Cv"
+     },
+     "threshold": {
+      "type": "number",
+      "title": "Threshold"
+     },
+     "threshold_rule": {
+      "type": "string",
+      "title": "Threshold Rule"
+     },
+     "reliability_badge": {
+      "type": "string",
+      "title": "Reliability Badge"
+     },
+     "top_drivers": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Top Drivers"
+     }
+    },
+    "type": "object",
+    "required": [
+     "key",
+     "label",
+     "model",
+     "strategy",
+     "calibration",
+     "holdout",
+     "nested_cv",
+     "threshold",
+     "threshold_rule",
+     "reliability_badge",
+     "top_drivers"
+    ],
+    "title": "TargetCard"
+   },
+   "TargetPrediction": {
+    "properties": {
+     "prob": {
+      "type": "number",
+      "title": "Prob"
+     },
+     "threshold": {
+      "type": "number",
+      "title": "Threshold"
+     },
+     "label": {
+      "type": "string",
+      "title": "Label"
+     },
+     "risk_tier": {
+      "anyOf": [
+       {
+        "type": "string",
+        "enum": [
+         "Low",
+         "Moderate",
+         "High"
+        ]
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Risk Tier"
+     }
+    },
+    "type": "object",
+    "required": [
+     "prob",
+     "threshold",
+     "label"
+    ],
+    "title": "TargetPrediction"
+   },
+   "WhatIfIn": {
+    "properties": {
+     "features": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Features"
+     },
+     "changes": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Changes"
+     },
+     "focus": {
+      "type": "string",
+      "enum": [
+       "cad",
+       "lad",
+       "lcx",
+       "rca"
+      ],
+      "title": "Focus",
+      "default": "cad"
+     }
+    },
+    "type": "object",
+    "required": [
+     "changes"
+    ],
+    "title": "WhatIfIn",
+    "example": {
+     "features": {
+      "age": 63,
+      "dm": 1,
+      "ldl": 160
+     }
+    }
+   },
+   "WhatIfOut": {
+    "properties": {
+     "before": {
+      "$ref": "#/components/schemas/Prediction"
+     },
+     "after": {
+      "$ref": "#/components/schemas/Prediction"
+     },
+     "delta": {
+      "additionalProperties": {
+       "type": "number"
+      },
+      "type": "object",
+      "title": "Delta"
+     },
+     "scene_after": {
+      "$ref": "#/components/schemas/Scene"
+     },
+     "derived_updates_applied": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Derived Updates Applied"
+     },
+     "applied_changes": {
+      "additionalProperties": {
+       "anyOf": [
+        {
+         "type": "number"
+        },
+        {
+         "type": "integer"
+        },
+        {
+         "type": "string"
+        },
+        {
+         "type": "boolean"
+        },
+        {
+         "type": "null"
+        }
+       ]
+      },
+      "type": "object",
+      "title": "Applied Changes"
+     },
+     "tier_change": {
+      "items": {
+       "type": "string"
+      },
+      "type": "array",
+      "title": "Tier Change"
+     },
+     "note": {
+      "type": "string",
+      "title": "Note"
+     },
+     "disclaimer": {
+      "type": "string",
+      "title": "Disclaimer"
+     },
+     "latency_ms": {
+      "type": "number",
+      "title": "Latency Ms"
+     }
+    },
+    "type": "object",
+    "required": [
+     "before",
+     "after",
+     "delta",
+     "scene_after",
+     "derived_updates_applied",
+     "applied_changes",
+     "tier_change",
+     "note",
+     "disclaimer",
+     "latency_ms"
+    ],
+    "title": "WhatIfOut"
+   }
+  }
+ }
+}
