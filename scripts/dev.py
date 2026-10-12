@@ -51,7 +51,7 @@ def main() -> int:
             print("The API did not start - see the log above.")
             return 1
         web = subprocess.Popen([npm, "run", "dev"], cwd=FE, creationflags=flags)
-        if not wait("http://127.0.0.1:5173/", 60):
+        if not wait("http://localhost:5173/", 90):
             print("The web app did not start - see the log above.")
             return 1
         print("\nCardioLens is running at http://localhost:5173  (Ctrl+C to stop)\n")

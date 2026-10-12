@@ -6,3 +6,6 @@ node_modules/
 *.egg-info/
 # derived bundles (regenerable)
 *.zip
+
+# review screenshots (scratch)
+artifacts/review/
