@@ -74,3 +74,19 @@ Non-obvious choices made while building CardioLens, with the reason for each.
   applied by `cardio_ml` (shown under "derived updates") and are copied into the patient on "Apply to patient".
 * **Lighthouse runner.** `chrome-launcher` cannot spawn Playwright's full Chromium on this machine, so
   `e2e/lighthouse.mjs` starts Chromium through Playwright with a debugging port and runs Lighthouse against it.
+
+## Polish pass
+* **Legend ticks.** `lib/tickLayout.ts` groups thresholds within 5% into clusters and stacks their labels on one
+  side with elbow leader lines. Rows are ordered so leaders never cross each other or a label. A unit test
+  checks: no label overlaps, no leader through a label, and labels stay inside the bar.
+* **Sensitivity chart.** End-of-line labels were replaced by a line key below the chart, so they can never collide.
+  The min/max axis labels hide when the current-value marker is close, and the unit moves into the caption.
+* **Body-mode chips.** A single 2D layout (`three/Overlays.tsx`) places each chip at its organ's centre ("Whole
+  body" at the chest centre). Chips must fit inside a silhouette mask built from the projected `Torso_Shell`
+  vertices and must not overlap each other. A chip that can't fit is pulled toward the chest centre and is never
+  drawn outside the body.
+* **Vessel tags.** When 2+ vessels are flagged, LAD / LCX / RCA tags are drawn on the most camera-facing,
+  unoccluded point of each centreline (`centerlines_gltf`), with a white leader. The white outline shells stay.
+* **Realistic-look contrast.** On the realistic look only, coronaries get a light emissive tint (0.16 of their
+  colour mixed 55% toward white). `material.color` remains exactly the API colour, so the colour-equality e2e
+  test still holds.

@@ -15,27 +15,26 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
   const { data, isFetching, isError } = useSensitivity(feature, true);
   if (isError) return <p className="text-xs text-warn">Sensitivity curve unavailable.</p>;
   if (!data) return <Skeleton className="h-[172px]" />;
-  const W = 320, H = 150, L = 34, R = 34, T = 8, B = 22;
+  const W = 320,
+    H = 150,
+    L = 34,
+    R = 12,
+    T = 8,
+    B = 22;
   const xs = data.points.map((p) => p.value);
-  const x0 = Math.min(...xs), x1 = Math.max(...xs);
+  const x0 = Math.min(...xs),
+    x1 = Math.max(...xs);
   const X = (v: number) => L + ((v - x0) / (x1 - x0 || 1)) * (W - L - R);
   const Y = (p: number) => T + (1 - p) * (H - T - B);
   const cur = current ?? data.current_value;
-  // end-of-line labels, pushed apart so they never overlap (>= 10 px)
-  const last = data.points[data.points.length - 1]!;
-  const order = [...LINES].sort((a, b) => Y(last[a.key]) - Y(last[b.key]));
-  const labelY: Record<string, number> = {};
-  let prev = -Infinity;
-  for (const l of order) {
-    const y = Math.max(Y(last[l.key]) + 3, prev + 10);
-    labelY[l.key] = y;
-    prev = y;
-  }
-  const overflow = prev - (H - B + 3);
-  if (overflow > 0) for (const k of Object.keys(labelY)) labelY[k] = labelY[k]! - overflow;
   return (
     <figure className="relative" aria-busy={isFetching}>
-      <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Sensitivity of each estimate to ${data.label}`}>
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full"
+        role="img"
+        aria-label={`Sensitivity of each estimate to ${data.label}`}
+      >
         {[0, 0.25, 0.5, 0.75, 1].map((p) => (
           <g key={p}>
             <line x1={L} x2={W - R} y1={Y(p)} y2={Y(p)} stroke="var(--border)" />
@@ -45,13 +44,19 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
           </g>
         ))}
         {LINES.map((l) => {
-          const d = data.points.map((p, i) => `${i ? "L" : "M"}${X(p.value).toFixed(1)},${Y(p[l.key]).toFixed(1)}`).join(" ");
+          const d = data.points
+            .map((p, i) => `${i ? "L" : "M"}${X(p.value).toFixed(1)},${Y(p[l.key]).toFixed(1)}`)
+            .join(" ");
           return (
             <g key={l.key}>
-              <path d={d} fill="none" stroke="rgb(var(--text-1))" strokeOpacity={l.key === "cad" ? 0.95 : 0.6} strokeWidth={l.w} strokeDasharray={l.dash} />
-              <text x={W - R + 3} y={labelY[l.key]} fontSize="9" fill="rgb(var(--text-2))">
-                {l.label}
-              </text>
+              <path
+                d={d}
+                fill="none"
+                stroke="rgb(var(--text-1))"
+                strokeOpacity={l.key === "cad" ? 0.95 : 0.6}
+                strokeWidth={l.w}
+                strokeDasharray={l.dash}
+              />
             </g>
           );
         })}
@@ -59,15 +64,42 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
         <text x={X(cur)} y={H - 6} fontSize="9" textAnchor="middle" fill="rgb(var(--accent))">
           {num(cur, 0.1)}
         </text>
-        <text x={L} y={H - 6} fontSize="9" fill="rgb(var(--text-3))">
-          {num(x0, 0.1)}
-        </text>
-        <text x={W - R} y={H - 6} fontSize="9" textAnchor="end" fill="rgb(var(--text-3))">
-          {num(x1, 0.1)} {data.unit}
-        </text>
+        {Math.abs(X(cur) - L) > 26 && (
+          <text x={L} y={H - 6} fontSize="9" fill="rgb(var(--text-3))">
+            {num(x0, 0.1)}
+          </text>
+        )}
+        {Math.abs(X(cur) - (W - R)) > 48 && (
+          <text x={W - R} y={H - 6} fontSize="9" textAnchor="end" fill="rgb(var(--text-3))">
+            {num(x1, 0.1)} {data.unit}
+          </text>
+        )}
       </svg>
-      <figcaption className="text-[11px] text-t3">
-        {data.label}: estimate across the training range, all other inputs unchanged. Marker = current what-if value.
+      <ul
+        className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-t2"
+        aria-label="Line key"
+        data-testid="sens-legend"
+      >
+        {LINES.map((l) => (
+          <li key={l.key} className="flex items-center gap-1.5">
+            <svg width="22" height="6" aria-hidden>
+              <line
+                x1="0"
+                x2="22"
+                y1="3"
+                y2="3"
+                stroke="rgb(var(--text-1))"
+                strokeOpacity={l.key === "cad" ? 0.95 : 0.6}
+                strokeWidth={l.w}
+                strokeDasharray={l.dash}
+              />
+            </svg>
+            {l.label}
+          </li>
+        ))}
+      </ul>
+      <figcaption className="mt-1 text-[11px] text-t3">
+        {data.label}{data.unit ? ` (${data.unit})` : ""}: estimate across the training range, all other inputs unchanged. Marker = current what-if value.
       </figcaption>
     </figure>
   );

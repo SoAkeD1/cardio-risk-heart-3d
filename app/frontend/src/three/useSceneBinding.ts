@@ -15,6 +15,7 @@ const TWEEN_MS = 400;
 const easeOutCubic = (t: number) => 1 - (1 - t) ** 3;
 const TEXTURED_TINT = 0.5; // textured surfaces (heart, aorta) take the scene tint at 50 % so the texture stays legible
 const WHITE = new THREE.Color(1, 1, 1);
+const REALISTIC_VESSEL_LIFT = 0.16;
 
 type Std = THREE.MeshStandardMaterial;
 type Binding = {
@@ -222,6 +223,11 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
         m.emissive.set(g.color);
         m.emissiveIntensity = g.k * (reduced ? 0.7 : 0.45 + 0.35 * (0.5 + 0.5 * Math.sin(2 * Math.PI * 0.5 * t)));
         animating = !reduced || animating;
+      } else if (name.startsWith("Coronary_") && look === "realistic") {
+        // realistic look: the red-textured myocardium can swallow red vessels. Lift vessel lightness slightly with a
+        // light emissive tint (material.color stays EXACTLY the API colour)
+        m.emissive.copy(b.color.cur).lerp(WHITE, 0.55);
+        m.emissiveIntensity = e + REALISTIC_VESSEL_LIFT;
       } else {
         m.emissive.copy(b.color.cur);
         m.emissiveIntensity = e;

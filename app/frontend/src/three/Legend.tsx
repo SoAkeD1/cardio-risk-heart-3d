@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronUp } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useRef, useState } from "react";
+import { layoutTicks, type Tick } from "../lib/tickLayout";
 import { useAnatomyMap, useModelCard } from "../api/hooks";
 import { VESSELS } from "../api/types";
 import { gradientCss, type Stop } from "../lib/color";
@@ -25,7 +26,11 @@ export function Legend({ compact = false }: { compact?: boolean }) {
     <div
       data-testid="legend"
       className={`pointer-events-auto absolute bottom-3 left-3 z-10 rounded-md border border-line bg-s1/90 text-xs text-t2 shadow-soft backdrop-blur ${
-        open ? "z-20 w-[min(320px,calc(100%-24px))] p-3" : compact ? "w-auto px-2.5 py-2" : "w-[min(320px,calc(100%-24px))] p-3"
+        open
+          ? "z-20 w-[min(320px,calc(100%-24px))] p-3"
+          : compact
+            ? "w-auto px-2.5 py-2"
+            : "w-[min(320px,calc(100%-24px))] p-3"
       }`}
     >
       <button
@@ -39,22 +44,13 @@ export function Legend({ compact = false }: { compact?: boolean }) {
       {open && (
         <>
           <div className="relative mt-2 h-3 rounded-sm" style={{ background: gradientCss(stops) }} aria-hidden />
-          <div className="relative h-11" aria-label="Decision thresholds">
-            {VESSELS.filter((v) => thr[v] !== undefined)
-              .sort((a, b) => thr[a]! - thr[b]!)
-              .map((v, i) => (
-                <span
-                  key={v}
-                  className="num absolute flex -translate-x-px items-start gap-1 whitespace-nowrap text-[11px] leading-none text-t1"
-                  style={{ left: `${thr[v]! * 100}%`, top: 0 }}
-                >
-                  <span className="block w-px bg-[rgb(var(--text-1)/0.8)]" style={{ height: 6 + i * 12 }} />
-                  <span style={{ marginTop: i * 12 }}>
-                    {v.toUpperCase()} {pct(thr[v])}
-                  </span>
-                </span>
-              ))}
-          </div>
+          <ThresholdTicks
+            ticks={VESSELS.filter((v) => thr[v] !== undefined).map((v) => ({
+              key: v,
+              label: `${v.toUpperCase()} ${pct(thr[v])}`,
+              p: thr[v]!,
+            }))}
+          />
           <div className="num flex justify-between text-[11px] text-t3">
             <span>0%</span>
             <span>50%</span>
@@ -69,6 +65,58 @@ export function Legend({ compact = false }: { compact?: boolean }) {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+const ROW_H = 13;
+
+/** Threshold ticks under the scale; close ticks stack their labels with elbow leader lines (no overlap). */
+export function ThresholdTicks({ ticks }: { ticks: Tick[] }) {
+  const [w, setW] = useState(0);
+  const ro = useRef<ResizeObserver | null>(null);
+  const ref = useCallback((el: HTMLDivElement | null) => {
+    ro.current?.disconnect();
+    if (!el) return;
+    ro.current = new ResizeObserver(([e]) => setW(e!.contentRect.width));
+    ro.current.observe(el);
+  }, []);
+  const { placed, rows } = w ? layoutTicks(ticks, w) : { placed: [], rows: ticks.length };
+  const h = 8 + rows * ROW_H;
+  return (
+    <div
+      ref={ref}
+      className="relative"
+      style={{ height: h }}
+      role="list"
+      aria-label="Decision thresholds"
+      data-testid="legend-ticks"
+    >
+      <svg width="100%" height={h} className="absolute inset-0 overflow-visible" aria-hidden>
+        {placed.map((t) => {
+          const y = 6 + t.row * ROW_H + 4;
+          const elbow = t.align === "left" ? t.textX - 2 : t.textX + 2;
+          return (
+            <g key={t.key} stroke="rgb(var(--text-1))" strokeOpacity={0.75} strokeWidth={1} fill="none">
+              <path d={`M${t.x + 0.5},-3 V${y} H${elbow}`} />
+            </g>
+          );
+        })}
+      </svg>
+      {placed.map((t) => (
+        <span
+          key={t.key}
+          role="listitem"
+          data-tick={t.key}
+          className="num absolute whitespace-nowrap text-[11px] leading-none text-t1"
+          style={{
+            top: 6 + t.row * ROW_H - 1,
+            ...(t.align === "left" ? { left: t.textX } : { right: w - t.textX }),
+          }}
+        >
+          {t.label}
+        </span>
+      ))}
     </div>
   );
 }

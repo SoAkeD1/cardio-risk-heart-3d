@@ -15,7 +15,7 @@ import { SceneEnvironment } from "./Environment";
 import { HeartModel, MODEL_URL } from "./HeartModel";
 import { Legend } from "./Legend";
 import { Picking } from "./Picking";
-import { RegionChips } from "./RegionChips";
+import { OverlayLabels, OverlayLayout } from "./Overlays";
 import { reg, useModelStatus } from "./registry";
 import { worldPos } from "./geom";
 import { Tooltip3D } from "./Tooltip3D";
@@ -221,7 +221,6 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
           <ModelBoundary onError={onModelError}>
             <Suspense fallback={null}>
               <HeartModel url={lite ? MODEL_URL.lite : MODEL_URL.full} />
-              <RegionChips />
             </Suspense>
             {/* HDRI decode + PMREM in its own boundary, after the model is on screen (splits the long tasks) */}
             {loaded && (
@@ -231,6 +230,7 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
             )}
           </ModelBoundary>
           <CameraRig />
+          <OverlayLayout />
           <Picking />
           <ViewerApis />
           {animating && view.performance === "auto" && !lite && (
@@ -259,6 +259,7 @@ export default function Viewer({ onModelError, onModelLoaded }: { onModelError: 
         </Canvas>
       </div>
       <ProgressOverlay />
+      <OverlayLabels />
       <WhatIfChip />
       <CanvasToolbar compact={compact} />
       <Legend compact={compact} />
