@@ -334,8 +334,9 @@ class SketchfabHeart:
         radii = r * (1 - 0.22 * s)
         V, F = tube_fn(P, radii, segs, caps=True, cap_rings=3)
         self.desc_path, self.desc_r = P, radii
-        # UVs: map each extension vertex back onto the last ~15 mm of the arch (ping-pong along the axis) and take
-        # the UV of the nearest aorta vertex -> the extension carries the same texture colour and pattern.
+        # UVs: map each extension vertex back onto the last ~15 mm of the arch and take the UV of the nearest aorta
+        # vertex. The position along the arch wall advances ONCE, continuously, over the whole extension (no
+        # ping-pong), so the texture never repeats; it is stretched along the vessel instead of tiled.
         aorta = self.parts["Aorta"]
         A = verts(aorta)
         uv_of_vertex = np.zeros((len(A), 2))
@@ -361,7 +362,7 @@ class SketchfabHeart:
             d = v - P[i]
             d = d - (d @ T[i]) * T[i]
             ang = math.atan2(d @ np.cross(T[i], e1 if abs(T[i] @ e1) < 0.9 else e2), d @ (e1 if abs(T[i] @ e1) < 0.9 else e2))
-            back = 0.004 + abs(((cum[i] / 0.015) % 2) - 1) * 0.015   # ping-pong 4..19 mm back on the arch wall
+            back = 0.004 + 0.015 * cum[i] / cum[-1]                 # 4 -> 19 mm back on the arch wall, monotonic
             q = c - n * back + r * (math.cos(ang) * e1 + math.sin(ang) * e2)
             uvs.append(uv_of_vertex[idx_pool[kd.find(Vector(q))[1]]])
         me = bpy.data.meshes.new("Extra_tmp_desc")

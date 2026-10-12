@@ -489,6 +489,7 @@ def hermite(p0, p1, m0, m1, n):
             + (-2 * t ** 3 + 3 * t ** 2) * p1 + (t ** 3 - t ** 2) * m1)
 
 
+LM_LENGTH = 0.010                                      # left main: ostium -> bifurcation (8-12 mm)
 FULL_HEART_BVH = None                                  # set per build: whole myocardium (incl. pulmonary trunk)
 
 
@@ -881,6 +882,15 @@ class Builder:
                                                        lambda z: (-140, -30), start_tol=35), "z")
         lcx_t, lcx_z = smooth("LCX", *U.trace_horizontal(lad_t[0], 115, z_bif, lambda t: (0.012, 0.042),
                                                          start_tol=0.006), "t")
+        # LCX: the painted line wobbles in the AV groove; fit z(theta) with a degree-4 Chebyshev polynomial
+        # (5 coefficients <= 8 control points) so the vessel follows the groove in one gentle arc
+        o = np.argsort(lcx_t)
+        cheb = np.polynomial.Chebyshev.fit(np.asarray(lcx_t)[o], np.asarray(lcx_z)[o], 4)
+        lcx_t = np.asarray(lcx_t)[o]
+        lcx_z = np.clip(cheb(lcx_t), 0.012, 0.042)
+        self.report["lcx_fit"] = dict(kind="Chebyshev degree 4", coefficients=5,
+                                      max_residual_mm=round(float(np.abs(cheb(np.asarray(tr["LCX"][0])) -
+                                                                         np.asarray(tr["LCX"][1])).max()) * 1000, 2))
         rca_start = aivg(top) - 30
         rca_t, rca_z = smooth("RCA", *U.trace_horizontal(rca_start, pivg(ra_rv_z) - 360, ra_rv_z,
                                                          lambda t: (ra_rv_z - 0.010, ra_rv_z + 0.010),
@@ -939,7 +949,24 @@ class Builder:
         bif = loc + n * VESSEL_OFFSET
         lad = self._surface_path(lad_ctrl[1:], start=bif)
         lcx = self._surface_path(ctrl(lcx_t, lcx_z)[1:], start=bif)
-        lm = self._left_main(bif, lad, lcx)
+        lm_route = self._left_main(bif, lad, lcx)
+        # The traced LAD origin lies ~3 cm from the left sinus. Anatomically the LM is short (8-12 mm), so the
+        # bifurcation is moved onto the (clearance-checked) LM route LM_LENGTH beyond the ostium: the rest of that
+        # route becomes the proximal LAD and the LCX is re-traced from the new bifurcation.
+        cum = np.concatenate([[0], np.cumsum(np.linalg.norm(np.diff(lm_route, axis=0), axis=1))])
+        i0 = next(i for i, p_ in enumerate(lm_route) if not inside(self.aorta_bvh, p_))   # leaves the aortic wall
+        s_bif = cum[i0] + LM_LENGTH
+        k = int(np.clip(np.searchsorted(cum, s_bif), 2, len(lm_route) - 2))
+        w = (s_bif - cum[k - 1]) / max(cum[k] - cum[k - 1], 1e-9)
+        new_bif = lm_route[k - 1] + w * (lm_route[k] - lm_route[k - 1])     # exactly LM_LENGTH beyond the wall
+        lm = np.vstack([lm_route[:k], new_bif])
+        lad = limit_bends(np.vstack([new_bif, lm_route[k:], lad[1:]]), self.heart_bvh, VESSEL_OFFSET, fixed=[0],
+                          band_from=len(lm_route) - k + 1)
+        th_b = float(fr.local(new_bif)[0])
+        lcx_c = [c for c in ctrl(lcx_t, lcx_z)[1:] if ((c[0] - th_b + 180) % 360) - 180 > 12]
+        lcx = self._surface_path(lcx_c, start=new_bif)
+        self.report["lm_length_mm"] = round(float(LM_LENGTH) * 1000, 1)       # centreline arc, aortic wall -> bif
+        self.report["lm_bif_straight_from_wall_mm"] = round(float(np.linalg.norm(new_bif - lm_route[i0])) * 1000, 1)
         rca_c = ctrl(rca_t, rca_z) + ctrl(pda_t, pda_z)[1:]
         right_sinus, right_exit = self.ostium(self.surf(*rca_c[0]), VESSEL_R["main"][0])
         # surface bridge from the right ostium down to where the painted RCA begins (keeps the vessel on the
@@ -999,7 +1026,6 @@ class Builder:
                 score = max(bend_angles(P).max(), bend_angles(P, BEND_CHORD).max()) + 40 * clip
                 if score < best_score:
                     best, best_score = H, score
-        self.report["lm_length_mm"] = round(L * 1000, 1)
         # relaxation-only pass (no surface pushes) to take the last degrees off; endpoints stay pinned
         best = limit_bends(best, self.heart_bvh, VESSEL_OFFSET, fixed=[0, len(best) - 1], band_from=len(best) + 1)
         best[-1] = bif
@@ -1111,19 +1137,26 @@ class Builder:
         self.terr_b = (b_ant, b_post, b_right, zs)
         spans = {"lad": (b_right, b_ant), "lcx": (b_ant, b_post), "rca": (b_post, b_right + 360)}
 
-        def patch(t0, t1):
+        def patch_thetas(t0, t1):
             n_t = max(4, int(np.max(t1 - t0) / q["terr_dtheta"]))
-            grid = np.array([[surface(fr, t0[i] + (t1[i] - t0[i]) * j / (n_t - 1), zs[i]) for j in range(n_t)]
-                             for i in range(nz)])
+            return np.array([[t0[i] + (t1[i] - t0[i]) * j / (n_t - 1) for j in range(n_t)] for i in range(nz)])
+
+        def patch(t0, t1):
+            TH = patch_thetas(t0, t1)
+            n_t = TH.shape[1]
+            grid = np.array([[surface(fr, TH[i, j], zs[i]) for j in range(n_t)] for i in range(nz)])
             F = [(i * n_t + j, i * n_t + j + 1, (i + 1) * n_t + j + 1, (i + 1) * n_t + j)
                  for i in range(nz - 1) for j in range(n_t - 1)]
             return grid.reshape(-1, 3), F
 
         def cap():
-            n_t = int(360 / q["terr_dtheta"])
+            # the cap's top ring uses exactly the bottom-row vertices of the three patches, so the shared seam at
+            # z' = zc is the same polyline on both sides (no slivers between differently sampled edges)
+            th = np.unique(np.round(np.concatenate([patch_thetas(t0, t1)[0] for t0, t1 in spans.values()]) % 360, 6))
+            th = th[np.concatenate([[True], np.diff(th) > 1e-4])]
+            n_t = len(th)
             za = self.z_apex
             zc_s = np.linspace(za + 0.0015, zc, max(3, int((zc - za) / q["terr_dz"])))
-            th = np.linspace(0, 360, n_t, endpoint=False)
             grid = np.array([[surface(fr, t, z) for t in th] for z in zc_s]).reshape(-1, 3)
             V = np.vstack([grid, self.apex_point])
             pole = len(V) - 1

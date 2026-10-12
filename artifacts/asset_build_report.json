@@ -29,6 +29,11 @@
    ],
    "right_AV_groove_zmm": 29.4
   },
+  "lcx_fit": {
+   "kind": "Chebyshev degree 4",
+   "coefficients": 5,
+   "max_residual_mm": 6.64
+  },
   "painted_line_strength": {
    "LAD": 0.406,
    "LCX": 0.666,
@@ -36,31 +41,32 @@
    "PDA": 0.289,
    "D1": 0.209,
    "D2": 0.032,
-   "OM1": 0.439,
-   "OM2": 0.441,
+   "OM1": 0.446,
+   "OM2": 0.429,
    "AM": 0.315
   },
   "painted_lad_width_mm": 1.25,
-  "lm_length_mm": 34.0,
+  "lm_length_mm": 10.0,
+  "lm_bif_straight_from_wall_mm": 9.9,
   "rca_bridge_points": 2,
-  "arch_apex_above_heart_base_cm": 4.31,
+  "arch_apex_above_heart_base_cm": 4.3,
   "aorta_min_clearance_from_heart_mm": 6.5,
   "vessel_radius_scale": 1.0,
   "centreline_to_myocardium": {
    "lm": {
-    "min_mm": 1.07,
-    "median_mm": 2.64,
-    "max_mm": 3.47
+    "min_mm": 1.52,
+    "median_mm": 2.12,
+    "max_mm": 3.04
    },
    "lad": {
-    "min_mm": 1.81,
+    "min_mm": 1.74,
     "median_mm": 1.88,
-    "max_mm": 1.94
+    "max_mm": 3.36
    },
    "lcx": {
-    "min_mm": 1.76,
+    "min_mm": 1.83,
     "median_mm": 1.88,
-    "max_mm": 1.92
+    "max_mm": 2.14
    },
    "rca": {
     "min_mm": 1.34,
@@ -70,7 +76,7 @@
    "branch0": {
     "min_mm": 1.88,
     "median_mm": 1.89,
-    "max_mm": 1.91
+    "max_mm": 1.92
    },
    "branch1": {
     "min_mm": 1.89,
@@ -78,8 +84,8 @@
     "max_mm": 1.9
    },
    "branch2": {
-    "min_mm": 1.88,
-    "median_mm": 1.89,
+    "min_mm": 1.45,
+    "median_mm": 1.73,
     "max_mm": 1.9
    },
    "branch3": {
@@ -95,36 +101,36 @@
   },
   "max_bend_deg": {
    "lm": {
-    "segments": 20.9,
-    "chord_4mm": 27.7
+    "segments": 23.0,
+    "chord_4mm": 22.4
    },
    "lad": {
-    "segments": 14.4,
-    "chord_4mm": 14.4
+    "segments": 16.0,
+    "chord_4mm": 16.0
    },
    "lcx": {
-    "segments": 26.1,
-    "chord_4mm": 26.1
+    "segments": 26.2,
+    "chord_4mm": 26.2
    },
    "rca": {
     "segments": 27.9,
     "chord_4mm": 27.9
    },
    "branch0": {
-    "segments": 16.3,
-    "chord_4mm": 16.3
+    "segments": 15.8,
+    "chord_4mm": 15.8
    },
    "branch1": {
     "segments": 4.2,
     "chord_4mm": 4.2
    },
    "branch2": {
-    "segments": 26.6,
-    "chord_4mm": 26.6
+    "segments": 14.3,
+    "chord_4mm": 27.0
    },
    "branch3": {
-    "segments": 13.8,
-    "chord_4mm": 13.8
+    "segments": 8.7,
+    "chord_4mm": 8.7
    },
    "branch4": {
     "segments": 26.5,
@@ -133,19 +139,19 @@
   },
   "coronary_theta_start_mid_end": {
    "lm": [
-    -109.2,
-    -103.8,
-    -101.1
+    -109.7,
+    -107.5,
+    -106.6
    ],
    "lad": [
-    -101.6,
-    -120.7,
+    -106.4,
+    -114.9,
     58.4
    ],
    "lcx": [
-    -99.3,
-    2.2,
-    113.9
+    -103.8,
+    -24.0,
+    70.2
    ],
    "rca": [
     -108.5,
@@ -156,7 +162,7 @@
   "territory_alpha": {
    "Territory_LAD": {
     "min": 0.0,
-    "feathered_fraction": 0.154
+    "feathered_fraction": 0.155
    },
    "Territory_LCX": {
     "min": 0.0,
@@ -181,23 +187,23 @@
     -116.5
    ],
    "apical_cap_below_zp": -0.0225,
-   "top_zp": 0.0215
+   "top_zp": 0.0216
   },
   "triangles": {
    "Heart_Myocardium": 11000,
    "Aorta": 5754,
-   "Coronary_LM": 384,
-   "Coronary_LAD": 544,
-   "Coronary_LCX": 896,
+   "Coronary_LM": 208,
+   "Coronary_LAD": 656,
+   "Coronary_LCX": 688,
    "Coronary_RCA": 848,
    "Coronary_Branches": 1344,
-   "Extra_Hit_LAD": 384,
-   "Extra_Outline_LAD": 512,
-   "Extra_Hit_LCX": 648,
-   "Extra_Outline_LCX": 864,
+   "Extra_Hit_LAD": 468,
+   "Extra_Outline_LAD": 624,
+   "Extra_Hit_LCX": 492,
+   "Extra_Outline_LCX": 656,
    "Extra_Hit_RCA": 612,
    "Extra_Outline_RCA": 816,
-   "Territory_LAD": 1746,
+   "Territory_LAD": 1755,
    "Territory_LCX": 546,
    "Territory_RCA": 884,
    "Torso_Shell": 7880,
@@ -208,7 +214,7 @@
    "Organ_Brain": 1970,
    "Organ_Legs": 1970
   },
-  "triangles_total": 45938,
+  "triangles_total": 45507,
   "apex_direction_xyz": [
    0.557,
    -0.441,
@@ -254,6 +260,11 @@
    ],
    "right_AV_groove_zmm": 29.4
   },
+  "lcx_fit": {
+   "kind": "Chebyshev degree 4",
+   "coefficients": 5,
+   "max_residual_mm": 6.64
+  },
   "painted_line_strength": {
    "LAD": 0.406,
    "LCX": 0.666,
@@ -261,31 +272,32 @@
    "PDA": 0.289,
    "D1": 0.209,
    "D2": 0.032,
-   "OM1": 0.439,
-   "OM2": 0.441,
+   "OM1": 0.446,
+   "OM2": 0.429,
    "AM": 0.315
   },
   "painted_lad_width_mm": 1.25,
-  "lm_length_mm": 34.0,
+  "lm_length_mm": 10.0,
+  "lm_bif_straight_from_wall_mm": 10.0,
   "rca_bridge_points": 2,
-  "arch_apex_above_heart_base_cm": 4.31,
+  "arch_apex_above_heart_base_cm": 4.3,
   "aorta_min_clearance_from_heart_mm": 6.51,
   "vessel_radius_scale": 1.0,
   "centreline_to_myocardium": {
    "lm": {
-    "min_mm": 1.28,
-    "median_mm": 2.69,
-    "max_mm": 3.42
+    "min_mm": 1.6,
+    "median_mm": 2.2,
+    "max_mm": 3.13
    },
    "lad": {
-    "min_mm": 1.87,
+    "min_mm": 1.6,
     "median_mm": 1.9,
-    "max_mm": 1.92
+    "max_mm": 3.39
    },
    "lcx": {
-    "min_mm": 1.49,
+    "min_mm": 1.76,
     "median_mm": 1.89,
-    "max_mm": 2.26
+    "max_mm": 1.93
    },
    "rca": {
     "min_mm": 1.59,
@@ -293,22 +305,22 @@
     "max_mm": 3.13
    },
    "branch0": {
-    "min_mm": 1.75,
+    "min_mm": 1.71,
     "median_mm": 1.9,
     "max_mm": 2.07
    },
    "branch1": {
-    "min_mm": 1.89,
+    "min_mm": 1.9,
     "median_mm": 1.9,
     "max_mm": 1.9
    },
    "branch2": {
-    "min_mm": 1.47,
-    "median_mm": 1.67,
+    "min_mm": 1.43,
+    "median_mm": 1.66,
     "max_mm": 1.91
    },
    "branch3": {
-    "min_mm": 1.68,
+    "min_mm": 1.73,
     "median_mm": 1.89,
     "max_mm": 1.9
    },
@@ -320,36 +332,36 @@
   },
   "max_bend_deg": {
    "lm": {
-    "segments": 14.5,
-    "chord_4mm": 25.5
+    "segments": 17.7,
+    "chord_4mm": 16.2
    },
    "lad": {
-    "segments": 12.6,
-    "chord_4mm": 15.6
+    "segments": 15.5,
+    "chord_4mm": 23.9
    },
    "lcx": {
-    "segments": 29.0,
-    "chord_4mm": 27.9
+    "segments": 19.2,
+    "chord_4mm": 26.1
    },
    "rca": {
     "segments": 26.3,
     "chord_4mm": 27.8
    },
    "branch0": {
-    "segments": 10.4,
-    "chord_4mm": 27.8
+    "segments": 10.0,
+    "chord_4mm": 27.0
    },
    "branch1": {
-    "segments": 5.5,
-    "chord_4mm": 12.0
+    "segments": 5.4,
+    "chord_4mm": 8.2
    },
    "branch2": {
-    "segments": 15.8,
+    "segments": 9.9,
     "chord_4mm": 27.8
    },
    "branch3": {
-    "segments": 19.1,
-    "chord_4mm": 27.6
+    "segments": 17.3,
+    "chord_4mm": 26.9
    },
    "branch4": {
     "segments": 14.1,
@@ -358,19 +370,19 @@
   },
   "coronary_theta_start_mid_end": {
    "lm": [
-    -109.6,
-    -104.4,
-    -101.1
+    -110.6,
+    -108.9,
+    -108.3
    ],
    "lad": [
-    -101.1,
-    -121.3,
+    -108.2,
+    -116.9,
     58.4
    ],
    "lcx": [
-    -99.7,
-    1.8,
-    113.9
+    -106.7,
+    -24.8,
+    70.2
    ],
    "rca": [
     -112.4,
@@ -381,7 +393,7 @@
   "territory_alpha": {
    "Territory_LAD": {
     "min": 0.0,
-    "feathered_fraction": 0.141
+    "feathered_fraction": 0.142
    },
    "Territory_LCX": {
     "min": 0.0,
@@ -406,23 +418,23 @@
     -116.5
    ],
    "apical_cap_below_zp": -0.0225,
-   "top_zp": 0.0215
+   "top_zp": 0.0216
   },
   "triangles": {
    "Heart_Myocardium": 18856,
    "Aorta": 11386,
-   "Coronary_LM": 648,
-   "Coronary_LAD": 1488,
-   "Coronary_LCX": 2400,
+   "Coronary_LM": 336,
+   "Coronary_LAD": 1824,
+   "Coronary_LCX": 1896,
    "Coronary_RCA": 2040,
-   "Coronary_Branches": 3680,
-   "Extra_Hit_LAD": 720,
-   "Extra_Outline_LAD": 1440,
-   "Extra_Hit_LCX": 1176,
-   "Extra_Outline_LCX": 2352,
+   "Coronary_Branches": 3640,
+   "Extra_Hit_LAD": 888,
+   "Extra_Outline_LAD": 1776,
+   "Extra_Hit_LCX": 924,
+   "Extra_Outline_LCX": 1848,
    "Extra_Hit_RCA": 996,
    "Extra_Outline_RCA": 1992,
-   "Territory_LAD": 7508,
+   "Territory_LAD": 7603,
    "Territory_LCX": 2408,
    "Territory_RCA": 3864,
    "Torso_Shell": 19700,
@@ -433,7 +445,7 @@
    "Organ_Brain": 4924,
    "Organ_Legs": 4924
   },
-  "triangles_total": 108326,
+  "triangles_total": 107649,
   "apex_direction_xyz": [
    0.575,
    -0.445,
@@ -451,14 +463,14 @@
  },
  "anchors": {
   "Anchor_LAD": [
-   0.019,
-   -0.0711,
-   -0.0402
+   0.0125,
+   -0.0735,
+   -0.0256
   ],
   "Anchor_LCX": [
-   0.064,
-   0.012,
-   0.021
+   0.0602,
+   -0.0155,
+   0.0258
   ],
   "Anchor_RCA": [
    -0.0571,
