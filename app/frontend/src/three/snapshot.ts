@@ -9,7 +9,9 @@ function bg(): [string, string] {
 }
 
 /** Composite: radial background + WebGL frame (+ legend). Returns a PNG data URL. */
-export async function composeSnapshot(opts: { front?: boolean; scale?: number; legend?: Scene["legend"] | null; stops?: Stop[] } = {}) {
+export async function composeSnapshot(
+  opts: { front?: boolean; scale?: number; legend?: Scene["legend"] | null; stops?: Stop[]; jpeg?: boolean } = {},
+) {
   const raw = reg.snapshot ? await reg.snapshot({ front: opts.front, scale: opts.scale }) : reg.canvas?.toDataURL("image/png");
   if (!raw) throw new Error("3D view not ready");
   const img = new Image();
@@ -47,7 +49,7 @@ export async function composeSnapshot(opts: { front?: boolean; scale?: number; l
       g.fillText(v.toUpperCase(), x + t * w - 10 * s, y + h + 30 * s);
     }
   }
-  return out.toDataURL("image/png");
+  return opts.jpeg ? out.toDataURL("image/jpeg", 0.86) : out.toDataURL("image/png");
 }
 
 export function downloadDataUrl(url: string, name: string) {

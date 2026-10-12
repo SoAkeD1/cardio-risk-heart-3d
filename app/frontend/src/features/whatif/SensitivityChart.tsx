@@ -21,6 +21,18 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
   const X = (v: number) => L + ((v - x0) / (x1 - x0 || 1)) * (W - L - R);
   const Y = (p: number) => T + (1 - p) * (H - T - B);
   const cur = current ?? data.current_value;
+  // end-of-line labels, pushed apart so they never overlap (>= 10 px)
+  const last = data.points[data.points.length - 1]!;
+  const order = [...LINES].sort((a, b) => Y(last[a.key]) - Y(last[b.key]));
+  const labelY: Record<string, number> = {};
+  let prev = -Infinity;
+  for (const l of order) {
+    const y = Math.max(Y(last[l.key]) + 3, prev + 10);
+    labelY[l.key] = y;
+    prev = y;
+  }
+  const overflow = prev - (H - B + 3);
+  if (overflow > 0) for (const k of Object.keys(labelY)) labelY[k] = labelY[k]! - overflow;
   return (
     <figure className="relative" aria-busy={isFetching}>
       <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label={`Sensitivity of each estimate to ${data.label}`}>
@@ -34,11 +46,10 @@ export function SensitivityChart({ feature, current }: { feature: string; curren
         ))}
         {LINES.map((l) => {
           const d = data.points.map((p, i) => `${i ? "L" : "M"}${X(p.value).toFixed(1)},${Y(p[l.key]).toFixed(1)}`).join(" ");
-          const last = data.points[data.points.length - 1]!;
           return (
             <g key={l.key}>
               <path d={d} fill="none" stroke="rgb(var(--text-1))" strokeOpacity={l.key === "cad" ? 0.95 : 0.6} strokeWidth={l.w} strokeDasharray={l.dash} />
-              <text x={W - R + 3} y={Y(last[l.key]) + 3} fontSize="9" fill="rgb(var(--text-2))">
+              <text x={W - R + 3} y={labelY[l.key]} fontSize="9" fill="rgb(var(--text-2))">
                 {l.label}
               </text>
             </g>
