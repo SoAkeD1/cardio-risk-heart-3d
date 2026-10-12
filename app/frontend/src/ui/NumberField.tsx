@@ -23,12 +23,15 @@ export function NumberField({
   invalid?: boolean;
   id?: string;
 }) {
-  const [text, setText] = useState(String(value));
-  useEffect(() => setText(String(value)), [value]);
+  const dec = step && step < 1 ? Math.min(3, Math.ceil(-Math.log10(step))) : 0;
+  const shown = (v: number) => String(Number(v.toFixed(dec)));
+  const [text, setText] = useState(shown(value));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => setText(shown(value)), [value, dec]);
   const commit = () => {
     const v = Number(text.replace(",", "."));
-    if (text.trim() === "" || !Number.isFinite(v)) return setText(String(value));
-    if (v !== value) onCommit(v);
+    if (text.trim() === "" || !Number.isFinite(v)) return setText(shown(value));
+    if (String(v) !== shown(value)) onCommit(v);
   };
   return (
     <div

@@ -42,6 +42,9 @@ export function featureValue(v: unknown, f?: FeatureLike, withUnit = true): stri
 
 export const tierLabel = (tier: string) => `${tier} risk`;
 
+/** Short display label: the schema label without a trailing parenthetical ("EF-TTE (ejection fraction)" -> "EF-TTE"). */
+export const shortLabel = (label: string) => label.replace(/\s*\([^)]*\)\s*$/, "");
+
 export const capitalize = (s: string) => (s ? s[0]!.toUpperCase() + s.slice(1) : s);
 
 /** Sort explanation rows by |contribution| (stable, name tie-break). */
