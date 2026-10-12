@@ -1,0 +1,69 @@
+@import "./tokens.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+  body {
+    @apply bg-bg font-sans text-sm text-t1 antialiased;
+    font-feature-settings: "cv11", "ss01";
+    overflow: hidden;
+  }
+  /* every number in the UI uses tabular figures */
+  .num,
+  input[type="number"],
+  td,
+  .tnum {
+    font-feature-settings: "tnum";
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--focus));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+  ::selection {
+    background: rgb(var(--accent) / 0.35);
+  }
+}
+
+@layer components {
+  .panel {
+    @apply border-line bg-s1;
+  }
+  .section-title {
+    @apply text-xs font-semibold uppercase tracking-[0.06em] text-t2;
+  }
+  .scroll-y {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--surface-3)) transparent;
+  }
+  .canvas-bg {
+    background: radial-gradient(circle at 50% 45%, var(--canvas-center) 0%, var(--canvas-edge) 75%);
+  }
+  .skip-link {
+    @apply sr-only;
+  }
+  .skip-link:focus {
+    @apply not-sr-only fixed left-3 top-3 z-[100] rounded-md bg-s1 px-3 py-2 text-t1 shadow-soft;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

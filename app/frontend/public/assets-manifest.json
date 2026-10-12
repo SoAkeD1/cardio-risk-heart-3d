@@ -1,0 +1,21 @@
+{
+ "models/heart.glb": "dacf0f1af4a5fe61",
+ "models/heart_lite.glb": "77f3ff5d0c331cdb",
+ "env/studio_small_09_1k.hdr": "e7cfda5f4e98e623",
+ "figures/calibration_reliability.png": "43e65afcd389b196",
+ "figures/holdout_cad.png": "7d577e7ff54b815e",
+ "figures/holdout_lad.png": "3fd50e4ee0dfbb12",
+ "figures/holdout_lcx.png": "919c7ec89e2e3ce3",
+ "figures/holdout_rca.png": "9217b0742cb4b477",
+ "figures/model_zoo_auc.png": "ef3de2e64c6f54a4",
+ "figures/shap_global_cad.png": "2248a4741647de73",
+ "figures/ablation.png": "f66c91156092c2da",
+ "figures/coronary_schematic_low.png": "456e9ab2c7cf8916",
+ "figures/coronary_schematic_moderate.png": "96d36b66273a4210",
+ "figures/coronary_schematic_high.png": "c46e59f0cbd2fc9a",
+ "decoders/draco/draco_decoder.js": "8625489da79a805f",
+ "decoders/draco/draco_decoder.wasm": "a680d927bed9cb86",
+ "decoders/draco/draco_wasm_wrapper.js": "8bb2952d2ba7d67e",
+ "decoders/basis/basis_transcoder.js": "8478b5b6d6b74e7d",
+ "decoders/basis/basis_transcoder.wasm": "6cf17dc889352c42"
+}

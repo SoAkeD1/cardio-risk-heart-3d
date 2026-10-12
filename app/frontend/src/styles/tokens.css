@@ -1,0 +1,45 @@
+/* Design tokens. Values are "R G B" triplets so Tailwind can apply alpha (rgb(var(--x) / a)).
+   Risk colours are NOT tokens: they come only from anatomy_map.style via the API.
+   text-3 / info / warning are slightly adjusted from the brief to pass WCAG AA (see docs/DECISIONS.md). */
+:root,
+[data-theme="dark"] {
+  --bg: 15 16 18; /* #0F1012 */
+  --surface-1: 22 24 27; /* #16181B */
+  --surface-2: 29 32 36; /* #1D2024 */
+  --surface-3: 37 41 48; /* #252930 */
+  --border: rgba(255, 255, 255, 0.08);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --text-1: 242 240 237; /* #F2F0ED */
+  --text-2: 167 163 157; /* #A7A39D */
+  --text-3: 140 136 129; /* #8C8881 (brief #77736D -> AA on surface-1) */
+  --accent: 95 179 168; /* #5FB3A8 (UI only) */
+  --focus: 143 211 201; /* #8FD3C9 */
+  --info: 122 167 224; /* #7AA7E0 */
+  --warning: 217 178 106; /* #D9B26A */
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
+  --canvas-center: #3a3a3a;
+  --canvas-edge: #1e1e1e;
+  --on-accent: 15 16 18;
+  color-scheme: dark;
+}
+
+[data-theme="light"] {
+  --bg: 246 245 243; /* #F6F5F3 */
+  --surface-1: 255 255 255;
+  --surface-2: 240 238 235; /* #F0EEEB */
+  --surface-3: 231 228 224; /* #E7E4E0 */
+  --border: rgba(0, 0, 0, 0.08);
+  --border-strong: rgba(0, 0, 0, 0.16);
+  --text-1: 27 28 30; /* #1B1C1E */
+  --text-2: 93 90 85; /* #5D5A55 */
+  --text-3: 112 108 101; /* #706C65 (brief #8A867F -> AA on white) */
+  --accent: 47 143 132; /* #2F8F84 */
+  --focus: 31 111 102; /* #1F6F66 */
+  --info: 46 94 156; /* #2E5E9C (AA on white) */
+  --warning: 133 100 26; /* #85641A (AA on white) */
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
+  --canvas-center: #f4f3f1;
+  --canvas-edge: #d6d3ce;
+  --on-accent: 255 255 255;
+  color-scheme: light;
+}

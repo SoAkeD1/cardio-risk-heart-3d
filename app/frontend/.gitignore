@@ -1,0 +1,8 @@
+node_modules/
+dist/
+public/models/
+public/decoders/
+public/env/
+public/figures/
+test-results/
+playwright-report/

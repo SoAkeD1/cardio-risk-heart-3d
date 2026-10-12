@@ -6,6 +6,18 @@
       "runtimeExecutable": ".venv/Scripts/python.exe",
       "runtimeArgs": ["blender/serve_preview.py", "8765"],
       "port": 8765
+    },
+    {
+      "name": "cardiolens-dev",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["scripts/dev.py", "--no-browser"],
+      "port": 5173
+    },
+    {
+      "name": "cardiolens-prod",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "app.backend.main"],
+      "port": 8000
     }
   ]
 }

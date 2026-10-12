@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="CardioLens: calibrated CAD and per-artery stenosis risk on an interactive 3D heart. Decision support and education only." />
+    <meta name="theme-color" content="#0F1012" />
+    <title>CardioLens: see where cardiac risk lives</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/models/heart.glb" as="fetch" type="model/gltf-binary" crossorigin />
+    <script>
+      try {
+        var p = JSON.parse(localStorage.getItem("cardiolens.prefs.v1") || "{}");
+        var t = (p.state && p.state.ui && p.state.ui.theme) || "dark";
+        document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
