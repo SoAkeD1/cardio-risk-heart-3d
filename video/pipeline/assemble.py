@@ -25,9 +25,10 @@ FPS = 30
 CARD = 1.8  # chapter card length (s)
 XF = 0.3  # cross-dissolve between chapters (s)
 CHAPTERS = {
-    0: "Cold open", 1: "The problem", 2: "Data & machine learning", 3: "From prediction to anatomy",
-    4: "Building the 3D heart", 5: "The app", 6: "Engineering & quality", 7: "Honesty & close",
+    0: "Cold open", 1: "The problem", 2: "The app", 3: "Data & machine learning",
+    4: "From prediction to anatomy", 5: "Building the 3D heart", 6: "Engineering & quality", 7: "Honesty & close",
 }
+APP_CHAPTER = 2  # the prototype walkthrough comes right after the problem, so judges see the app early
 MAX_LINE = 42
 
 
@@ -289,9 +290,10 @@ def main() -> None:
     for i, c in enumerate(caps_all, 1):
         srt += [str(i), f"{srt_time(c['start'])} --> {srt_time(c['end'])}", *c["lines"], ""]
     (VIDEO / "out" / "cardiolens.srt").write_text("\n".join(srt), encoding="utf-8")
-    ch5 = sum(s["duration"] for s in out if s["chapter"] == 5)
+    app = sum(s["duration"] for s in out if s["chapter"] == APP_CHAPTER)
+    app_start = next(s["start"] for s in out if s["chapter"] == APP_CHAPTER) / FPS
     print(f"timeline: {len(out)} scenes, {len(cards)} chapter cards, {total / FPS:.1f}s "
-          f"({int(total / FPS // 60)}:{total / FPS % 60:04.1f}), ch5 {ch5 / total * 100:.1f}%, {len(caps_all)} captions")
+          f"({int(total / FPS // 60)}:{total / FPS % 60:04.1f}), app chapter {app / total * 100:.1f}% (starts {app_start:.0f} s), {len(caps_all)} captions")
     missing = [s["id"] for s in out if s["kind"] == "capture" and not s["clips"]]
     if missing:
         print("WARNING: captures missing for", missing)

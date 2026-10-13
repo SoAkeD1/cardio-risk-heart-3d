@@ -7,7 +7,7 @@
   "height": 1080,
   "pix_fmt": "yuv420p",
   "r_frame_rate": "30/1",
-  "bit_rate": "2053928",
+  "bit_rate": "2054427",
   "side_data_list": [
    {}
   ]
@@ -16,7 +16,7 @@
   "codec_name": "aac",
   "profile": "LC",
   "r_frame_rate": "0/0",
-  "bit_rate": "156389"
+  "bit_rate": "156288"
  },
  "chapters": [
   [
@@ -29,19 +29,19 @@
   ],
   [
    "0:43",
+   "The app"
+  ],
+  [
+   "4:21",
    "Data & machine learning"
   ],
   [
-   "2:03",
+   "5:41",
    "From prediction to anatomy"
   ],
   [
-   "2:48",
+   "6:25",
    "Building the 3D heart"
-  ],
-  [
-   "3:30",
-   "The app"
   ],
   [
    "7:08",

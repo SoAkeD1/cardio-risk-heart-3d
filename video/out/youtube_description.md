@@ -25,10 +25,10 @@ TypeScript · three.js · React Three Fiber · Blender (asset build) · Vercel (
 ## Chapters
 0:00 Cold open
 0:13 The problem
-0:43 Data & machine learning
-2:03 From prediction to anatomy
-2:48 Building the 3D heart
-3:30 The app
+0:43 The app
+4:21 Data & machine learning
+5:41 From prediction to anatomy
+6:25 Building the 3D heart
 7:08 Engineering & quality
 7:59 Honesty & close
 

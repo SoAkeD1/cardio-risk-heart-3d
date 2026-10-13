@@ -142,533 +142,15 @@
    ]
   },
   {
-   "id": "s02a_data",
-   "title": "Dataset and leakage rule",
-   "chapter": 2,
-   "kind": "card",
-   "name": "data",
-   "start": 1348,
-   "duration": 647,
-   "lead": 0.4,
-   "tail": 1.2,
-   "voice": 19.96,
-   "audio": "voice/s02a_data.wav",
-   "cues": {
-    "audit": 9.53,
-    "leak": 13.27
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.55,
-     "end": 3.8200000000000003,
-     "lines": [
-      "We used the extension of the Z-Alizadeh",
-      "Sani dataset from UCI:"
-     ]
-    },
-    {
-     "start": 3.87,
-     "end": 7.22,
-     "lines": [
-      "303 patients, 55 features, and four",
-      "targets: CAD,"
-     ]
-    },
-    {
-     "start": 7.27,
-     "end": 9.36,
-     "lines": [
-      "plus the LAD, LCX and RCA arteries."
-     ]
-    },
-    {
-     "start": 9.53,
-     "end": 13.18,
-     "lines": [
-      "No values were missing, and a constant",
-      "column was dropped."
-     ]
-    },
-    {
-     "start": 13.27,
-     "end": 15.62,
-     "lines": [
-      "The label columns are never model inputs."
-     ]
-    },
-    {
-     "start": 15.67,
-     "end": 19.08,
-     "lines": [
-      "That's asserted before every fit, and the",
-      "API rejects them:"
-     ]
-    },
-    {
-     "start": 19.31,
-     "end": 20.36,
-     "lines": [
-      "requirement 1d."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s02b_validation",
-   "title": "Features and validation",
-   "chapter": 2,
-   "kind": "card",
-   "name": "validation",
-   "start": 1995,
-   "duration": 534,
-   "lead": 0.3,
-   "tail": 1.2,
-   "voice": 16.3,
-   "audio": "voice/s02b_validation.wav",
-   "cues": {
-    "holdout": 5.57,
-    "cv": 8.77,
-    "ci": 12.45
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.45,
-     "end": 3.52,
-     "lines": [
-      "We add clinical features, such as a",
-      "pretest probability,"
-     ]
-    },
-    {
-     "start": 3.71,
-     "end": 5.5200000000000005,
-     "lines": [
-      "kidney function and lipid ratios."
-     ]
-    },
-    {
-     "start": 5.57,
-     "end": 8.719999999999999,
-     "lines": [
-      "Twenty percent of patients are held out",
-      "until the very end."
-     ]
-    },
-    {
-     "start": 8.77,
-     "end": 12.399999999999999,
-     "lines": [
-      "The rest go through five-by-five",
-      "cross-validation with nested tuning,"
-     ]
-    },
-    {
-     "start": 12.45,
-     "end": 16.65,
-     "lines": [
-      "and confidence intervals come from a",
-      "thousand bootstrap resamples."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s02c_models",
-   "title": "Models, strategies, calibration",
-   "chapter": 2,
-   "kind": "card",
-   "name": "models",
-   "start": 2529,
-   "duration": 640,
-   "lead": 0.3,
-   "tail": 1.2,
-   "voice": 19.82,
-   "audio": "voice/s02c_models.wav",
-   "cues": {
-    "strategy": 7.39,
-    "calib": 13.95
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.45,
-     "end": 3.3000000000000003,
-     "lines": [
-      "Nine model families were compared for",
-      "every target,"
-     ]
-    },
-    {
-     "start": 3.35,
-     "end": 7.14,
-     "lines": [
-      "from logistic regression to boosting and",
-      "stacked ensembles."
-     ]
-    },
-    {
-     "start": 7.39,
-     "end": 12.02,
-     "lines": [
-      "For the arteries, independent models did",
-      "as well as chained or hierarchical ones,"
-     ]
-    },
-    {
-     "start": 12.07,
-     "end": 13.68,
-     "lines": [
-      "so we kept the simplest."
-     ]
-    },
-    {
-     "start": 13.95,
-     "end": 17.3,
-     "lines": [
-      "Every model is calibrated, so eighty",
-      "percent means about eight in ten,"
-     ]
-    },
-    {
-     "start": 17.35,
-     "end": 20.12,
-     "lines": [
-      "with tuned thresholds and three risk",
-      "tiers."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s02d_results",
-   "title": "Results and explanations",
-   "chapter": 2,
-   "kind": "card",
-   "name": "results",
-   "start": 3168,
-   "duration": 560,
-   "lead": 0.3,
-   "tail": 0.8,
-   "voice": 17.56,
-   "audio": "voice/s02d_results.wav",
-   "cues": {
-    "shap": 11.13,
-    "latency": 15.53
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.45,
-     "end": 3.52,
-     "lines": [
-      "On the untouched hold-out set, the ROC-AUC",
-      "is 0.895 for CAD,"
-     ]
-    },
-    {
-     "start": 3.57,
-     "end": 9.399999999999999,
-     "lines": [
-      "0.832 for LAD, 0.768 for LCX and 0.741 for",
-      "RCA, with confidence intervals and every"
-     ]
-    },
-    {
-     "start": 9.45,
-     "end": 11.08,
-     "lines": [
-      "metric from requirement 1e."
-     ]
-    },
-    {
-     "start": 11.13,
-     "end": 13.62,
-     "lines": [
-      "Each estimate is explained with exact SHAP",
-      "values,"
-     ]
-    },
-    {
-     "start": 13.67,
-     "end": 17.86,
-     "lines": [
-      "mapped back to the raw measurements, in",
-      "about 150 milliseconds."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s03a_mapping",
-   "title": "From probability to picture",
-   "chapter": 3,
-   "kind": "card",
-   "name": "mapping",
-   "start": 3773,
-   "duration": 687,
-   "lead": 0.4,
-   "tail": 1.2,
-   "voice": 21.29,
-   "audio": "voice/s03a_mapping.wav",
-   "cues": {
-    "scale": 10.725,
-    "flag": 15.87
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.55,
-     "end": 2.46,
-     "lines": [
-      "How does a probability become a picture?"
-     ]
-    },
-    {
-     "start": 2.67,
-     "end": 6.36,
-     "lines": [
-      "One anatomy map holds every mesh name,",
-      "colour and label,"
-     ]
-    },
-    {
-     "start": 6.41,
-     "end": 10.6,
-     "lines": [
-      "and a pure function turns each prediction",
-      "into a render-ready scene."
-     ]
-    },
-    {
-     "start": 10.725,
-     "end": 14.819999999999999,
-     "lines": [
-      "Colour shows probability, on one shared",
-      "scale that is safe for colour-blind"
-     ]
-    },
-    {
-     "start": 14.87,
-     "end": 18.439999999999998,
-     "lines": [
-      "viewers. Crossing a threshold adds an",
-      "outline and a pulse,"
-     ]
-    },
-    {
-     "start": 18.49,
-     "end": 21.74,
-     "lines": [
-      "and every estimate carries a reliability",
-      "badge."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s03b_rules",
-   "title": "No over-claiming",
-   "chapter": 3,
-   "kind": "card",
-   "name": "rules",
-   "start": 4460,
-   "duration": 592,
-   "lead": 0.3,
-   "tail": 0.8,
-   "voice": 18.64,
-   "audio": "voice/s03b_rules.wav",
-   "cues": {
-    "overlays": 8.95,
-    "whatif": 15.49
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.45,
-     "end": 3.76,
-     "lines": [
-      "The data says whether an artery is",
-      "narrowed, but not where."
-     ]
-    },
-    {
-     "start": 3.85,
-     "end": 8.0,
-     "lines": [
-      "So whole arteries are coloured, and",
-      "unlabelled branches stay neutral."
-     ]
-    },
-    {
-     "start": 8.95,
-     "end": 12.299999999999999,
-     "lines": [
-      "Optional overlays show perfusion",
-      "territories, and the body regions behind"
-     ]
-    },
-    {
-     "start": 12.35,
-     "end": 15.32,
-     "lines": [
-      "each risk factor, never the disease",
-      "itself."
-     ]
-    },
-    {
-     "start": 15.49,
-     "end": 18.94,
-     "lines": [
-      "And what-if shows associations, not",
-      "treatment effects."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s04a_source",
-   "title": "The heart model",
-   "chapter": 4,
-   "kind": "card",
-   "name": "heart_source",
-   "start": 5097,
-   "duration": 580,
-   "lead": 0.4,
-   "tail": 1.2,
-   "voice": 17.72,
-   "audio": "voice/s04a_source.wav",
-   "cues": {
-    "sketchfab": 5.65
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.55,
-     "end": 1.48,
-     "lines": [
-      "Building the heart."
-     ]
-    },
-    {
-     "start": 1.53,
-     "end": 5.54,
-     "lines": [
-      "Our first version was a procedural heart,",
-      "which is still kept as a fallback."
-     ]
-    },
-    {
-     "start": 5.65,
-     "end": 9.78,
-     "lines": [
-      "For realism, we moved to the Realistic",
-      "Human Heart by neshallads on Sketchfab,"
-     ]
-    },
-    {
-     "start": 9.83,
-     "end": 11.925,
-     "lines": [
-      "under CC BY 4.0."
-     ]
-    },
-    {
-     "start": 12.05,
-     "end": 15.86,
-     "lines": [
-      "A headless Blender script aligns it,",
-      "scales it to twelve centimetres,"
-     ]
-    },
-    {
-     "start": 15.91,
-     "end": 18.12,
-     "lines": [
-      "and splits it into parts."
-     ]
-    }
-   ]
-  },
-  {
-   "id": "s04b_build",
-   "title": "Vessels and budgets",
-   "chapter": 4,
-   "kind": "card",
-   "name": "heart_build",
-   "start": 5677,
-   "duration": 638,
-   "lead": 0.3,
-   "tail": 0.5,
-   "voice": 20.48,
-   "audio": "voice/s04b_build.wav",
-   "cues": {
-    "looks": 7.65,
-    "lite": 13.27
-   },
-   "clips": [],
-   "captions": [
-    {
-     "start": 0.45,
-     "end": 4.68,
-     "lines": [
-      "Its coronaries were only painted on, so we",
-      "traced them along the grooves,"
-     ]
-    },
-    {
-     "start": 4.77,
-     "end": 7.42,
-     "lines": [
-      "smoothed them, and swept them into real",
-      "tubes."
-     ]
-    },
-    {
-     "start": 7.65,
-     "end": 10.52,
-     "lines": [
-      "One file carries a realistic and a",
-      "clinical look,"
-     ]
-    },
-    {
-     "start": 10.57,
-     "end": 13.219999999999999,
-     "lines": [
-      "plus invisible picking shapes and outline",
-      "shells."
-     ]
-    },
-    {
-     "start": 13.27,
-     "end": 17.779999999999998,
-     "lines": [
-      "It's compressed to about 1.6 megabytes,",
-      "with a lighter version for phones,"
-     ]
-    },
-    {
-     "start": 17.83,
-     "end": 20.78,
-     "lines": [
-      "and a validator checks every name and",
-      "budget."
-     ]
-    }
-   ]
-  },
-  {
    "id": "s05a_open",
    "title": "Opening and tour",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05a_open",
-   "start": 6360,
+   "start": 1348,
    "duration": 419,
-   "lead": 1.4,
-   "tail": 2.6,
+   "lead": 1.0,
+   "tail": 3.0,
    "voice": 9.96,
    "audio": "voice/s05a_open.wav",
    "cues": {},
@@ -695,23 +177,23 @@
    ],
    "captions": [
     {
-     "start": 1.55,
-     "end": 2.75,
+     "start": 1.15,
+     "end": 2.3499999999999996,
      "lines": [
       "Now, the app itself."
      ]
     },
     {
-     "start": 2.81,
-     "end": 7.48,
+     "start": 2.41,
+     "end": 7.08,
      "lines": [
       "On a first visit it opens with a short",
       "intro, then a three-step tour of where to"
      ]
     },
     {
-     "start": 7.53,
-     "end": 11.36,
+     "start": 7.13,
+     "end": 10.96,
      "lines": [
       "start, which you can skip, and it's",
       "remembered after that."
@@ -722,10 +204,10 @@
   {
    "id": "s05b_samples",
    "title": "Sample patients",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05b_samples",
-   "start": 6779,
+   "start": 1767,
    "duration": 391,
    "lead": 0.6,
    "tail": 2.9,
@@ -788,10 +270,10 @@
   {
    "id": "s05c_panel",
    "title": "Patient input",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05c_panel",
-   "start": 7170,
+   "start": 2158,
    "duration": 672,
    "lead": 0.6,
    "tail": 2.5,
@@ -924,10 +406,10 @@
   {
    "id": "s05d_live",
    "title": "Live change feedback",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05d_live",
-   "start": 7842,
+   "start": 2830,
    "duration": 559,
    "lead": 0.6,
    "tail": 3.0,
@@ -1023,10 +505,10 @@
   {
    "id": "s05e_changed",
    "title": "What changed",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05e_changed",
-   "start": 8401,
+   "start": 3389,
    "duration": 225,
    "lead": 0.4,
    "tail": 2.6,
@@ -1078,10 +560,10 @@
   {
    "id": "s05f_3d",
    "title": "3D interaction",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05f_3d",
-   "start": 8626,
+   "start": 3614,
    "duration": 571,
    "lead": 0.6,
    "tail": 2.9,
@@ -1170,10 +652,10 @@
   {
    "id": "s05g_views",
    "title": "Views and looks",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05g_views",
-   "start": 9197,
+   "start": 4185,
    "duration": 524,
    "lead": 0.4,
    "tail": 2.5,
@@ -1258,10 +740,10 @@
   {
    "id": "s05h_body",
    "title": "Body mode and territories",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05h_body",
-   "start": 9721,
+   "start": 4709,
    "duration": 385,
    "lead": 0.4,
    "tail": 2.9,
@@ -1319,10 +801,10 @@
   {
    "id": "s05i_why",
    "title": "Why?",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05i_why",
-   "start": 10106,
+   "start": 5094,
    "duration": 512,
    "lead": 0.4,
    "tail": 2.7,
@@ -1409,10 +891,10 @@
   {
    "id": "s05j_whatif",
    "title": "What-if",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05j_whatif",
-   "start": 10617,
+   "start": 5605,
    "duration": 582,
    "lead": 0.4,
    "tail": 3.1,
@@ -1515,10 +997,10 @@
   {
    "id": "s05k_modelcard",
    "title": "Model card",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05k_modelcard",
-   "start": 11199,
+   "start": 6187,
    "duration": 427,
    "lead": 0.4,
    "tail": 2.7,
@@ -1588,10 +1070,10 @@
   {
    "id": "s05l_export",
    "title": "Export",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05l_export",
-   "start": 11626,
+   "start": 6614,
    "duration": 296,
    "lead": 0.4,
    "tail": 3.1,
@@ -1651,10 +1133,10 @@
   {
    "id": "s05m_edu",
    "title": "Education and theme",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05m_edu",
-   "start": 11922,
+   "start": 6910,
    "duration": 336,
    "lead": 0.4,
    "tail": 2.7,
@@ -1716,10 +1198,10 @@
   {
    "id": "s05n_devices",
    "title": "Tablet and phone",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05n_devices",
-   "start": 12258,
+   "start": 7246,
    "duration": 277,
    "lead": 0.4,
    "tail": 3.3000000000000003,
@@ -1767,10 +1249,10 @@
   {
    "id": "s05o_offline",
    "title": "Offline and shortcuts",
-   "chapter": 5,
+   "chapter": 2,
    "kind": "capture",
    "name": "s05o_offline",
-   "start": 12534,
+   "start": 7522,
    "duration": 317,
    "lead": 0.4,
    "tail": 1.6,
@@ -1835,6 +1317,524 @@
      "end": 9.0,
      "lines": [
       "And every shortcut is one key away."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s02a_data",
+   "title": "Dataset and leakage rule",
+   "chapter": 3,
+   "kind": "card",
+   "name": "data",
+   "start": 7884,
+   "duration": 647,
+   "lead": 0.4,
+   "tail": 1.2,
+   "voice": 19.96,
+   "audio": "voice/s02a_data.wav",
+   "cues": {
+    "audit": 9.53,
+    "leak": 13.27
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.55,
+     "end": 3.8200000000000003,
+     "lines": [
+      "We used the extension of the Z-Alizadeh",
+      "Sani dataset from UCI:"
+     ]
+    },
+    {
+     "start": 3.87,
+     "end": 7.22,
+     "lines": [
+      "303 patients, 55 features, and four",
+      "targets: CAD,"
+     ]
+    },
+    {
+     "start": 7.27,
+     "end": 9.36,
+     "lines": [
+      "plus the LAD, LCX and RCA arteries."
+     ]
+    },
+    {
+     "start": 9.53,
+     "end": 13.18,
+     "lines": [
+      "No values were missing, and a constant",
+      "column was dropped."
+     ]
+    },
+    {
+     "start": 13.27,
+     "end": 15.62,
+     "lines": [
+      "The label columns are never model inputs."
+     ]
+    },
+    {
+     "start": 15.67,
+     "end": 19.08,
+     "lines": [
+      "That's asserted before every fit, and the",
+      "API rejects them:"
+     ]
+    },
+    {
+     "start": 19.31,
+     "end": 20.36,
+     "lines": [
+      "requirement 1d."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s02b_validation",
+   "title": "Features and validation",
+   "chapter": 3,
+   "kind": "card",
+   "name": "validation",
+   "start": 8531,
+   "duration": 534,
+   "lead": 0.3,
+   "tail": 1.2,
+   "voice": 16.3,
+   "audio": "voice/s02b_validation.wav",
+   "cues": {
+    "holdout": 5.57,
+    "cv": 8.77,
+    "ci": 12.45
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.45,
+     "end": 3.52,
+     "lines": [
+      "We add clinical features, such as a",
+      "pretest probability,"
+     ]
+    },
+    {
+     "start": 3.71,
+     "end": 5.5200000000000005,
+     "lines": [
+      "kidney function and lipid ratios."
+     ]
+    },
+    {
+     "start": 5.57,
+     "end": 8.719999999999999,
+     "lines": [
+      "Twenty percent of patients are held out",
+      "until the very end."
+     ]
+    },
+    {
+     "start": 8.77,
+     "end": 12.399999999999999,
+     "lines": [
+      "The rest go through five-by-five",
+      "cross-validation with nested tuning,"
+     ]
+    },
+    {
+     "start": 12.45,
+     "end": 16.65,
+     "lines": [
+      "and confidence intervals come from a",
+      "thousand bootstrap resamples."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s02c_models",
+   "title": "Models, strategies, calibration",
+   "chapter": 3,
+   "kind": "card",
+   "name": "models",
+   "start": 9065,
+   "duration": 640,
+   "lead": 0.3,
+   "tail": 1.2,
+   "voice": 19.82,
+   "audio": "voice/s02c_models.wav",
+   "cues": {
+    "strategy": 7.39,
+    "calib": 13.95
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.45,
+     "end": 3.3000000000000003,
+     "lines": [
+      "Nine model families were compared for",
+      "every target,"
+     ]
+    },
+    {
+     "start": 3.35,
+     "end": 7.14,
+     "lines": [
+      "from logistic regression to boosting and",
+      "stacked ensembles."
+     ]
+    },
+    {
+     "start": 7.39,
+     "end": 12.02,
+     "lines": [
+      "For the arteries, independent models did",
+      "as well as chained or hierarchical ones,"
+     ]
+    },
+    {
+     "start": 12.07,
+     "end": 13.68,
+     "lines": [
+      "so we kept the simplest."
+     ]
+    },
+    {
+     "start": 13.95,
+     "end": 17.3,
+     "lines": [
+      "Every model is calibrated, so eighty",
+      "percent means about eight in ten,"
+     ]
+    },
+    {
+     "start": 17.35,
+     "end": 20.12,
+     "lines": [
+      "with tuned thresholds and three risk",
+      "tiers."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s02d_results",
+   "title": "Results and explanations",
+   "chapter": 3,
+   "kind": "card",
+   "name": "results",
+   "start": 9705,
+   "duration": 560,
+   "lead": 0.3,
+   "tail": 0.8,
+   "voice": 17.56,
+   "audio": "voice/s02d_results.wav",
+   "cues": {
+    "shap": 11.13,
+    "latency": 15.53
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.45,
+     "end": 3.52,
+     "lines": [
+      "On the untouched hold-out set, the ROC-AUC",
+      "is 0.895 for CAD,"
+     ]
+    },
+    {
+     "start": 3.57,
+     "end": 9.399999999999999,
+     "lines": [
+      "0.832 for LAD, 0.768 for LCX and 0.741 for",
+      "RCA, with confidence intervals and every"
+     ]
+    },
+    {
+     "start": 9.45,
+     "end": 11.08,
+     "lines": [
+      "metric from requirement 1e."
+     ]
+    },
+    {
+     "start": 11.13,
+     "end": 13.62,
+     "lines": [
+      "Each estimate is explained with exact SHAP",
+      "values,"
+     ]
+    },
+    {
+     "start": 13.67,
+     "end": 17.86,
+     "lines": [
+      "mapped back to the raw measurements, in",
+      "about 150 milliseconds."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s03a_mapping",
+   "title": "From probability to picture",
+   "chapter": 4,
+   "kind": "card",
+   "name": "mapping",
+   "start": 10310,
+   "duration": 687,
+   "lead": 0.4,
+   "tail": 1.2,
+   "voice": 21.29,
+   "audio": "voice/s03a_mapping.wav",
+   "cues": {
+    "scale": 10.725,
+    "flag": 15.87
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.55,
+     "end": 2.46,
+     "lines": [
+      "How does a probability become a picture?"
+     ]
+    },
+    {
+     "start": 2.67,
+     "end": 6.36,
+     "lines": [
+      "One anatomy map holds every mesh name,",
+      "colour and label,"
+     ]
+    },
+    {
+     "start": 6.41,
+     "end": 10.6,
+     "lines": [
+      "and a pure function turns each prediction",
+      "into a render-ready scene."
+     ]
+    },
+    {
+     "start": 10.725,
+     "end": 14.819999999999999,
+     "lines": [
+      "Colour shows probability, on one shared",
+      "scale that is safe for colour-blind"
+     ]
+    },
+    {
+     "start": 14.87,
+     "end": 18.439999999999998,
+     "lines": [
+      "viewers. Crossing a threshold adds an",
+      "outline and a pulse,"
+     ]
+    },
+    {
+     "start": 18.49,
+     "end": 21.74,
+     "lines": [
+      "and every estimate carries a reliability",
+      "badge."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s03b_rules",
+   "title": "No over-claiming",
+   "chapter": 4,
+   "kind": "card",
+   "name": "rules",
+   "start": 10996,
+   "duration": 592,
+   "lead": 0.3,
+   "tail": 0.8,
+   "voice": 18.64,
+   "audio": "voice/s03b_rules.wav",
+   "cues": {
+    "overlays": 8.95,
+    "whatif": 15.49
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.45,
+     "end": 3.76,
+     "lines": [
+      "The data says whether an artery is",
+      "narrowed, but not where."
+     ]
+    },
+    {
+     "start": 3.85,
+     "end": 8.0,
+     "lines": [
+      "So whole arteries are coloured, and",
+      "unlabelled branches stay neutral."
+     ]
+    },
+    {
+     "start": 8.95,
+     "end": 12.299999999999999,
+     "lines": [
+      "Optional overlays show perfusion",
+      "territories, and the body regions behind"
+     ]
+    },
+    {
+     "start": 12.35,
+     "end": 15.32,
+     "lines": [
+      "each risk factor, never the disease",
+      "itself."
+     ]
+    },
+    {
+     "start": 15.49,
+     "end": 18.94,
+     "lines": [
+      "And what-if shows associations, not",
+      "treatment effects."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s04a_source",
+   "title": "The heart model",
+   "chapter": 5,
+   "kind": "card",
+   "name": "heart_source",
+   "start": 11633,
+   "duration": 580,
+   "lead": 0.4,
+   "tail": 1.2,
+   "voice": 17.72,
+   "audio": "voice/s04a_source.wav",
+   "cues": {
+    "sketchfab": 5.65
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.55,
+     "end": 1.48,
+     "lines": [
+      "Building the heart."
+     ]
+    },
+    {
+     "start": 1.53,
+     "end": 5.54,
+     "lines": [
+      "Our first version was a procedural heart,",
+      "which is still kept as a fallback."
+     ]
+    },
+    {
+     "start": 5.65,
+     "end": 9.78,
+     "lines": [
+      "For realism, we moved to the Realistic",
+      "Human Heart by neshallads on Sketchfab,"
+     ]
+    },
+    {
+     "start": 9.83,
+     "end": 11.925,
+     "lines": [
+      "under CC BY 4.0."
+     ]
+    },
+    {
+     "start": 12.05,
+     "end": 15.86,
+     "lines": [
+      "A headless Blender script aligns it,",
+      "scales it to twelve centimetres,"
+     ]
+    },
+    {
+     "start": 15.91,
+     "end": 18.12,
+     "lines": [
+      "and splits it into parts."
+     ]
+    }
+   ]
+  },
+  {
+   "id": "s04b_build",
+   "title": "Vessels and budgets",
+   "chapter": 5,
+   "kind": "card",
+   "name": "heart_build",
+   "start": 12213,
+   "duration": 638,
+   "lead": 0.3,
+   "tail": 0.5,
+   "voice": 20.48,
+   "audio": "voice/s04b_build.wav",
+   "cues": {
+    "looks": 7.65,
+    "lite": 13.27
+   },
+   "clips": [],
+   "captions": [
+    {
+     "start": 0.45,
+     "end": 4.68,
+     "lines": [
+      "Its coronaries were only painted on, so we",
+      "traced them along the grooves,"
+     ]
+    },
+    {
+     "start": 4.77,
+     "end": 7.42,
+     "lines": [
+      "smoothed them, and swept them into real",
+      "tubes."
+     ]
+    },
+    {
+     "start": 7.65,
+     "end": 10.52,
+     "lines": [
+      "One file carries a realistic and a",
+      "clinical look,"
+     ]
+    },
+    {
+     "start": 10.57,
+     "end": 13.219999999999999,
+     "lines": [
+      "plus invisible picking shapes and outline",
+      "shells."
+     ]
+    },
+    {
+     "start": 13.27,
+     "end": 17.779999999999998,
+     "lines": [
+      "It's compressed to about 1.6 megabytes,",
+      "with a lighter version for phones,"
+     ]
+    },
+    {
+     "start": 17.83,
+     "end": 20.78,
+     "lines": [
+      "and a validator checks every name and",
+      "budget."
      ]
     }
    ]
@@ -2098,26 +2098,26 @@
   },
   {
    "chapter": 2,
-   "title": "Data & machine learning",
+   "title": "The app",
    "start": 1294,
    "duration": 63
   },
   {
    "chapter": 3,
-   "title": "From prediction to anatomy",
-   "start": 3719,
+   "title": "Data & machine learning",
+   "start": 7830,
    "duration": 63
   },
   {
    "chapter": 4,
-   "title": "Building the 3D heart",
-   "start": 5043,
+   "title": "From prediction to anatomy",
+   "start": 10256,
    "duration": 63
   },
   {
    "chapter": 5,
-   "title": "The app",
-   "start": 6306,
+   "title": "Building the 3D heart",
+   "start": 11579,
    "duration": 63
   },
   {

@@ -26,94 +26,16 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {goal}Track A asks a different question: can routine data, such as age, blood pressure, an ECG and a few lab values, predict coronary artery disease and the narrowing of each main artery, and show it on an interactive 3D model?
 > {table}Here is every requirement, and where CardioLens meets it.
 
-## s02a_data · Dataset and leakage rule
-- chapter: 2
-- visual: card:data
-- lead: 0.4
-- tail: 0.6
-
-> We used the extension of the Z-Alizadeh Sani dataset from UCI: 303 patients, 55 features, and four targets: CAD, plus the LAD, LCX and RCA arteries.
-> {audit}No values were missing, and a constant column was dropped.
-> {leak}The label columns are never model inputs. That's asserted before every fit, and the API rejects them: requirement 1d.
-
-## s02b_validation · Features and validation
-- chapter: 2
-- visual: card:validation
-- lead: 0.3
-- tail: 0.6
-
-> We add clinical features, such as a pretest probability, kidney function and lipid ratios.
-> {holdout}Twenty percent of patients are held out until the very end.
-> {cv}The rest go through five-by-five cross-validation with nested tuning, {ci}and confidence intervals come from a thousand bootstrap resamples.
-
-## s02c_models · Models, strategies, calibration
-- chapter: 2
-- visual: card:models
-- lead: 0.3
-- tail: 0.6
-
-> Nine model families were compared for every target, from logistic regression to boosting and stacked ensembles.
-> {strategy}For the arteries, independent models did as well as chained or hierarchical ones, so we kept the simplest.
-> {calib}Every model is calibrated, so eighty percent means about eight in ten, with tuned thresholds and three risk tiers.
-
-## s02d_results · Results and explanations
-- chapter: 2
-- visual: card:results
-- lead: 0.3
-- tail: 0.8
-
-> On the untouched hold-out set, the ROC-AUC is 0.895 for CAD, 0.832 for LAD, 0.768 for LCX and 0.741 for RCA, with confidence intervals and every metric from requirement 1e.
-> {shap}Each estimate is explained with exact SHAP values, mapped back to the raw measurements, {latency}in about 150 milliseconds.
-
-## s03a_mapping · From probability to picture
-- chapter: 3
-- visual: card:mapping
-- lead: 0.4
-- tail: 0.6
-
-> How does a probability become a picture? One anatomy map holds every mesh name, colour and label, and a pure function turns each prediction into a render-ready scene.
-> {scale}Colour shows probability, on one shared scale that is safe for colour-blind viewers.
-> {flag}Crossing a threshold adds an outline and a pulse, and every estimate carries a reliability badge.
-
-## s03b_rules · No over-claiming
-- chapter: 3
-- visual: card:rules
-- lead: 0.3
-- tail: 0.8
-
-> The data says whether an artery is narrowed, but not where. So whole arteries are coloured, and unlabelled branches stay neutral.
-> {overlays}Optional overlays show perfusion territories, and the body regions behind each risk factor, never the disease itself.
-> {whatif}And what-if shows associations, not treatment effects.
-
-## s04a_source · The heart model
-- chapter: 4
-- visual: card:heart_source
-- lead: 0.4
-- tail: 0.6
-
-> Building the heart. Our first version was a procedural heart, which is still kept as a fallback.
-> {sketchfab}For realism, we moved to the Realistic Human Heart by neshallads on Sketchfab, under CC BY 4.0. A headless Blender script aligns it, scales it to twelve centimetres, and splits it into parts.
-
-## s04b_build · Vessels and budgets
-- chapter: 4
-- visual: card:heart_build
-- lead: 0.3
-- tail: 0.5
-
-> Its coronaries were only painted on, so we traced them along the grooves, smoothed them, and swept them into real tubes.
-> {looks}One file carries a realistic and a clinical look, plus invisible picking shapes and outline shells.
-> {lite}It's compressed to about 1.6 megabytes, with a lighter version for phones, and a validator checks every name and budget.
-
 ## s05a_open · Opening and tour
-- chapter: 5
+- chapter: 2
 - visual: capture:s05a_open
-- lead: 1.4
-- tail: 2.0
+- lead: 1.0
+- tail: 2.4
 
 > Now, the app itself. On a first visit it opens with a short intro, then a three-step tour of where to start, which you can skip, and it's remembered after that.
 
 ## s05b_samples · Sample patients
-- chapter: 5
+- chapter: 2
 - visual: capture:s05b_samples
 - lead: 0.6
 - tail: 2.3
@@ -122,7 +44,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {pick}Each one also has its own link.
 
 ## s05c_panel · Patient input
-- chapter: 5
+- chapter: 2
 - visual: capture:s05c_panel
 - lead: 0.6
 - tail: 1.9
@@ -132,7 +54,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {alt}Alt-click resets a single field, and a full reset can be undone.
 
 ## s05d_live · Live change feedback
-- chapter: 5
+- chapter: 2
 - visual: capture:s05d_live
 - lead: 0.6
 - tail: 2.4
@@ -143,7 +65,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {murmur}And when an input barely matters, the app says so.
 
 ## s05e_changed · What changed
-- chapter: 5
+- chapter: 2
 - visual: capture:s05e_changed
 - lead: 0.4
 - tail: 2.0
@@ -151,7 +73,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > The What changed panel lists every edit, and any of them can be reverted.
 
 ## s05f_3d · 3D interaction
-- chapter: 5
+- chapter: 2
 - visual: capture:s05f_3d
 - lead: 0.6
 - tail: 2.3
@@ -161,7 +83,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {lm}The left main says plainly: not modelled.
 
 ## s05g_views · Views and looks
-- chapter: 5
+- chapter: 2
 - visual: capture:s05g_views
 - lead: 0.4
 - tail: 1.9
@@ -171,7 +93,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {tools}Reset, full screen, a screenshot button, and an automatic quality switch are always at hand.
 
 ## s05h_body · Body mode and territories
-- chapter: 5
+- chapter: 2
 - visual: capture:s05h_body
 - lead: 0.4
 - tail: 2.3
@@ -180,7 +102,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {terr}Territories show what each artery typically supplies.
 
 ## s05i_why · Why?
-- chapter: 5
+- chapter: 2
 - visual: capture:s05i_why
 - lead: 0.4
 - tail: 2.1
@@ -189,7 +111,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {table}The breakdown groups the reasons, and the table puts each measurement beside its typical range and contribution. That's 3c.
 
 ## s05j_whatif · What-if
-- chapter: 5
+- chapter: 2
 - visual: capture:s05j_whatif
 - lead: 0.4
 - tail: 2.5
@@ -200,7 +122,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {sens}A sensitivity chart sweeps one factor across its range.
 
 ## s05k_modelcard · Model card
-- chapter: 5
+- chapter: 2
 - visual: capture:s05k_modelcard
 - lead: 0.4
 - tail: 2.1
@@ -209,7 +131,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {outcomes}It also shows how each sample patient actually turned out.
 
 ## s05l_export · Export
-- chapter: 5
+- chapter: 2
 - visual: capture:s05l_export
 - lead: 0.4
 - tail: 2.5
@@ -217,7 +139,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > Export a PDF report, with the disclaimer on every page, {copy}copy a plain summary, or save a screenshot.
 
 ## s05m_edu · Education and theme
-- chapter: 5
+- chapter: 2
 - visual: capture:s05m_edu
 - lead: 0.4
 - tail: 2.1
@@ -226,7 +148,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > {light}There's a light theme too.
 
 ## s05n_devices · Tablet and phone
-- chapter: 5
+- chapter: 2
 - visual: capture:s05n_devices
 - lead: 0.4
 - tail: 2.7
@@ -234,13 +156,91 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 > It adapts to tablets {phone}and phones, and loads a lighter model automatically on weaker devices.
 
 ## s05o_offline · Offline and shortcuts
-- chapter: 5
+- chapter: 2
 - visual: capture:s05o_offline
 - lead: 0.4
 - tail: 1.6
 
 > If the server drops, a banner explains it, the last result stays, and the app reconnects by itself.
 > {keys}And every shortcut is one key away.
+
+## s02a_data · Dataset and leakage rule
+- chapter: 3
+- visual: card:data
+- lead: 0.4
+- tail: 0.6
+
+> We used the extension of the Z-Alizadeh Sani dataset from UCI: 303 patients, 55 features, and four targets: CAD, plus the LAD, LCX and RCA arteries.
+> {audit}No values were missing, and a constant column was dropped.
+> {leak}The label columns are never model inputs. That's asserted before every fit, and the API rejects them: requirement 1d.
+
+## s02b_validation · Features and validation
+- chapter: 3
+- visual: card:validation
+- lead: 0.3
+- tail: 0.6
+
+> We add clinical features, such as a pretest probability, kidney function and lipid ratios.
+> {holdout}Twenty percent of patients are held out until the very end.
+> {cv}The rest go through five-by-five cross-validation with nested tuning, {ci}and confidence intervals come from a thousand bootstrap resamples.
+
+## s02c_models · Models, strategies, calibration
+- chapter: 3
+- visual: card:models
+- lead: 0.3
+- tail: 0.6
+
+> Nine model families were compared for every target, from logistic regression to boosting and stacked ensembles.
+> {strategy}For the arteries, independent models did as well as chained or hierarchical ones, so we kept the simplest.
+> {calib}Every model is calibrated, so eighty percent means about eight in ten, with tuned thresholds and three risk tiers.
+
+## s02d_results · Results and explanations
+- chapter: 3
+- visual: card:results
+- lead: 0.3
+- tail: 0.8
+
+> On the untouched hold-out set, the ROC-AUC is 0.895 for CAD, 0.832 for LAD, 0.768 for LCX and 0.741 for RCA, with confidence intervals and every metric from requirement 1e.
+> {shap}Each estimate is explained with exact SHAP values, mapped back to the raw measurements, {latency}in about 150 milliseconds.
+
+## s03a_mapping · From probability to picture
+- chapter: 4
+- visual: card:mapping
+- lead: 0.4
+- tail: 0.6
+
+> How does a probability become a picture? One anatomy map holds every mesh name, colour and label, and a pure function turns each prediction into a render-ready scene.
+> {scale}Colour shows probability, on one shared scale that is safe for colour-blind viewers.
+> {flag}Crossing a threshold adds an outline and a pulse, and every estimate carries a reliability badge.
+
+## s03b_rules · No over-claiming
+- chapter: 4
+- visual: card:rules
+- lead: 0.3
+- tail: 0.8
+
+> The data says whether an artery is narrowed, but not where. So whole arteries are coloured, and unlabelled branches stay neutral.
+> {overlays}Optional overlays show perfusion territories, and the body regions behind each risk factor, never the disease itself.
+> {whatif}And what-if shows associations, not treatment effects.
+
+## s04a_source · The heart model
+- chapter: 5
+- visual: card:heart_source
+- lead: 0.4
+- tail: 0.6
+
+> Building the heart. Our first version was a procedural heart, which is still kept as a fallback.
+> {sketchfab}For realism, we moved to the Realistic Human Heart by neshallads on Sketchfab, under CC BY 4.0. A headless Blender script aligns it, scales it to twelve centimetres, and splits it into parts.
+
+## s04b_build · Vessels and budgets
+- chapter: 5
+- visual: card:heart_build
+- lead: 0.3
+- tail: 0.5
+
+> Its coronaries were only painted on, so we traced them along the grooves, smoothed them, and swept them into real tubes.
+> {looks}One file carries a realistic and a clinical look, plus invisible picking shapes and outline shells.
+> {lite}It's compressed to about 1.6 megabytes, with a lighter version for phones, and a validator checks every name and budget.
 
 ## s06a_arch · Architecture
 - chapter: 6

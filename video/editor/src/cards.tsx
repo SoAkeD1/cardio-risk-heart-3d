@@ -92,7 +92,7 @@ const DataCard: React.FC<CardProps> = ({ sc }) => {
   const ds = D.dataset;
   return (
     <Page>
-      <Heading over="Chapter 2 · data" title={`${ds.name} · UCI id ${ds.uci}`} at={0} />
+      <Heading over="Data & machine learning" title={`${ds.name} · UCI id ${ds.uci}`} at={0} />
       <div style={{ position: "absolute", left: SAFE + 32, top: 260, display: "flex", gap: 26 }}>
         {[[ds.n, "patients"], [ds.features, "clinical features"], [4, "targets"]].map(([v, l], i) => (
           <Reveal key={l as string} at={0.4 + i * 0.25}>
@@ -259,7 +259,7 @@ const Mapping: React.FC<CardProps> = ({ sc }) => {
   const grad = `linear-gradient(90deg, ${stops.map(([p, c]) => `${c} ${p * 100}%`).join(", ")})`;
   return (
     <Page>
-      <Heading over="Chapter 3 · from prediction to anatomy" title="One source of truth, one pure function" at={0} />
+      <Heading over="From prediction to anatomy" title="One source of truth, one pure function" at={0} />
       <Box at={0.6} x={SAFE + 32} y={290} w={380} h={170} title="anatomy_map.json" sub={["every mesh name, colour, label"]} mono />
       <Box at={1.4} x={530} y={290} w={380} h={170} title="prediction" sub={["CAD + LAD / LCX / RCA", "+ SHAP"]} />
       <Arrow at={2.2} x1={450} y1={470} x2={980} y2={560} />
@@ -324,7 +324,7 @@ const HeartSource: React.FC<CardProps> = ({ sc }) => {
   const a = D.asset;
   return (
     <Page>
-      <Heading over="Chapter 4 · building the 3D heart" title="From procedural to realistic" at={0} />
+      <Heading over="Building the 3D heart" title="From procedural to realistic" at={0} />
       <Figure src="assets/procedural_front.png" at={0.4} until={sk + 0.2} x={500} y={250} w={920} h={680} caption="v1: fully procedural CC0 heart, kept as a fallback (--heart-source procedural)" bg="#0d0d0e" kb={false} />
       <Phase a={sk}>
         <Figure src="figs/src_front.png" at={sk} x={SAFE + 32} y={250} w={620} h={620} bg="#777" />
@@ -384,7 +384,7 @@ const Architecture: React.FC<CardProps> = ({ sc }) => {
   const eps = (D.endpoints as string[]).map((e) => e.replace("/api/", ""));
   return (
     <Page>
-      <Heading over="Chapter 6 · architecture" title="One-way data flow, nothing duplicated" at={0} />
+      <Heading over="Architecture" title="One-way data flow, nothing duplicated" at={0} />
       {[
         ["cardio_ml", ["frozen models", "SHAP → raw features"]],
         ["anatomy.py", ["scene_state()", "← anatomy_map.json"]],
@@ -463,7 +463,7 @@ const Close: React.FC<CardProps> = ({ sc }) => {
   return (
     <Page>
       <Phase a={0} b={di}>
-        <Heading over="Chapter 7 · honesty" title="Known limits" at={0} />
+        <Heading over="Honesty" title="Known limits" at={0} />
         {["Single centre, 303 patients, high CAD prevalence (referral cohort)", "No external validation; a 61-patient hold-out gives wide intervals", "No lesion location: whole-vessel estimates only", "RCA reliability: Limited (hold-out AUC 0.741), and the app says so"].map((x, i) => (
           <Reveal key={x} at={0.5 + i * 1.6} style={{ position: "absolute", left: SAFE + 32, top: 290 + i * 110, fontSize: 36 }}><span style={{ color: C.warn }}>• </span>{x}</Reveal>
         ))}
