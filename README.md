@@ -5,7 +5,14 @@ Multimodal AI Hackathon 2026 · Track A · Cardiovascular Risk Visualization & P
 Enter routine clinical data and see **calibrated CAD and per-artery (LAD / LCX / RCA) stenosis risk on an
 interactive 3D heart**, with the reasons why and what-if exploration. Decision support and education only.
 
-![CardioLens desktop](artifacts/figures/app_desktop_dark.png)
+**Live website:** [havoc · CardioLens](https://havoc-rho.vercel.app/) ·
+[Open the LAD sample](https://havoc-rho.vercel.app/?case=lad)
+
+![Current CardioLens dashboard: dark theme, unchanged 3D heart and artery estimates](docs/images/cardiolens-dark-dashboard.png)
+
+The current interface includes dark and light themes, a smoothly expanding patient sidebar,
+a resizable cardiac viewer, and a two-second opening animation that plays once per browser-tab session.
+The heart model and trained prediction models remain unchanged.
 
 **Dataset:** Alizadehsani R., Roshanzamir M., Sani Z. *Extension of Z-Alizadeh Sani*. UCI ML Repository, id 411.
 <https://archive.ics.uci.edu/dataset/411/extention+of+z> (DOI 10.24432/C5Q31M).
@@ -39,6 +46,74 @@ Screenshots: [desktop dark](artifacts/figures/app_desktop_dark.png) ·
 [mobile](artifacts/figures/app_mobile_dark.png) · [body mode](artifacts/figures/app_body_mode.png) ·
 [territories](artifacts/figures/app_territories.png) · [what-if](artifacts/figures/app_whatif.png) ·
 [model card](artifacts/figures/app_modelcard.png) · [PDF report](artifacts/figures/app_report.pdf)
+
+## Deployment
+
+**Production:** [https://havoc-rho.vercel.app/](https://havoc-rho.vercel.app/)
+
+**Project / service name:** `havoc`.
+
+The React frontend and FastAPI prediction API run together in one Vercel container service.
+`vercel.json` routes all requests to `havoc`, including the website at `/` and API endpoints at `/api/*`.
+`Dockerfile.vercel` builds the frontend with Node.js 22, then serves it with the API on Python 3.12
+and port 80. `requirements-runtime.txt` installs inference dependencies; the existing trained artifacts
+and heart assets are copied into the image. Deployment does not retrain models or rebuild the heart.
+
+### Deploy from GitHub
+
+1. Sign in to [Vercel](https://vercel.com/new) and install its GitHub integration for this repository.
+   The repository owner may need to grant access: collaborator write access alone did not allow linking
+   the current deployment.
+2. Import `SoAkeD1/cardio-risk-heart-3d`, select the desired Vercel team, and name the project `havoc`.
+3. Keep **Root Directory** at `./` and use the **Services** preset. Vercel reads the committed
+   `vercel.json` and `Dockerfile.vercel`; do not select `app/frontend` as the root for the full application.
+4. Deploy, then open the production domain shown by Vercel. The current production domain is
+   `havoc-rho.vercel.app`; another account may receive a different available domain.
+
+After the GitHub integration is connected, pushes to the configured production branch can deploy
+automatically. The current `havoc` deployment was published through the CLI; automatic GitHub
+deployment still requires the repository-owner integration setup.
+
+### Deploy with the Vercel CLI
+
+Run these commands from the repository root with Node.js installed. The CLI version below was used
+for the verified deployment. Replace `YOUR_TEAM_SLUG` with your Vercel team slug; the current deployment
+belongs to `inferno11` (team name **Inferno**), while its project and service are named **havoc**.
+
+```bash
+npx vercel@63.1.2 login
+npx vercel@63.1.2 link --yes --scope YOUR_TEAM_SLUG --project havoc
+npx vercel@63.1.2 project inspect --non-interactive --scope YOUR_TEAM_SLUG
+npx vercel@63.1.2 deploy --prod --skip-domain --scope YOUR_TEAM_SLUG --project havoc
+```
+
+Confirm that `project inspect` reports the intended team and `havoc` project. CLI deployment uploads
+the local checkout, so commit the intended changes first. `.vercelignore` excludes local credentials,
+virtual environments, logs, and scratch files. No separate frontend API URL is required.
+
+Use the deployment URL printed by the CLI to check the staged build before promotion:
+
+```bash
+npx vercel@63.1.2 curl /api/health --deployment DEPLOYMENT_URL --scope YOUR_TEAM_SLUG
+npx vercel@63.1.2 promote DEPLOYMENT_URL --scope YOUR_TEAM_SLUG
+```
+
+Complete verification by opening the site, loading a sample patient, checking the 3D heart and artery
+estimates, and switching themes. The first request after an idle period may take longer while the
+container loads the trained models. For protected staged URLs, `vercel curl` provides authenticated
+access without disabling deployment protection.
+
+Vercel builds the container remotely, so Docker is not needed for this CLI deployment. To test the
+same image locally with Docker installed:
+
+```bash
+docker build -f Dockerfile.vercel -t havoc .
+docker run --rm -p 8000:80 havoc
+```
+
+Then open [http://localhost:8000](http://localhost:8000). Platform references:
+[Vercel Container Runtime](https://vercel.com/docs/functions/runtimes/container) and
+[Vercel Services](https://vercel.com/docs/services).
 
 ## Problem statement → where it is met
 | PS ref | Requirement | Where it's met |
