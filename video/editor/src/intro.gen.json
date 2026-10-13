@@ -1,0 +1,84 @@
+{
+ "fps": 30,
+ "duration": 15.0,
+ "lead": 0.35,
+ "voice": 11.904,
+ "endCard": 12.704,
+ "audio": "voice/intro.wav",
+ "shots": [
+  {
+   "clip": "clips/s00_cold.mp4",
+   "from": 0.0,
+   "to": 4.995,
+   "src": 6.267,
+   "lower": "55 routine measurements → calibrated CAD + LAD / LCX / RCA risk",
+   "zoom": {
+    "s": 1.08,
+    "x": 760,
+    "y": 560
+   }
+  },
+  {
+   "clip": "clips/s05f_3d.mp4",
+   "from": 4.995,
+   "to": 7.876,
+   "src": 7.668,
+   "lower": "Hover or click an artery: probability · threshold · reliability",
+   "zoom": {
+    "s": 1.12,
+    "x": 760,
+    "y": 560
+   }
+  },
+  {
+   "clip": "clips/s05i_why.mp4",
+   "from": 7.876,
+   "to": 9.758,
+   "src": 2.94,
+   "lower": "Why? SHAP in probability points, for each artery",
+   "zoom": {
+    "s": 1.3,
+    "x": 1714,
+    "y": 420
+   }
+  },
+  {
+   "clip": "clips/s05d_live.mp4",
+   "from": 9.758,
+   "to": 12.704,
+   "src": 4.106,
+   "lower": "Live: Hypertension off → CAD −21 pts",
+   "zoom": {
+    "s": 1.25,
+    "x": 920,
+    "y": 230
+   }
+  }
+ ],
+ "captions": [
+  {
+   "start": 0.455,
+   "end": 4.81,
+   "lines": [
+    "CardioLens turns routine clinical data",
+    "into a 3D heart."
+   ]
+  },
+  {
+   "start": 4.995,
+   "end": 9.639,
+   "lines": [
+    "Each artery gets its own calibrated risk,",
+    "explained with SHAP,"
+   ]
+  },
+  {
+   "start": 9.758,
+   "end": 12.113,
+   "lines": [
+    "and updated live as you change an input."
+   ]
+  }
+ ],
+ "text": "CardioLens turns routine clinical data into a 3D heart. Each artery gets its own calibrated risk, explained with SHAP, and updated live as you change an input."
+}

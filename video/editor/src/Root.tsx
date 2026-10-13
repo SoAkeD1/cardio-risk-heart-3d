@@ -2,6 +2,7 @@ import React from "react";
 import { Composition, Sequence } from "remotion";
 import { Master, TL } from "./Master";
 import { Thumbnail } from "./Thumbnail";
+import { Intro, INTRO_FRAMES } from "./Intro";
 
 // One composition per chapter (for review) + the master.
 const Chapter: React.FC<{ from: number }> = ({ from }) => (
@@ -14,6 +15,7 @@ export const Root: React.FC = () => {
   const chapters = [...new Set(TL.scenes.map((s) => s.chapter))];
   return (
     <>
+      <Composition id="Intro" component={Intro} durationInFrames={INTRO_FRAMES} fps={TL.fps} width={TL.width} height={TL.height} />
       <Composition id="Thumbnail" component={Thumbnail} durationInFrames={1} fps={TL.fps} width={1280} height={720} />
       <Composition id="Master" component={Master} durationInFrames={TL.durationInFrames} fps={TL.fps} width={TL.width} height={TL.height} />
       {chapters.map((ch) => {

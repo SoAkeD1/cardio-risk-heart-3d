@@ -12,3 +12,5 @@ test-results/
 capture/explore.mjs
 capture/probe.mjs
 capture/overflow.mjs
+.tts-venv/
+voice/clone/
