@@ -29,6 +29,7 @@
   .callout { background: #f3f8f7; border-left: 3px solid #2f8f84; padding: 6px 9px; margin: 6px 0 8px; font-size: 9pt; break-inside: avoid; }
   .warn { background: #fbf4ec; border-left: 3px solid #c9772f; }
   .two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .keep { break-inside: avoid; }  /* a section that must not be split across pages */
   .two > * { min-width: 0; }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 6px 0 8px; }
   .kpi { border: 1px solid #dfe2e5; border-radius: 5px; padding: 5px 7px; }
@@ -322,6 +323,7 @@ the API and UI are model-agnostic. A new <i>anatomical structure</i> needs an en
 and a mesh with the same name in the GLB; the viewer binds by name.
 </p>
 
+<section class="keep">
 <h2>6. Usage instructions</h2>
 <div class="two">
 <div>
@@ -354,6 +356,8 @@ and a mesh with the same name in the GLB; the viewer binds by name.
 </ul>
 </div>
 </div>
+
+</section>
 
 <h2>7. Limitations and safety</h2>
 <ul>
