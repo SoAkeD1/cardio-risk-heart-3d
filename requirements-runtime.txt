@@ -1,0 +1,22 @@
+# Inference-only deployment dependencies. Versions match the trained-model environment.
+# Training notebooks, Torch and TabPFN are not needed by the exported fitted models.
+numpy==2.4.6
+pandas==3.0.6
+scipy==1.17.1
+scikit-learn==1.9.1
+imbalanced-learn==0.14.2
+lightgbm==4.7.0
+xgboost==3.2.0
+shap==0.51.0
+lime==0.2.0.1
+matplotlib==3.11.2
+openpyxl==3.1.5
+joblib==1.6.0
+jsonschema==4.26.0
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+pydantic==2.14.1
+pydantic-settings==2.15.0
+orjson==3.10.12
+httpx==0.28.1
+anyio==4.15.1

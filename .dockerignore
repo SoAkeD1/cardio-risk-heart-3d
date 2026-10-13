@@ -7,3 +7,11 @@ app/frontend/dist
 *.zip
 backup
 blender/*.blend
+**/__pycache__
+*.log
+*.pid
+/*-preview.png
+/polished-*.png
+/local-preview.png
+.env
+.env.*

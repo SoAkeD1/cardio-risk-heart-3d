@@ -1,0 +1,26 @@
+# Deploy the existing frontend and prediction API together, without rebuilding models.
+FROM node:22-slim AS web
+RUN apt-get update && apt-get install -y --no-install-recommends python3 && rm -rf /var/lib/apt/lists/*
+WORKDIR /src
+COPY app/frontend/package.json app/frontend/package-lock.json ./app/frontend/
+RUN cd app/frontend && npm ci --no-audit --no-fund
+COPY app/frontend ./app/frontend
+COPY scripts/sync_assets.py ./scripts/sync_assets.py
+COPY cardio_ml ./cardio_ml
+COPY artifacts ./artifacts
+COPY assets_src/hdri ./assets_src/hdri
+RUN python3 scripts/sync_assets.py && cd app/frontend && npm run build
+
+FROM python:3.12-slim
+RUN apt-get update && apt-get install -y --no-install-recommends libgomp1 && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY requirements-runtime.txt pyproject.toml ./
+COPY cardio_ml ./cardio_ml
+RUN pip install --no-cache-dir -r requirements-runtime.txt && pip install --no-cache-dir --no-deps -e .
+COPY app/backend ./app/backend
+COPY artifacts ./artifacts
+COPY data ./data
+COPY --from=web /src/app/frontend/dist ./app/frontend/dist
+ENV CARDIOLENS_ENV=prod PYTHONUNBUFFERED=1 MPLCONFIGDIR=/tmp/matplotlib
+EXPOSE 80
+CMD ["uvicorn", "app.backend.main:app", "--host", "0.0.0.0", "--port", "80"]
