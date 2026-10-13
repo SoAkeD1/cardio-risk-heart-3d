@@ -1,0 +1,5 @@
+Scene s05c_panel: Patient input
+Target length: about 20 s (calm pace, ~145 words/min)
+Save your recording as: s05c_panel.wav (this folder)
+
+You can also enter your own patient. The form is generated from the API schema: grouped, searchable, and showing how many fields changed. Each field has a typical range, a help note, and an effect meter showing how much it can move the estimates. Alt-click resets a single field, and a full reset can be undone.

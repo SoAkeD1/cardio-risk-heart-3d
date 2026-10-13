@@ -1,0 +1,5 @@
+Scene s01_problem: The problem
+Target length: about 29 s (calm pace, ~145 words/min)
+Save your recording as: s01_problem.wav (this folder)
+
+Cardiovascular disease remains a leading cause of death worldwide, and a narrowed coronary artery is usually confirmed by angiography, an invasive test. Track A asks a different question: can routine data, such as age, blood pressure, an ECG and a few lab values, predict coronary artery disease and the narrowing of each main artery, and show it on an interactive 3D model? Here is every requirement, and where CardioLens meets it.

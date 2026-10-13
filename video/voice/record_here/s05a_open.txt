@@ -1,0 +1,5 @@
+Scene s05a_open: Opening and tour
+Target length: about 10 s (calm pace, ~145 words/min)
+Save your recording as: s05a_open.wav (this folder)
+
+Now, the app itself. On a first visit it opens with a short intro, then a three-step tour of where to start, which you can skip, and it's remembered after that.

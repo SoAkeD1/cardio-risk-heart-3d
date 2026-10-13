@@ -1,0 +1,3 @@
+# Video pipeline (python video/make_video.py). Installed into the project .venv.
+edge-tts==7.2.8
+pymupdf==1.28.2

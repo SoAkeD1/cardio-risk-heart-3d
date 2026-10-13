@@ -1,0 +1,5 @@
+Scene s05n_devices: Tablet and phone
+Target length: about 6 s (calm pace, ~145 words/min)
+Save your recording as: s05n_devices.wav (this folder)
+
+It adapts to tablets and phones, and loads a lighter model automatically on weaker devices.

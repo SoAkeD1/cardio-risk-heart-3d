@@ -1,0 +1,13 @@
+$ blender -b -P blender/check_glb.py -- heart.glb heart_lite.glb
+=== heart.glb ===
+[PASS] file size: 1.58 MB (<= 10.0)
+[PASS] Draco compression
+[PASS] no centreline bend > 35 deg: Branches 28.3, LAD 22.4, LCX 25.3, LM 20.4, RCA 29.8
+[PASS] triangle budget: 107649 (<= 150000)
+==> ALL CHECKS PASSED
+=== heart_lite.glb ===
+[PASS] file size: 0.60 MB (<= 4.0)
+[PASS] Draco compression
+[PASS] no centreline bend > 35 deg: Branches 28.8, LAD 15.2, LCX 26.9, LM 22.6, RCA 27.9
+[PASS] triangle budget: 45507 (<= 60000)
+==> ALL CHECKS PASSED

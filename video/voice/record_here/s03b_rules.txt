@@ -1,0 +1,5 @@
+Scene s03b_rules: No over-claiming
+Target length: about 20 s (calm pace, ~145 words/min)
+Save your recording as: s03b_rules.wav (this folder)
+
+The data says whether an artery is narrowed, but not where. So whole arteries are coloured, and unlabelled branches stay neutral. Optional overlays show perfusion territories, and the body regions behind each risk factor, never the disease itself. And what-if shows associations, not treatment effects.

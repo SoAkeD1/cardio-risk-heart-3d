@@ -1,0 +1,5 @@
+Scene s05d_live: Live change feedback
+Target length: about 17 s (calm pace, ~145 words/min)
+Save your recording as: s05d_live.wav (this folder)
+
+Every change updates the estimate live. Switch hypertension off, and a toast reports exactly what moved: CAD down 21 points. Make the patient a smoker, and a chip links the change to the lungs. And when an input barely matters, the app says so.

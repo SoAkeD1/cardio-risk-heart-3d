@@ -1,0 +1,5 @@
+Scene s05j_whatif: What-if
+Target length: about 18 s (calm pace, ~145 words/min)
+Save your recording as: s05j_whatif.wav (this folder)
+
+What-if changes only modifiable factors. Lower LDL, lower blood pressure, stop smoking, and the table shows before and after. Show on heart previews the colours, and holding compares with the original. A sensitivity chart sweeps one factor across its range.

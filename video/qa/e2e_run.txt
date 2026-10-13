@@ -1,0 +1,15 @@
+  -  51 [mobile] › hardening.spec.ts:209:1 › WebGL disabled: 2D fallback coloured by the API + full dashboard
+  -  52 [mobile] › live.spec.ts:47:1 › 10 random feature changes each fire /api/predict with the new value
+  -  53 [mobile] › live.spec.ts:66:1 › toggling HTN shows a change toast whose values equal the API delta
+  -  54 [mobile] › live.spec.ts:89:1 › smoking ON -> the lungs region chip appears (region looked up from anatomy_map)
+  -  55 [mobile] › live.spec.ts:121:1 › backend killed -> banner + stale badge -> restarted automatically -> banner clears -> fresh result
+  -  56 [mobile] › proof.spec.ts:88:1 › changed artifacts show up in the UI with zero frontend code changes
+
+  Slow test file: [desktop] › app.spec.ts (51.3s)
+  Slow test file: [desktop] › hardening.spec.ts (37.6s)
+  Slow test file: [desktop] › live.spec.ts (28.8s)
+  Slow test file: [mobile] › app.spec.ts (27.5s)
+  Slow test file: [desktop] › a11y.spec.ts (16.2s)
+  Consider splitting slow test files to speed up parallel execution
+  22 skipped
+  34 passed (3.3m)

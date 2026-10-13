@@ -1,0 +1,287 @@
+build report [full]: arch apex 4.3 cm above the heart base; aorta clearance from heart after the root emerges 6.51 mm
+build report [full]: territory gaps 0.0%, overlaps 0.0%; centreline-to-myocardium (mm) lm 1.6-3.13, lad 1.6-3.39, lcx 1.76-1.93, rca 1.59-3.13, branch0 1.71-2.07, branch1 1.9-1.9, branch2 1.43-1.91, branch3 1.73-1.9, branch4 1.56-3.11
+build report [lite]: arch apex 4.3 cm above the heart base; aorta clearance from heart after the root emerges 6.5 mm
+build report [lite]: territory gaps 0.0%, overlaps 0.0%; centreline-to-myocardium (mm) lm 1.52-3.04, lad 1.74-3.36, lcx 1.83-2.14, rca 1.34-2.31, branch0 1.88-1.92, branch1 1.89-1.9, branch2 1.45-1.9, branch3 1.87-1.9, branch4 1.79-2.63
+  [PASS] build report [full]: territories no gaps / no overlap
+  [PASS] build report [lite]: territories no gaps / no overlap
+
+=== heart.glb ===
+19:47:06 | INFO: Data are loaded, start creating Blender stuff
+19:47:06 | INFO: Blender create Mesh node Organ_Brain
+19:47:06 | INFO: Draco Decoder: Decode primitive Organ_Brain
+19:47:06 | INFO: Blender create Mesh node Organ_Kidneys
+19:47:06 | INFO: Draco Decoder: Decode primitive Organ_Kidneys
+19:47:06 | INFO: Blender create Mesh node Organ_Legs
+19:47:06 | INFO: Draco Decoder: Decode primitive Organ_Legs
+19:47:06 | INFO: Blender create Mesh node Organ_Lungs
+19:47:06 | INFO: Draco Decoder: Decode primitive Organ_Lungs
+19:47:06 | INFO: Blender create Mesh node Organ_Pancreas
+19:47:06 | INFO: Draco Decoder: Decode primitive Organ_Pancreas
+19:47:06 | INFO: Blender create Mesh node Organ_Thyroid
+19:47:06 | INFO: Draco Decoder: Decode primitive Organ_Thyroid
+19:47:06 | INFO: Blender create Mesh node Torso_Shell
+19:47:06 | INFO: Draco Decoder: Decode primitive Torso_Shell
+19:47:06 | INFO: Blender create Mesh node Aorta
+19:47:06 | INFO: Draco Decoder: Decode primitive Aorta
+19:47:06 | INFO: Blender create Mesh node Coronary_Branches
+19:47:06 | INFO: Draco Decoder: Decode primitive Coronary_Branches
+19:47:06 | INFO: Blender create Mesh node Coronary_LAD
+19:47:06 | INFO: Draco Decoder: Decode primitive Coronary_LAD
+19:47:06 | INFO: Blender create Mesh node Coronary_LCX
+19:47:06 | INFO: Draco Decoder: Decode primitive Coronary_LCX
+19:47:06 | INFO: Blender create Mesh node Coronary_LM
+19:47:06 | INFO: Draco Decoder: Decode primitive Coronary_LM
+19:47:06 | INFO: Blender create Mesh node Coronary_RCA
+19:47:06 | INFO: Draco Decoder: Decode primitive Coronary_RCA
+19:47:06 | INFO: Blender create Mesh node Extra_Hit_LAD
+19:47:06 | INFO: Draco Decoder: Decode primitive Extra_Hit_LAD
+19:47:06 | INFO: Blender create Mesh node Extra_Hit_LCX
+19:47:06 | INFO: Draco Decoder: Decode primitive Extra_Hit_LCX
+19:47:06 | INFO: Blender create Mesh node Extra_Hit_RCA
+19:47:06 | INFO: Draco Decoder: Decode primitive Extra_Hit_RCA
+19:47:06 | INFO: Blender create Mesh node Extra_Outline_LAD
+19:47:06 | INFO: Draco Decoder: Decode primitive Extra_Outline_LAD
+19:47:06 | INFO: Blender create Mesh node Extra_Outline_LCX
+19:47:06 | INFO: Draco Decoder: Decode primitive Extra_Outline_LCX
+19:47:06 | INFO: Blender create Mesh node Extra_Outline_RCA
+19:47:06 | INFO: Draco Decoder: Decode primitive Extra_Outline_RCA
+19:47:06 | INFO: Blender create Mesh node Heart_Myocardium
+19:47:06 | INFO: Draco Decoder: Decode primitive Heart_Myocardium
+19:47:06 | INFO: Blender create Mesh node Territory_LAD
+19:47:06 | INFO: Draco Decoder: Decode primitive Territory_LAD
+19:47:06 | INFO: Blender create Mesh node Territory_LCX
+19:47:06 | INFO: Draco Decoder: Decode primitive Territory_LCX
+19:47:06 | INFO: Blender create Mesh node Territory_RCA
+19:47:06 | INFO: Draco Decoder: Decode primitive Territory_RCA
+19:47:06 | INFO: glTF import finished in 0.14s
+  objects: Anchor_Blood, Anchor_Brain, Anchor_Heart, Anchor_Kidneys, Anchor_LAD, Anchor_LCX, Anchor_Legs, Anchor_Lungs, Anchor_Pancreas, Anchor_RCA, Anchor_Thyroid, Anchor_Vessels, Anchor_WholeBody, Aorta, Body, Coronary_Branches, Coronary_LAD, Coronary_LCX, Coronary_LM, Coronary_RCA, Extra_Hit_LAD, Extra_Hit_LCX, Extra_Hit_RCA, Extra_Outline_LAD, Extra_Outline_LCX, Extra_Outline_RCA, Extra_View_Body, Extra_View_Front, Extra_View_Left, Extra_View_Posterior, Heart, Heart_Myocardium, Organ_Brain, Organ_Kidneys, Organ_Legs, Organ_Lungs, Organ_Pancreas, Organ_Thyroid, Territory_LAD, Territory_LCX, Territory_RCA, Torso_Shell
+  triangles: Aorta=11386, Coronary_Branches=3640, Coronary_LAD=1824, Coronary_LCX=1896, Coronary_LM=336, Coronary_RCA=2040, Extra_Hit_LAD=888, Extra_Hit_LCX=924, Extra_Hit_RCA=996, Extra_Outline_LAD=1776, Extra_Outline_LCX=1848, Extra_Outline_RCA=1992, Heart_Myocardium=18856, Organ_Brain=4924, Organ_Kidneys=4924, Organ_Legs=4924, Organ_Lungs=4920, Organ_Pancreas=4924, Organ_Thyroid=1056, Territory_LAD=7603, Territory_LCX=2408, Territory_RCA=3864, Torso_Shell=19700
+  [PASS] file size: 1.58 MB (<= 10.0)
+  [PASS] Draco compression
+  [PASS] compressed textures (WebP/KTX2): Heart_Tex_normal:image/webp, Heart_Tex_baseColor:image/webp, Heart_Tex_metallicRoughness:image/webp, Heart_Tex_baseColor_clinical:image/webp
+  [PASS] looks: KHR_materials_variants realistic(default)+clinical (or heart_clinical.glb): variants ['realistic', 'clinical']
+  [PASS] CC BY attribution in asset.extras (exact text)
+  [PASS] exactly 1 material per mesh: 23 meshes
+  [PASS] translucent materials alphaMode BLEND
+  [PASS] textures only on Heart_Myocardium / Aorta (none on coronaries, territories, helpers): Aorta, Heart_Myocardium
+  [PASS] Y-up (body height along +Y): extent [0.678, 1.752, 0.281]
+  [PASS] Extra_View_Body aims at target: 0.00 deg off, up.y=1.00
+  [PASS] Extra_View_Front aims at target: 0.00 deg off, up.y=0.96
+  [PASS] Extra_View_Left aims at target: 0.00 deg off, up.y=0.99
+  [PASS] Extra_View_Posterior aims at target: 0.00 deg off, up.y=0.96
+  [PASS] no centreline bend > 35 deg (segments and 4 mm chords, all vessels + branches): Branches 28.3, LAD 22.4, LCX 25.3, LM 20.4, RCA 29.8
+  [PASS] territories carry COLOR_0 RGBA (vertex-alpha feather)
+  [PASS] triangle budget: 107649 (<= 150000)
+  [PASS] 1 material slot per mesh
+  [PASS] no mesh island < 50 triangles: smallest 336 tris
+  [PASS] Territory_LAD feather alpha 0 -> 1: min 0.00, max 1.00, feathered 11% of vertices
+  [PASS] Territory_LCX feather alpha 0 -> 1: min 0.00, max 1.00, feathered 22% of vertices
+  [PASS] Territory_RCA feather alpha 0 -> 1: min 0.00, max 1.00, feathered 18% of vertices
+  [PASS] heart centroid at origin: [-0.22, 0.074, 0.598] mm
+  [PASS] realistic textures resized only (base colour size): 2048px
+  [PASS] Extra_Outline_LAD: inverted normals, alpha 0: 100% faces point inward
+  [PASS] Extra_Outline_LCX: inverted normals, alpha 0: 100% faces point inward
+  [PASS] Extra_Outline_RCA: inverted normals, alpha 0: 100% faces point inward
+  [PASS] Heart/Body groups
+  [PASS] apex landmark: on the heart, the extreme point along its axis, pointing left-anterior-inferior: [0.55, -0.45, -0.7]
+  [PASS] LAD on the anterior surface: 100% anterior
+  [PASS] LCX lateral -> posterior: mean x 1.8 cm, max y 2.9 cm
+  [PASS] RCA right -> posterior/diaphragmatic (crux, PDA): min x -3.6 cm, end (y -2.5, z -5.0) cm
+  [PASS] Coronary_LAD hugs the epicardium / aortic root: vertex distance p1-p99 0.2-4.6 mm
+  [PASS] Coronary_LCX hugs the epicardium / aortic root: vertex distance p1-p99 0.2-3.6 mm
+  [PASS] Coronary_RCA hugs the epicardium / aortic root: vertex distance p1-p99 0.1-4.1 mm
+  [PASS] Coronary_LM hugs the epicardium / aortic root: vertex distance p1-p99 0.0-3.9 mm
+  [PASS] Coronary_Branches hugs the epicardium / aortic root: vertex distance p1-p99 0.6-3.2 mm
+  [PASS] Coronary_Branches centreline 1-4 mm above the heart: p2-p98 1.45-2.46 mm (max 3.1)
+  [PASS] Coronary_LAD centreline 1-4 mm above the heart: p2-p98 1.70-3.32 mm (max 3.4)
+  [PASS] Coronary_LCX centreline 1-4 mm above the heart: p2-p98 1.78-1.94 mm (max 1.9)
+  [PASS] Coronary_LM centreline 1-4 mm above the heart: p2-p98 1.62-1.62 mm (max 1.6)
+  [PASS] Coronary_RCA centreline 1-4 mm above the heart: p2-p98 1.61-2.13 mm (max 2.6)
+  [PASS] Territory_LAD offset above myocardium: median 1.00 mm, max 1.00 mm
+  [PASS] Territory_LCX offset above myocardium: median 1.00 mm, max 1.00 mm
+  [PASS] Territory_RCA offset above myocardium: median 1.00 mm, max 1.00 mm
+  [PASS] Organ_Brain inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Kidneys inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Legs inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Lungs inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Pancreas inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Thyroid inside Torso_Shell: 100% of sampled vertices
+  [PASS] organs do not intersect heart/aorta/each other
+  [PASS] Anchor_LAD near but outside its structure: 2.8 cm
+  [PASS] Anchor_LCX near but outside its structure: 2.8 cm
+  [PASS] Anchor_RCA near but outside its structure: 2.8 cm
+  [PASS] Anchor_Heart near but outside its structure: 2.9 cm
+  [PASS] Anchor_Vessels near but outside its structure: 3.0 cm
+  [PASS] Anchor_Lungs near but outside its structure: 3.0 cm
+  [PASS] Anchor_Kidneys near but outside its structure: 3.0 cm
+  [PASS] Anchor_Pancreas near but outside its structure: 2.9 cm
+  [PASS] Anchor_Thyroid near but outside its structure: 3.0 cm
+  [PASS] Anchor_Brain near but outside its structure: 2.5 cm
+  [PASS] Anchor_Blood near but outside its structure: 3.0 cm
+  [PASS] Anchor_Legs near but outside its structure: 3.0 cm
+  [PASS] Anchor_WholeBody near but outside its structure: 49.7 cm
+  ==> ALL CHECKS PASSED
+
+=== heart_lite.glb ===
+19:47:07 | INFO: Data are loaded, start creating Blender stuff
+19:47:07 | INFO: Blender create Mesh node Organ_Brain
+19:47:07 | INFO: Draco Decoder: Decode primitive Organ_Brain
+19:47:07 | INFO: Blender create Mesh node Organ_Kidneys
+19:47:07 | INFO: Draco Decoder: Decode primitive Organ_Kidneys
+19:47:07 | INFO: Blender create Mesh node Organ_Legs
+19:47:07 | INFO: Draco Decoder: Decode primitive Organ_Legs
+19:47:07 | INFO: Blender create Mesh node Organ_Lungs
+19:47:07 | INFO: Draco Decoder: Decode primitive Organ_Lungs
+19:47:07 | INFO: Blender create Mesh node Organ_Pancreas
+19:47:07 | INFO: Draco Decoder: Decode primitive Organ_Pancreas
+19:47:07 | INFO: Blender create Mesh node Organ_Thyroid
+19:47:07 | INFO: Draco Decoder: Decode primitive Organ_Thyroid
+19:47:07 | INFO: Blender create Mesh node Torso_Shell
+19:47:07 | INFO: Draco Decoder: Decode primitive Torso_Shell
+19:47:07 | INFO: Blender create Mesh node Aorta
+19:47:07 | INFO: Draco Decoder: Decode primitive Aorta
+19:47:07 | INFO: Blender create Mesh node Coronary_Branches
+19:47:07 | INFO: Draco Decoder: Decode primitive Coronary_Branches
+19:47:07 | INFO: Blender create Mesh node Coronary_LAD
+19:47:07 | INFO: Draco Decoder: Decode primitive Coronary_LAD
+19:47:07 | INFO: Blender create Mesh node Coronary_LCX
+19:47:07 | INFO: Draco Decoder: Decode primitive Coronary_LCX
+19:47:07 | INFO: Blender create Mesh node Coronary_LM
+19:47:07 | INFO: Draco Decoder: Decode primitive Coronary_LM
+19:47:07 | INFO: Blender create Mesh node Coronary_RCA
+19:47:07 | INFO: Draco Decoder: Decode primitive Coronary_RCA
+19:47:07 | INFO: Blender create Mesh node Extra_Hit_LAD
+19:47:07 | INFO: Draco Decoder: Decode primitive Extra_Hit_LAD
+19:47:07 | INFO: Blender create Mesh node Extra_Hit_LCX
+19:47:07 | INFO: Draco Decoder: Decode primitive Extra_Hit_LCX
+19:47:07 | INFO: Blender create Mesh node Extra_Hit_RCA
+19:47:07 | INFO: Draco Decoder: Decode primitive Extra_Hit_RCA
+19:47:07 | INFO: Blender create Mesh node Extra_Outline_LAD
+19:47:07 | INFO: Draco Decoder: Decode primitive Extra_Outline_LAD
+19:47:07 | INFO: Blender create Mesh node Extra_Outline_LCX
+19:47:07 | INFO: Draco Decoder: Decode primitive Extra_Outline_LCX
+19:47:07 | INFO: Blender create Mesh node Extra_Outline_RCA
+19:47:07 | INFO: Draco Decoder: Decode primitive Extra_Outline_RCA
+19:47:07 | INFO: Blender create Mesh node Heart_Myocardium
+19:47:07 | INFO: Draco Decoder: Decode primitive Heart_Myocardium
+19:47:07 | INFO: Blender create Mesh node Territory_LAD
+19:47:07 | INFO: Draco Decoder: Decode primitive Territory_LAD
+19:47:07 | INFO: Blender create Mesh node Territory_LCX
+19:47:07 | INFO: Draco Decoder: Decode primitive Territory_LCX
+19:47:07 | INFO: Blender create Mesh node Territory_RCA
+19:47:07 | INFO: Draco Decoder: Decode primitive Territory_RCA
+19:47:07 | INFO: glTF import finished in 0.07s
+Blender 5.2.2 LTS (hash d13f752e3b9c built 2026-09-15 01:37:04)
+DracoDecoder | Decoded 2464 vertices, 14772 indices
+DracoDecoder | Decoded 2466 vertices, 14772 indices
+DracoDecoder | Decoded 2466 vertices, 14772 indices
+DracoDecoder | Decoded 2464 vertices, 14760 indices
+DracoDecoder | Decoded 2464 vertices, 14772 indices
+DracoDecoder | Decoded 532 vertices, 3168 indices
+DracoDecoder | Decoded 9852 vertices, 59100 indices
+DracoDecoder | Decoded 5913 vertices, 34158 indices
+DracoDecoder | Decoded 1830 vertices, 10920 indices
+DracoDecoder | Decoded 914 vertices, 5472 indices
+DracoDecoder | Decoded 950 vertices, 5688 indices
+DracoDecoder | Decoded 170 vertices, 1008 indices
+DracoDecoder | Decoded 1022 vertices, 6120 indices
+DracoDecoder | Decoded 446 vertices, 2664 indices
+DracoDecoder | Decoded 464 vertices, 2772 indices
+DracoDecoder | Decoded 500 vertices, 2988 indices
+DracoDecoder | Decoded 890 vertices, 5328 indices
+DracoDecoder | Decoded 926 vertices, 5544 indices
+DracoDecoder | Decoded 998 vertices, 5976 indices
+DracoDecoder | Decoded 9942 vertices, 56568 indices
+DracoDecoder | Decoded 3997 vertices, 22809 indices
+DracoDecoder | Decoded 1276 vertices, 7224 indices
+DracoDecoder | Decoded 2030 vertices, 11592 indices
+DracoDecoder | Decoded 987 vertices, 5910 indices
+DracoDecoder | Decoded 989 vertices, 5910 indices
+DracoDecoder | Decoded 989 vertices, 5910 indices
+DracoDecoder | Decoded 988 vertices, 5904 indices
+DracoDecoder | Decoded 987 vertices, 5910 indices
+DracoDecoder | Decoded 218 vertices, 1284 indices
+DracoDecoder | Decoded 3942 vertices, 23640 indices
+DracoDecoder | Decoded 3097 vertices, 17262 indices
+DracoDecoder | Decoded 682 vertices, 4032 indices
+DracoDecoder | Decoded 330 vertices, 1968 indices
+DracoDecoder | Decoded 346 vertices, 2064 indices
+DracoDecoder | Decoded 106 vertices, 624 indices
+DracoDecoder | Decoded 426 vertices, 2544 indices
+DracoDecoder | Decoded 236 vertices, 1404 indices
+DracoDecoder | Decoded 248 vertices, 1476 indices
+DracoDecoder | Decoded 308 vertices, 1836 indices
+DracoDecoder | Decoded 314 vertices, 1872 indices
+DracoDecoder | Decoded 330 vertices, 1968 indices
+DracoDecoder | Decoded 410 vertices, 2448 indices
+DracoDecoder | Decoded 5908 vertices, 33000 indices
+DracoDecoder | Decoded 974 vertices, 5265 indices
+DracoDecoder | Decoded 308 vertices, 1638 indices
+DracoDecoder | Decoded 490 vertices, 2652 indices
+  objects: Anchor_Blood, Anchor_Brain, Anchor_Heart, Anchor_Kidneys, Anchor_LAD, Anchor_LCX, Anchor_Legs, Anchor_Lungs, Anchor_Pancreas, Anchor_RCA, Anchor_Thyroid, Anchor_Vessels, Anchor_WholeBody, Aorta, Body, Coronary_Branches, Coronary_LAD, Coronary_LCX, Coronary_LM, Coronary_RCA, Extra_Hit_LAD, Extra_Hit_LCX, Extra_Hit_RCA, Extra_Outline_LAD, Extra_Outline_LCX, Extra_Outline_RCA, Extra_View_Body, Extra_View_Front, Extra_View_Left, Extra_View_Posterior, Heart, Heart_Myocardium, Organ_Brain, Organ_Kidneys, Organ_Legs, Organ_Lungs, Organ_Pancreas, Organ_Thyroid, Territory_LAD, Territory_LCX, Territory_RCA, Torso_Shell
+  triangles: Aorta=5754, Coronary_Branches=1344, Coronary_LAD=656, Coronary_LCX=688, Coronary_LM=208, Coronary_RCA=848, Extra_Hit_LAD=468, Extra_Hit_LCX=492, Extra_Hit_RCA=612, Extra_Outline_LAD=624, Extra_Outline_LCX=656, Extra_Outline_RCA=816, Heart_Myocardium=11000, Organ_Brain=1970, Organ_Kidneys=1970, Organ_Legs=1970, Organ_Lungs=1968, Organ_Pancreas=1970, Organ_Thyroid=428, Territory_LAD=1755, Territory_LCX=546, Territory_RCA=884, Torso_Shell=7880
+  [PASS] file size: 0.60 MB (<= 4.0)
+  [PASS] Draco compression
+  [PASS] compressed textures (WebP/KTX2): Heart_Tex_normal:image/webp, Heart_Tex_baseColor:image/webp, Heart_Tex_metallicRoughness:image/webp, Heart_Tex_baseColor_clinical:image/webp
+  [PASS] looks: KHR_materials_variants realistic(default)+clinical (or heart_clinical.glb): variants ['realistic', 'clinical']
+  [PASS] CC BY attribution in asset.extras (exact text)
+  [PASS] exactly 1 material per mesh: 23 meshes
+  [PASS] translucent materials alphaMode BLEND
+  [PASS] textures only on Heart_Myocardium / Aorta (none on coronaries, territories, helpers): Aorta, Heart_Myocardium
+  [PASS] Y-up (body height along +Y): extent [0.676, 1.75, 0.279]
+  [PASS] Extra_View_Body aims at target: 0.00 deg off, up.y=1.00
+  [PASS] Extra_View_Front aims at target: 0.00 deg off, up.y=0.96
+  [PASS] Extra_View_Left aims at target: 0.00 deg off, up.y=0.99
+  [PASS] Extra_View_Posterior aims at target: 0.00 deg off, up.y=0.96
+  [PASS] no centreline bend > 35 deg (segments and 4 mm chords, all vessels + branches): Branches 28.8, LAD 15.2, LCX 26.9, LM 22.6, RCA 27.9
+  [PASS] territories carry COLOR_0 RGBA (vertex-alpha feather)
+  [PASS] triangle budget: 45507 (<= 60000)
+  [PASS] 1 material slot per mesh
+  [PASS] no mesh island < 50 triangles: smallest 192 tris
+  [PASS] Territory_LAD feather alpha 0 -> 1: min 0.00, max 1.00, feathered 10% of vertices
+  [PASS] Territory_LCX feather alpha 0 -> 1: min 0.00, max 1.00, feathered 20% of vertices
+  [PASS] Territory_RCA feather alpha 0 -> 1: min 0.00, max 1.00, feathered 16% of vertices
+  [PASS] heart centroid at origin: [-0.26, 0.08, 0.706] mm
+  [PASS] realistic textures resized only (base colour size): 1024px
+  [PASS] Extra_Outline_LAD: inverted normals, alpha 0: 100% faces point inward
+  [PASS] Extra_Outline_LCX: inverted normals, alpha 0: 100% faces point inward
+  [PASS] Extra_Outline_RCA: inverted normals, alpha 0: 100% faces point inward
+  [PASS] Heart/Body groups
+  [PASS] apex landmark: on the heart, the extreme point along its axis, pointing left-anterior-inferior: [0.54, -0.44, -0.72]
+  [PASS] LAD on the anterior surface: 100% anterior
+  [PASS] LCX lateral -> posterior: mean x 1.7 cm, max y 2.8 cm
+  [PASS] RCA right -> posterior/diaphragmatic (crux, PDA): min x -3.5 cm, end (y -2.6, z -5.3) cm
+  [PASS] Coronary_LAD hugs the epicardium / aortic root: vertex distance p1-p99 0.2-4.7 mm
+  [PASS] Coronary_LCX hugs the epicardium / aortic root: vertex distance p1-p99 0.2-3.6 mm
+  [PASS] Coronary_RCA hugs the epicardium / aortic root: vertex distance p1-p99 0.1-3.5 mm
+  [PASS] Coronary_LM hugs the epicardium / aortic root: vertex distance p1-p99 0.0-3.7 mm
+  [PASS] Coronary_Branches hugs the epicardium / aortic root: vertex distance p1-p99 0.8-2.9 mm
+  [PASS] Coronary_Branches centreline 1-4 mm above the heart: p2-p98 1.43-2.16 mm (max 2.7)
+  [PASS] Coronary_LAD centreline 1-4 mm above the heart: p2-p98 1.63-3.34 mm (max 3.4)
+  [PASS] Coronary_LCX centreline 1-4 mm above the heart: p2-p98 1.71-2.01 mm (max 2.2)
+  [PASS] Coronary_LM centreline 1-4 mm above the heart: p2-p98 1.48-1.48 mm (max 1.5)
+  [PASS] Coronary_RCA centreline 1-4 mm above the heart: p2-p98 1.63-2.20 mm (max 2.3)
+  [PASS] Territory_LAD offset above myocardium: median 1.00 mm, max 1.02 mm
+  [PASS] Territory_LCX offset above myocardium: median 1.00 mm, max 1.02 mm
+  [PASS] Territory_RCA offset above myocardium: median 1.00 mm, max 1.02 mm
+  [PASS] Organ_Brain inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Kidneys inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Legs inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Lungs inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Pancreas inside Torso_Shell: 100% of sampled vertices
+  [PASS] Organ_Thyroid inside Torso_Shell: 100% of sampled vertices
+  [PASS] organs do not intersect heart/aorta/each other
+  [PASS] Anchor_LAD near but outside its structure: 2.8 cm
+  [PASS] Anchor_LCX near but outside its structure: 2.8 cm
+  [PASS] Anchor_RCA near but outside its structure: 2.8 cm
+  [PASS] Anchor_Heart near but outside its structure: 2.9 cm
+  [PASS] Anchor_Vessels near but outside its structure: 3.0 cm
+  [PASS] Anchor_Lungs near but outside its structure: 3.0 cm
+  [PASS] Anchor_Kidneys near but outside its structure: 3.0 cm
+  [PASS] Anchor_Pancreas near but outside its structure: 2.9 cm
+  [PASS] Anchor_Thyroid near but outside its structure: 3.0 cm
+  [PASS] Anchor_Brain near but outside its structure: 2.8 cm
+  [PASS] Anchor_Blood near but outside its structure: 3.0 cm
+  [PASS] Anchor_Legs near but outside its structure: 3.0 cm
+  [PASS] Anchor_WholeBody near but outside its structure: 49.7 cm
+  ==> ALL CHECKS PASSED

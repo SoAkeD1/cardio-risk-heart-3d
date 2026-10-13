@@ -1,0 +1,5 @@
+Scene s02d_results: Results and explanations
+Target length: about 28 s (calm pace, ~145 words/min)
+Save your recording as: s02d_results.wav (this folder)
+
+On the untouched hold-out set, the ROC-AUC is 0.895 for CAD, 0.832 for LAD, 0.768 for LCX and 0.741 for RCA, with confidence intervals and every metric from requirement 1e. Each estimate is explained with exact SHAP values, mapped back to the raw measurements, in about 150 milliseconds.

@@ -1,0 +1,77 @@
+{
+ "file": "C:\\Users\\shrim\\OneDrive\\Desktop\\IIT_MANDI\\video\\out\\cardiolens_demo_1080p.mp4",
+ "video": {
+  "codec_name": "h264",
+  "profile": "High",
+  "width": 1920,
+  "height": 1080,
+  "pix_fmt": "yuv420p",
+  "r_frame_rate": "30/1",
+  "bit_rate": "1792493",
+  "side_data_list": [
+   {}
+  ]
+ },
+ "audio": {
+  "codec_name": "aac",
+  "profile": "LC",
+  "r_frame_rate": "0/0",
+  "bit_rate": "161861"
+ },
+ "chapters": [
+  [
+   "0:00",
+   "Cold open"
+  ],
+  [
+   "0:15",
+   "The problem"
+  ],
+  [
+   "0:47",
+   "Data & machine learning"
+  ],
+  [
+   "2:27",
+   "From prediction to anatomy"
+  ],
+  [
+   "3:14",
+   "Building the 3D heart"
+  ],
+  [
+   "4:01",
+   "The app"
+  ],
+  [
+   "7:51",
+   "Engineering & quality"
+  ],
+  [
+   "8:49",
+   "Honesty & close"
+  ]
+ ],
+ "gates": {
+  "1 duration 8:30-9:45": {
+   "pass": true,
+   "value": "9:25 (565.7 s)"
+  },
+  "2 coverage A/B": {
+   "pass": true,
+   "value": "69/69"
+  },
+  "4 loudness -14 +-1 LUFS": {
+   "pass": true,
+   "value": "-14.0 LUFS"
+  },
+  "4 true peak <= -1 dBTP": {
+   "pass": true,
+   "value": "-1.4 dBTP"
+  },
+  "4 no silence > 4 s": {
+   "pass": true,
+   "value": "[]"
+  }
+ }
+}

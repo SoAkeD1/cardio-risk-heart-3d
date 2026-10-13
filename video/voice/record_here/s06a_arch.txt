@@ -1,0 +1,5 @@
+Scene s06a_arch: Architecture
+Target length: about 18 s (calm pace, ~145 words/min)
+Save your recording as: s06a_arch.wav (this folder)
+
+Under the hood: the frozen ML package feeds the anatomy layer, a FastAPI service exposes ten endpoints with one error shape, and React Three Fiber binds the scene to the heart. The frontend holds no clinical data of its own. A guard script fails the build if it ever does.

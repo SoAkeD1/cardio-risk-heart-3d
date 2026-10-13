@@ -1,0 +1,5 @@
+Scene s04a_source: The heart model
+Target length: about 20 s (calm pace, ~145 words/min)
+Save your recording as: s04a_source.wav (this folder)
+
+Building the heart. Our first version was a procedural heart, which is still kept as a fallback. For realism, we moved to the Realistic Human Heart by neshallads on Sketchfab, under CC BY 4.0. A headless Blender script aligns it, scales it to twelve centimetres, and splits it into parts.
