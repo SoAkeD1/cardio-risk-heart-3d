@@ -4,6 +4,43 @@
 @tailwind components;
 @tailwind utilities;
 
+.opening-animation {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  background: #000;
+  opacity: 1;
+  transition: opacity 450ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.opening-animation--fading { opacity: 0; }
+.opening-animation video { width: 100%; height: 100%; object-fit: contain; }
+.opening-skip {
+  position: absolute;
+  right: 24px;
+  bottom: 24px;
+  border: 1px solid #ffffff40;
+  border-radius: 999px;
+  padding: 8px 16px;
+  background: #05172ccc;
+  color: #e8efff;
+  font-size: 12px;
+}
+.opening-skip:hover { background: #12315c; }
+
+.sidebar-backdrop[data-state="open"] { animation: sidebar-dim-in 320ms ease-out both; }
+.sidebar-backdrop[data-state="closed"] { animation: sidebar-dim-out 280ms ease-in both; }
+.patient-sidebar[data-state="open"] { animation: sidebar-slide-in 360ms cubic-bezier(.22,1,.36,1) both; }
+.patient-sidebar[data-state="closed"] { animation: sidebar-slide-out 280ms cubic-bezier(.4,0,.2,1) both; }
+.patient-sidebar { background: #041429; color: #e8efff; }
+[data-theme="light"] .patient-sidebar { background: #fffdf9; color: #2d2e2c; }
+.patient-sidebar .patient-controls { border-radius: 0; border: 0; }
+@keyframes sidebar-slide-in { from { transform: translateX(-100%); } to { transform: translateX(0); } }
+@keyframes sidebar-slide-out { from { transform: translateX(0); } to { transform: translateX(-100%); } }
+@keyframes sidebar-dim-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes sidebar-dim-out { from { opacity: 1; } to { opacity: 0; } }
+
 @layer base {
   html,
   body,
@@ -47,7 +84,7 @@
     scrollbar-color: rgb(var(--surface-3)) transparent;
   }
   .canvas-bg {
-    background: radial-gradient(circle at 50% 45%, var(--canvas-center) 0%, var(--canvas-edge) 75%);
+    background: radial-gradient(ellipse at 50% 35%, var(--canvas-center) 0%, var(--canvas-edge) 85%);
   }
   .skip-link {
     @apply sr-only;
@@ -66,4 +103,326 @@
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Dashboard chrome only. The viewer's existing canvas palette, scene and assets stay intact. */
+.cardio-dashboard {
+  --bg: 2 9 20;
+  --surface-1: 3 14 29;
+  --surface-2: 5 20 39;
+  --surface-3: 10 35 65;
+  --border: rgba(62, 139, 224, 0.23);
+  --border-strong: rgba(58, 153, 255, 0.55);
+  --text-1: 232 239 255;
+  --text-2: 171 193 226;
+  --text-3: 138 166 204;
+  --accent: 16 108 255;
+  --focus: 66 177 255;
+  --info: 53 163 255;
+  --on-accent: 255 255 255;
+  color-scheme: dark;
+  background: radial-gradient(ellipse at top, #0a2139, #020a16 65%);
+  color: rgb(var(--text-1));
+}
+.cardio-dashboard > header {
+  height: 62px;
+  background: linear-gradient(110deg, #040c1b, #041429);
+  box-shadow: 0 5px 24px #0004;
+}
+.cardio-dashboard > header > span {
+  border-left: 1px solid var(--border-strong);
+  padding-left: 16px;
+  color: rgb(var(--text-2));
+  font-size: 12px;
+}
+.cardio-dashboard > header svg { color: rgb(var(--info)); }
+.cardio-dashboard > header > div > svg { width: 34px; height: 34px; }
+.dashboard-columns { gap: 10px; padding: 0 10px 10px; }
+.dashboard-columns > .panel { background: transparent; border: 0; }
+.patient-column { width: clamp(230px, 24vw, 300px); }
+.patient-dock {
+  --dock-width: clamp(230px, 24vw, 300px);
+  display: flex;
+  flex-shrink: 0;
+  width: 0;
+  min-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+  transition: width 360ms cubic-bezier(.22,1,.36,1), opacity 260ms ease, visibility 0s 360ms;
+}
+.patient-dock--open {
+  width: var(--dock-width);
+  opacity: 1;
+  visibility: visible;
+  transition: width 360ms cubic-bezier(.22,1,.36,1), opacity 260ms ease, visibility 0s;
+}
+.patient-dock-content { display: flex; flex-direction: column; min-height: 0; width: var(--dock-width); flex-shrink: 0; }
+.cardio-dashboard > header { position: relative; z-index: 50; }
+@media (max-width: 767px) {
+  .patient-dock { --dock-width: min(240px, 60vw); }
+}
+.estimates-column { width: clamp(280px, 29vw, 380px); }
+.viewer-column { display: flex; flex-direction: column; }
+.column-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  min-height: 40px;
+  flex-shrink: 0;
+  padding: 0 4px;
+}
+.column-heading h2 { font-size: 14px; font-weight: 650; letter-spacing: -.02em; }
+.heading-chip {
+  padding: 3px 9px;
+  border: 1px solid var(--border);
+  background: #082044;
+  color: #b7d3ff;
+  border-radius: 99px;
+  font-size: 10px;
+  white-space: nowrap;
+}
+.patient-controls, .heart-stage {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 0 20px #0077ff08;
+}
+.patient-controls { background: linear-gradient(150deg, #05172b, #020d1c); }
+.patient-controls h2 { font-size: 13px; }
+.patient-controls > div:first-child { padding: 10px; }
+.patient-controls [data-field] { padding-top: 10px; padding-bottom: 10px; border: 0; }
+.patient-controls [data-field] label { font-size: 12px; }
+.patient-controls [data-field] input { font-size: 12px; }
+.patient-controls [data-radix-collection-item] { font-size: 12px; }
+.patient-controls button { font-size: 11px; }
+.patient-controls [role="slider"] { background: #0876ff; border-color: #c5e3ff; box-shadow: 0 0 8px #006bff66; }
+.patient-controls [data-orientation="horizontal"] > [data-orientation="horizontal"] > span:last-child { background-color: #187eff; }
+.patient-reset { border-top: 1px solid var(--border); }
+.patient-reset button { border-color: #087fff; background: #061a33; color: #daeaff; }
+.heart-stage .canvas-bg {
+  /* The reference's charcoal/plum background is identical in both themes. */
+  --canvas-center: #786d79;
+  --canvas-edge: #2b2a32;
+}
+.heart-stage [role="toolbar"] { border-color: var(--border-strong); background: #04162bee; }
+.heart-stage [role="toolbar"] button[aria-pressed="true"] { background: #0961f4; color: white; }
+.estimates-column [data-testid="vessel-cards"] { padding: 0 2px 12px; }
+.estimates-column [data-testid^="vessel-card-"] {
+  background: linear-gradient(135deg, #06182e, #020e1e);
+  border-color: var(--border-strong);
+  padding: 12px;
+  border-radius: 9px;
+  box-shadow: inset 0 1px 0 #3b8aff0d;
+}
+.estimates-column [data-testid^="vessel-card-"]:hover { background: #092241; }
+.estimates-column [data-testid^="vessel-card-"] .truncate { white-space: normal; }
+.estimates-column [data-testid^="vessel-card-"] .text-sm { font-size: 12px; }
+.estimates-column [data-testid^="vessel-card-"] .text-xs { font-size: 11px; }
+.estimates-column [data-testid^="vessel-card-"] .text-xl { font-size: 24px; }
+.estimates-column [data-testid^="vessel-card-"] ul .truncate { white-space: nowrap; }
+.estimates-column [data-testid^="vessel-card-"] .mt-3 { margin-top: 10px; }
+.estimates-column [data-testid^="vessel-card-"] .mt-3 > span { border-color: #247de177; border-radius: 5px; background: #041b36; }
+@media (min-width: 960px) and (max-width: 1279px) {
+  .patient-controls > div:first-child { padding: 8px; }
+  .patient-controls > div:first-child button { padding-left: 5px; padding-right: 5px; font-size: 10px; }
+  .estimates-column [data-testid^="vessel-card-"] { padding: 9px; }
+  .estimates-column [data-testid^="vessel-card-"] .text-sm { font-size: 11px; line-height: 14px; }
+  .estimates-column [data-testid^="vessel-card-"] .text-xs { font-size: 10px; line-height: 13px; }
+  .estimates-column [data-testid^="vessel-card-"] .text-xl { font-size: 22px; }
+  .estimates-column [data-testid^="vessel-card-"] .mt-3 { margin-top: 8px; gap: 4px; }
+  .estimates-column [data-testid^="vessel-card-"] .mt-3 > span { padding: 0 5px; height: 22px; font-size: 9px; }
+  .estimates-column [data-testid^="vessel-card-"] .mt-3 svg { width: 11px; height: 11px; }
+  .estimates-column [data-testid^="vessel-card-"] ul { margin-top: 6px; }
+  .estimates-column [data-testid^="vessel-card-"] li { margin-top: 2px; }
+}
+.risk-overview { margin: 0 2px 12px; border: 1px solid var(--border); border-radius: 9px; background: #06162a; }
+.risk-overview > summary { cursor: pointer; padding: 12px; font-size: 12px; font-weight: 600; color: #c3daff; }
+.cardio-dashboard > footer { background: #05172c; border-color: var(--border); }
+@media (min-width: 1440px) {
+  .patient-column { width: 300px; }
+  .estimates-column { width: 380px; }
+}
+@media (max-width: 767px) {
+  .cardio-dashboard > header { height: 56px; }
+  .dashboard-columns { padding: 0; gap: 0; }
+}
+
+/* Light dashboard: cream workspace, pastel measurement cards and a charcoal results panel. */
+[data-theme="light"] .cardio-dashboard {
+  --bg: 250 248 244;
+  --surface-1: 255 255 255;
+  --surface-2: 248 246 242;
+  --surface-3: 239 235 228;
+  --border: rgba(78, 67, 52, 0.1);
+  --border-strong: rgba(78, 67, 52, 0.2);
+  --text-1: 45 46 44;
+  --text-2: 102 103 99;
+  --text-3: 116 116 109;
+  --accent: 152 106 36;
+  --focus: 55 135 141;
+  --info: 61 133 140;
+  --warning: 135 97 28;
+  --shadow: 0 4px 20px rgba(62, 48, 29, 0.06);
+  color-scheme: light;
+  background: linear-gradient(115deg, #edf4ff, #faf5f4 65%, #f7edf0);
+}
+[data-theme="light"] .cardio-dashboard > header {
+  margin: 14px 16px 0;
+  border: 1px solid var(--border);
+  border-radius: 16px 16px 0 0;
+  background: #fffdf9;
+  box-shadow: none;
+}
+[data-theme="light"] .cardio-dashboard > header svg { color: #aa7b35; }
+[data-theme="light"] .dashboard-columns {
+  margin: 0 16px 12px;
+  padding: 0 12px 12px;
+  gap: 16px;
+  border-radius: 0 0 16px 16px;
+  background: #faf8f4;
+  box-shadow: 0 12px 35px #4a3b2910;
+}
+[data-theme="light"] .heading-chip { background: #f3ead9; color: #7a5926; }
+[data-theme="light"] .patient-controls { background: #fff; border-radius: 14px; box-shadow: var(--shadow); }
+[data-theme="light"] .patient-controls [role="slider"] { background: #b78948; border-color: #fff; box-shadow: 0 0 0 1px #b7894855; }
+[data-theme="light"] .patient-controls [data-orientation="horizontal"] > [data-orientation="horizontal"] > span:last-child { background-color: #b78948; }
+[data-theme="light"] .patient-reset button { border-color: #ddcaa8; background: #f7eedf; color: #775626; }
+[data-theme="light"] .heart-stage { border-radius: 14px; border-color: #d8d4cb; box-shadow: var(--shadow); }
+[data-theme="light"] .heart-stage [role="toolbar"] { background: #fffdf9ee; border-color: #ddd8cd; }
+[data-theme="light"] .heart-stage [role="toolbar"] button[aria-pressed="true"] { background: #333532; color: #fff; }
+.light-overview { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; flex-shrink: 0; margin-bottom: 14px; }
+.overview-card { border: 1px solid #ebe7e0; border-radius: 12px; padding: 14px; background: #fff; box-shadow: 0 3px 14px #4a3b2909; }
+.overview-label { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 500; min-height: 34px; }
+.overview-icon { display: grid; place-items: center; flex-shrink: 0; width: 32px; height: 34px; border-radius: 8px; }
+.overview-card--amber .overview-icon { background: #f9e3c3; color: #a36f22; }
+.overview-card--rose .overview-icon { background: #f9e9ed; color: #b35f70; }
+.overview-card--teal .overview-icon { background: #d9f5f6; color: #398c95; }
+.overview-value { margin-top: 12px; font-size: 24px; font-variant-numeric: tabular-nums; }
+.overview-value span { font-size: 10px; color: #757970; }
+.overview-caption { margin-top: 4px; font-size: 9px; color: #757970; }
+[data-theme="light"] .estimates-column {
+  --surface-1: 47 48 46;
+  --surface-2: 56 57 54;
+  --surface-3: 70 71 68;
+  --text-1: 250 249 245;
+  --text-2: 207 207 199;
+  --text-3: 180 180 171;
+  --border: rgba(255, 255, 255, .1);
+  --border-strong: rgba(255, 255, 255, .2);
+  --warning: 239 199 131;
+  --accent: 224 183 112;
+  color: rgb(var(--text-1));
+  background: #2f302e;
+  padding: 0 10px;
+  margin-top: 10px;
+  border-radius: 16px;
+}
+[data-theme="light"] .estimates-column .column-heading { min-height: 44px; }
+[data-theme="light"] .estimates-column .heading-chip { color: #dfddd5; background: #41423e; }
+[data-theme="light"] .estimates-column [data-testid^="vessel-card-"] { background: #383936; border-color: #ffffff14; border-radius: 12px; box-shadow: none; }
+[data-theme="light"] .estimates-column [data-testid^="vessel-card-"]:hover { background: #41433e; }
+[data-theme="light"] .estimates-column [data-testid^="vessel-card-"] .mt-3 > span { border-color: #ffffff25; background: #30312e; }
+[data-theme="light"] .risk-overview { background: #383936; }
+[data-theme="light"] .risk-overview > summary { color: #e8dac1; }
+[data-theme="light"] .cardio-dashboard > footer { background: #fffdf9; }
+@media (max-width: 1100px) {
+  .overview-card { padding: 9px; }
+  .overview-label { flex-direction: column; align-items: flex-start; gap: 5px; font-size: 10px; }
+  .light-overview { gap: 8px; }
+}
+@media (max-width: 767px) {
+  [data-theme="light"] .cardio-dashboard > header { margin: 0; border-radius: 0; }
+}
+
+/* Finishing details shared by both dashboard themes. */
+.cardio-dashboard > header {
+  height: 70px;
+  padding-left: 18px;
+  padding-right: 18px;
+  border-bottom-color: rgb(var(--info) / .15);
+}
+.cardio-dashboard > header button {
+  border-radius: 10px;
+  transition: background 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+}
+.cardio-dashboard > header button:hover { transform: translateY(-1px); }
+.cardio-dashboard > header button:active { transform: translateY(0); }
+.cardio-dashboard > header button[aria-label="Toggle patient overview"] {
+  border: 1px solid var(--border);
+  margin-right: 6px;
+  background: rgb(var(--surface-2) / .65);
+}
+.cardio-dashboard > header button[aria-expanded="true"] { box-shadow: 0 0 0 2px rgb(var(--accent) / .14); }
+[data-theme="dark"] .cardio-dashboard > header .bg-accent {
+  background: linear-gradient(120deg, #197eff, #0754dd);
+  box-shadow: 0 3px 16px #006bff26;
+}
+[data-theme="light"] .cardio-dashboard > header .bg-accent {
+  background: linear-gradient(120deg, #b18a4d, #926527);
+  box-shadow: 0 3px 12px #9265271c;
+}
+.dashboard-columns { padding: 0 16px 14px; gap: 16px; }
+.column-heading { min-height: 48px; padding: 0 2px; }
+.column-heading h2 { font-size: 15px; font-weight: 600; letter-spacing: -.035em; }
+.heading-chip { font-size: 10px; padding: 4px 10px; font-weight: 500; }
+.patient-controls { border-radius: 14px; }
+.patient-controls > div:first-child { padding: 13px; }
+.patient-controls [data-field] { padding-top: 12px; padding-bottom: 12px; }
+.patient-controls [data-field] input { font-weight: 500; }
+.patient-controls [data-field] input:focus { background: rgb(var(--surface-1)); }
+.patient-controls [data-field] label { font-weight: 450; }
+.patient-controls .scroll-y > p { font-size: 10px; line-height: 1.65; }
+.patient-controls input[type="search"] { font-size: 12px; }
+.patient-reset { padding: 12px; }
+.patient-reset button { border-radius: 9px; font-weight: 500; }
+.heart-stage { border-radius: 16px; box-shadow: 0 8px 28px #0002; }
+.heart-stage [role="toolbar"] { border-radius: 12px; padding: 5px; box-shadow: 0 4px 16px #0002; }
+.heart-stage [role="toolbar"] button { border-radius: 8px; }
+.estimates-column { padding-top: 0; }
+.estimate-glance {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 16px;
+  margin: 0 2px 12px;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  background: linear-gradient(130deg, rgb(var(--surface-3) / .65), rgb(var(--surface-2) / .35));
+}
+.glance-label { display: block; font-size: 10px; color: rgb(var(--text-2)); letter-spacing: .03em; }
+.estimate-glance strong { display: block; margin-top: 4px; font-size: 34px; line-height: 1.1; font-weight: 600; letter-spacing: -.06em; }
+.estimate-glance strong > span { font-size: 21px; font-weight: 450; margin-left: 2px; }
+.glance-tier { display: flex; flex-direction: column; align-items: flex-end; gap: 7px; }
+.glance-tier > span:last-child { color: rgb(var(--text-3)); font-size: 9px; max-width: 135px; text-align: right; line-height: 1.5; }
+.estimates-column [data-testid^="vessel-card-"] { border-radius: 13px; border-color: var(--border); padding: 14px; }
+.estimates-column [data-testid^="vessel-card-"]:hover { box-shadow: 0 4px 18px #0002; border-color: var(--border-strong); }
+.estimates-column [data-testid^="vessel-card-"][aria-pressed="true"] { border-color: rgb(var(--accent)); box-shadow: 0 0 0 1px rgb(var(--accent) / .35); }
+.estimates-column [data-testid^="vessel-card-"] .text-xl { font-size: 27px; letter-spacing: -.045em; }
+.estimates-column [data-testid^="vessel-card-"] .mt-0\.5 { margin-top: 5px; font-size: 10px; line-height: 1.6; }
+.estimates-column [data-testid^="vessel-card-"] ul { padding-top: 8px; border-top: 1px solid var(--border); margin-top: 10px; }
+.estimates-column [data-testid^="vessel-card-"] li { line-height: 1.5; }
+.risk-overview { border-radius: 12px; }
+.risk-overview > summary { padding: 13px 14px; }
+.section-title { letter-spacing: .09em; font-size: 10px; }
+.cardio-dashboard > footer { padding-top: 9px; padding-bottom: 9px; font-size: 10px; }
+.scroll-y { scrollbar-width: thin; scrollbar-color: rgb(var(--text-3) / .22) transparent; }
+[data-theme="light"] .overview-card { padding: 16px; border-radius: 14px; box-shadow: 0 5px 18px #51432d08; }
+[data-theme="light"] .overview-icon { border-radius: 10px; width: 36px; height: 36px; }
+[data-theme="light"] .overview-value { font-size: 27px; letter-spacing: -.04em; }
+[data-theme="light"] .estimates-column { box-shadow: 0 8px 22px #26272415; }
+@media (max-width: 1100px) {
+  .dashboard-columns { gap: 10px; padding-left: 10px; padding-right: 10px; }
+  .estimate-glance { padding: 12px; }
+  .estimates-column [data-testid^="vessel-card-"] { padding: 10px; }
+  .estimates-column [data-testid^="vessel-card-"] .text-xl { font-size: 23px; }
+}
+@media (max-width: 767px) {
+  .cardio-dashboard > header { height: 58px; padding-left: 8px; padding-right: 8px; }
+  .cardio-dashboard > header button[aria-label="Toggle patient overview"] { margin-right: 0; }
+  .dashboard-columns { padding: 0; gap: 0; }
+  .estimate-glance { margin: 12px; }
+  .patient-dock-content > .column-heading { padding-left: 10px; }
 }

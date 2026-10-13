@@ -4,7 +4,7 @@ import { GroupBreakdown, MeasurementTable } from "../explain/Breakdown";
 import { WhyPanel } from "../explain/WhyPanel";
 import { EmptyState } from "../onboarding/EmptyState";
 import { WhatIfPanel } from "../whatif/WhatIfPanel";
-import { SectionHeader } from "./parts";
+import { RiskTierChip, SectionHeader } from "./parts";
 import { RiskSummary } from "./RiskSummary";
 import { WhatChanged } from "./WhatChanged";
 import { VesselCards } from "./VesselCards";
@@ -35,8 +35,15 @@ export function ResultsPanel({ only }: { only?: "risk" | "why" | "whatif" }) {
         <div className="scroll-y min-h-0 flex-1" data-tour="results" aria-busy={pending}>
           {show("risk") && (
             <>
-              <SectionHeader title="Risk summary" />
-              <RiskSummary />
+              <div className="estimate-glance" aria-label="CAD estimate overview">
+                <div><span className="glance-label">Overall CAD estimate</span><strong className="num">{Math.round(prediction.scene.heart.cad_prob * 100)}<span>%</span></strong></div>
+                <div className="glance-tier"><RiskTierChip tier={prediction.scene.heart.risk_tier} /><span>Probability of coronary artery disease</span></div>
+              </div>
+              <VesselCards />
+              <details className="risk-overview" open={only === "risk"}>
+                <summary>CAD risk summary</summary>
+                <RiskSummary />
+              </details>
               <WhatChanged />
               {warnings.length > 0 && (
                 <ul className="mx-4 mb-3 space-y-1 rounded-md border border-line bg-s2 p-2 text-xs text-warn">
@@ -48,8 +55,6 @@ export function ResultsPanel({ only }: { only?: "risk" | "why" | "whatif" }) {
                   ))}
                 </ul>
               )}
-              <SectionHeader title="Arteries" />
-              <VesselCards />
             </>
           )}
           {show("why") && (

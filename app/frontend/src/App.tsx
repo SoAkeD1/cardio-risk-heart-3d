@@ -1,4 +1,7 @@
-import { lazy, Suspense, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { X } from "lucide-react";
+import { OpeningAnimation } from "./features/shell/OpeningAnimation";
+import { shouldShowOpening } from "./lib/openingSession";
 import { useAnatomyMap, useExamples, usePredictionSync, useSchema, useServiceRecovery, useWhatIfSync } from "./api/hooks";
 import { useNames } from "./lib/anatomy";
 import { useStore, type Val } from "./state/store";
@@ -17,7 +20,6 @@ import { Tour } from "./features/onboarding/Tour";
 import { DebugDrawer } from "./features/shell/DebugDrawer";
 import { ExportMenu } from "./features/report/ExportMenu";
 import { loadExample } from "./features/patient/SampleMenu";
-import { Sheet } from "./ui/Sheet";
 import { Fallback2D } from "./three/Fallback2D";
 import { installTestHooks } from "./test/hooks";
 
@@ -25,6 +27,8 @@ const Viewer = lazy(() => import("./three/Viewer"));
 const ModelCardDialog = lazy(() => import("./features/modelcard/ModelCardDialog"));
 
 export default function App() {
+  const [opening, setOpening] = useState(shouldShowOpening);
+  const finishOpening = useCallback(() => setOpening(false), []);
   useApplyTheme();
   usePredictionSync();
   useServiceRecovery();
@@ -103,12 +107,14 @@ export default function App() {
   const results = <ResultsPanel />;
 
   return (
-    <div className="flex h-full flex-col">
+    <>
+    {opening && <OpeningAnimation onComplete={finishOpening} />}
+    <div className="cardio-dashboard flex h-full flex-col" aria-hidden={opening || undefined}>
       <a href="#results" className="skip-link">
         Skip to results
       </a>
       <TopBar
-        showPanelToggle={layout !== "desktop" && layout !== "mobile"}
+        showPanelToggle
         onModelCard={() => setModelCard(true)}
         onShortcuts={() => setShortcuts(true)}
         onHelp={() => {
@@ -126,36 +132,44 @@ export default function App() {
         }}
       />
 
-      {layout === "mobile" ? (
-        <MobileTabs viewer={viewer} />
-      ) : (
-        <main className="flex min-h-0 flex-1">
-          {layout === "desktop" && (
-            <aside aria-label="Patient inputs" className="panel flex w-[340px] shrink-0 flex-col border-r">
-              {patient}
-            </aside>
-          )}
-          <section aria-label="3D heart viewer" className="relative min-w-0 flex-1" data-tour="canvas">
-            {viewer}
+      <main className="dashboard-columns flex min-h-0 flex-1">
+        <aside
+          id="patient-overview-sidebar"
+          aria-label="Patient overview"
+          aria-hidden={!ui.leftOpen}
+          {...(!ui.leftOpen ? { inert: "" } : {})}
+          className={`patient-dock${ui.leftOpen ? " patient-dock--open" : ""}`}
+        >
+          <div className="patient-dock-content">
+            <div className="column-heading">
+              <h2>Patient overview</h2>
+              <button aria-label="Close patient overview" className="rounded-md p-2 text-t2 hover:bg-s2" onClick={() => setUi({ leftOpen: false })}><X size={17} aria-hidden /></button>
+            </div>
+            {patient}
+          </div>
+        </aside>
+        {layout === "mobile" ? (
+          <div className="flex min-h-0 min-w-0 flex-1 flex-col"><MobileTabs viewer={viewer} /></div>
+        ) : (
+          <>
+          <section aria-label="3D heart viewer" className="viewer-column relative min-w-0 flex-1" data-tour="canvas">
+            <div className="column-heading"><h2>Cardiac visualization</h2></div>
+            <div className="heart-stage relative min-h-0 flex-1">{viewer}</div>
           </section>
           {(layout === "desktop" || layout === "laptop") && (
             <aside
               id="results"
               aria-label="Results"
-              className={`panel flex shrink-0 flex-col border-l ${layout === "desktop" ? "w-[380px]" : "w-[360px]"}`}
+              className={`estimates-column panel flex shrink-0 flex-col border-l ${layout === "desktop" ? "w-[380px]" : "w-[360px]"}`}
             >
+              <div className="column-heading"><h2>Artery estimates</h2><span className="heading-chip">{amap.data?.vessels.length ?? "—"} vessels</span></div>
               {results}
             </aside>
           )}
           {layout === "tablet" && <BottomSheet>{results}</BottomSheet>}
-        </main>
-      )}
-
-      {layout !== "desktop" && layout !== "mobile" && (
-        <Sheet open={ui.leftOpen} onOpenChange={(o) => setUi({ leftOpen: o })} title="Patient">
-          {patient}
-        </Sheet>
-      )}
+          </>
+        )}
+      </main>
 
       <DisclaimerStrip />
       <div id="live-region" aria-live="polite" className="sr-only" />
@@ -163,7 +177,7 @@ export default function App() {
 
       <Suspense fallback={null}>{modelCard && <ModelCardDialog open onOpenChange={setModelCard} />}</Suspense>
       <ShortcutSheet open={shortcuts} onOpenChange={setShortcuts} />
-      {tourOpen && (
+      {tourOpen && !opening && (
         <Tour
           onClose={() => {
             setTourOpen(false);
@@ -172,5 +186,6 @@ export default function App() {
         />
       )}
     </div>
+    </>
   );
 }

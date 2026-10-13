@@ -112,7 +112,7 @@ export const defaultView: ViewState = {
   performance: "auto",
   education: false,
 };
-const defaultUi: UiState = { theme: "dark", leftOpen: true, rightTab: "risk", tourDone: false, legendOpen: true };
+const defaultUi: UiState = { theme: "dark", leftOpen: false, rightTab: "risk", tourDone: false, legendOpen: true };
 const emptyWhatIf: WhatIf = { enabled: false, changes: {}, pending: false, showOnHeart: false, peek: false };
 
 export const useStore = create<State>()(
@@ -206,7 +206,7 @@ export const useStore = create<State>()(
         return {
           ...current,
           view: { ...current.view, ...(p.view ?? {}), turntable: false, education: false },
-          ui: { ...current.ui, ...(p.ui ?? {}) },
+          ui: { ...current.ui, ...(p.ui ?? {}), leftOpen: false },
         };
       },
     },

@@ -42,7 +42,7 @@ export function PatientPanel() {
   };
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
+    <div className="patient-controls flex min-h-0 flex-1 flex-col">
       <div className="shrink-0 space-y-2 border-b border-line p-3">
         <div className="flex items-center gap-2">
           <h2 className="flex-1 text-base font-semibold">Patient</h2>
@@ -104,6 +104,9 @@ export function PatientPanel() {
         <p className="px-4 py-3 text-xs text-t3">
           Dot = changed from the dataset default · Alt+click a label to reset it. Inputs stay in this browser tab only.
         </p>
+      </div>
+      <div className="patient-reset shrink-0 p-3">
+        <Button variant="secondary" onClick={reset} className="w-full"><RotateCcw aria-hidden className="h-4 w-4" />Reset measurements</Button>
       </div>
     </div>
   );

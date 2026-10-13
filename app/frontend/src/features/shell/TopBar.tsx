@@ -1,4 +1,4 @@
-import { BookOpen, CircleHelp, Keyboard, PanelLeft } from "lucide-react";
+import { BookOpen, CircleHelp, Keyboard, Menu } from "lucide-react";
 import type { ReactNode } from "react";
 import { useStore } from "../../state/store";
 import { Button } from "../../ui/Button";
@@ -21,11 +21,12 @@ export function TopBar({
   exportMenu: ReactNode;
 }) {
   const setUi = useStore((s) => s.setUi);
+  const leftOpen = useStore((s) => s.ui.leftOpen);
   return (
     <header className="flex h-14 shrink-0 items-center gap-0.5 border-b border-line bg-s1 px-2 sm:gap-3 sm:px-4">
       {showPanelToggle && (
-        <IconButton label="Patient inputs" onClick={() => setUi({ leftOpen: true })}>
-          <PanelLeft />
+        <IconButton label="Toggle patient overview" aria-expanded={leftOpen} aria-controls="patient-overview-sidebar" onClick={() => setUi({ leftOpen: !leftOpen })}>
+          <Menu />
         </IconButton>
       )}
       <Logo />

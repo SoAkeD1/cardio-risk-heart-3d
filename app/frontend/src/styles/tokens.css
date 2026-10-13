@@ -17,8 +17,8 @@
   --info: 122 167 224; /* #7AA7E0 */
   --warning: 217 178 106; /* #D9B26A */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.25);
-  --canvas-center: #3a3a3a;
-  --canvas-edge: #1e1e1e;
+  --canvas-center: #786d79;
+  --canvas-edge: #2b2a32;
   --on-accent: 15 16 18;
   color-scheme: dark;
 }
@@ -38,8 +38,8 @@
   --info: 46 94 156; /* #2E5E9C (AA on white) */
   --warning: 133 100 26; /* #85641A (AA on white) */
   --shadow: 0 1px 2px rgba(0, 0, 0, 0.06), 0 8px 24px rgba(0, 0, 0, 0.06);
-  --canvas-center: #f4f3f1;
-  --canvas-edge: #d6d3ce;
+  --canvas-center: #786d79;
+  --canvas-edge: #2b2a32;
   --on-accent: 255 255 255;
   color-scheme: light;
 }

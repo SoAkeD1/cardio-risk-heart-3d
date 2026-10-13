@@ -7,7 +7,7 @@ export function useApplyTheme() {
   const theme = useStore((s) => s.ui.theme);
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
-    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#0F1012" : "#F6F5F3");
+    document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#040c1b" : "#faf8f4");
   }, [theme]);
 }
 
