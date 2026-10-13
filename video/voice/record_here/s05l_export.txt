@@ -1,0 +1,5 @@
+Scene s05l_export: Export
+Target length: about 8 s (calm pace, ~145 words/min)
+Save your recording as: s05l_export.wav (this folder)
+
+Export a PDF report, with the disclaimer on every page, copy a plain summary, or save a screenshot.

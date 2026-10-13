@@ -1,0 +1,5 @@
+Scene s05e_changed: What changed
+Target length: about 5 s (calm pace, ~145 words/min)
+Save your recording as: s05e_changed.wav (this folder)
+
+The What changed panel lists every edit, and any of them can be reverted.

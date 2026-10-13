@@ -3,6 +3,7 @@
 // Vite dev server at it, and assert that the UI shows the changed values with zero frontend code changes.
 // The real artifacts/ directory is never modified; the temp copy is deleted afterwards.
 import { expect, test } from "@playwright/test";
+import { openPatientPanel } from "./helpers";
 import { spawn, execSync, type ChildProcess } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
@@ -109,6 +110,7 @@ test("changed artifacts show up in the UI with zero frontend code changes", asyn
     { timeout: 60_000 },
   );
   // 3. feature label from feature_schema.json
+  await openPatientPanel(page);
   await page.getByRole("searchbox", { name: "Search measurements" }).fill("proof label");
   await expect(page.getByText(NEW_LABEL).first()).toBeVisible();
 });

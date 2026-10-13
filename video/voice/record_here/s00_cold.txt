@@ -1,0 +1,5 @@
+Scene s00_cold: Cold open
+Target length: about 10 s (calm pace, ~145 words/min)
+Save your recording as: s00_cold.wav (this folder)
+
+This is CardioLens. Routine clinical data goes in, and a 3D heart shows where coronary risk is likely to be, artery by artery.

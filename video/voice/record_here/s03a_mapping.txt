@@ -1,0 +1,5 @@
+Scene s03a_mapping: From probability to picture
+Target length: about 24 s (calm pace, ~145 words/min)
+Save your recording as: s03a_mapping.wav (this folder)
+
+How does a probability become a picture? One anatomy map holds every mesh name, colour and label, and a pure function turns each prediction into a render-ready scene. Colour shows probability, on one shared scale that is safe for colour-blind viewers. Crossing a threshold adds an outline and a pulse, and every estimate carries a reliability badge.

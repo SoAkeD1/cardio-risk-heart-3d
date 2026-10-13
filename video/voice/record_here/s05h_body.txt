@@ -1,0 +1,5 @@
+Scene s05h_body: Body mode and territories
+Target length: about 11 s (calm pace, ~145 words/min)
+Save your recording as: s05h_body.wav (this folder)
+
+Body mode places the heart in a torso, with an x-ray slider, and highlights where contributing factors live. Territories show what each artery typically supplies.

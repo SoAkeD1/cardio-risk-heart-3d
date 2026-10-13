@@ -1,0 +1,5 @@
+Scene s05k_modelcard: Model card
+Target length: about 13 s (calm pace, ~145 words/min)
+Save your recording as: s05k_modelcard.wav (this folder)
+
+The model card is our honesty page: hold-out metrics with intervals, validation, thresholds, calibration, and limitations. It also shows how each sample patient actually turned out.

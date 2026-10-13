@@ -4,6 +4,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import type { PredictOut, Target, Vessel, WhatIfOut } from "../api/types";
 import { safeStorage } from "../lib/storage";
+import { layoutFor } from "../lib/useBreakpoint";
 
 export type Val = number | string;
 export type Preset = string; // a view key from anatomy_map.viewer.views
@@ -112,7 +113,10 @@ export const defaultView: ViewState = {
   performance: "auto",
   education: false,
 };
-const defaultUi: UiState = { theme: "dark", leftOpen: false, rightTab: "risk", tourDone: false, legendOpen: true };
+/** The patient overview starts open on desktop/laptop (three columns) so the inputs are visible at a glance;
+ *  on tablets and phones it would squeeze the 3D view, so it starts closed there. Either way ☰ toggles it. */
+const dockOpenByDefault = () => typeof window !== "undefined" && layoutFor(window.innerWidth) === "desktop";
+const defaultUi: UiState = { theme: "dark", leftOpen: dockOpenByDefault(), rightTab: "risk", tourDone: false, legendOpen: true };
 const emptyWhatIf: WhatIf = { enabled: false, changes: {}, pending: false, showOnHeart: false, peek: false };
 
 export const useStore = create<State>()(
@@ -206,7 +210,7 @@ export const useStore = create<State>()(
         return {
           ...current,
           view: { ...current.view, ...(p.view ?? {}), turntable: false, education: false },
-          ui: { ...current.ui, ...(p.ui ?? {}), leftOpen: false },
+          ui: { ...current.ui, ...(p.ui ?? {}), leftOpen: dockOpenByDefault() },
         };
       },
     },

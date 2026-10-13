@@ -1,0 +1,5 @@
+Scene s05f_3d: 3D interaction
+Target length: about 18 s (calm pace, ~145 words/min)
+Save your recording as: s05f_3d.wav (this folder)
+
+Now the 3D view, requirement 2. Rotate, zoom, and hover an artery to see its probability, threshold and reliability. Click it, and the camera flies there. The card and the explanation follow the selection. The left main says plainly: not modelled.

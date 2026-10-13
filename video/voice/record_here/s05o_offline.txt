@@ -1,0 +1,5 @@
+Scene s05o_offline: Offline and shortcuts
+Target length: about 9 s (calm pace, ~145 words/min)
+Save your recording as: s05o_offline.wav (this folder)
+
+If the server drops, a banner explains it, the last result stays, and the app reconnects by itself. And every shortcut is one key away.

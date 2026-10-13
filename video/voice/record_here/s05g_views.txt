@@ -1,0 +1,5 @@
+Scene s05g_views: Views and looks
+Target length: about 17 s (calm pace, ~145 words/min)
+Save your recording as: s05g_views.wav (this folder)
+
+There are view presets, a realistic or clinical look, a gentle heartbeat, and a turntable. The legend marks each artery's threshold on the colour scale. Reset, full screen, a screenshot button, and an automatic quality switch are always at hand.

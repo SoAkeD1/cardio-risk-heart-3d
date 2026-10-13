@@ -1,0 +1,5 @@
+Scene s05i_why: Why?
+Target length: about 16 s (calm pace, ~145 words/min)
+Save your recording as: s05i_why.wav (this folder)
+
+Why is requirement 3b: a SHAP waterfall in probability points, for CAD and for each artery. The breakdown groups the reasons, and the table puts each measurement beside its typical range and contribution. That's 3c.

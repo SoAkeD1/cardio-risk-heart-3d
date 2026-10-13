@@ -1,0 +1,269 @@
+{
+ "dataset": {
+  "name": "Extension of Z-Alizadeh Sani",
+  "uci": 411,
+  "n": 303,
+  "features": 55,
+  "holdout": 61,
+  "train": 242,
+  "prevalence": [
+   {
+    "k": "CAD",
+    "pos": 216
+   },
+   {
+    "k": "LAD",
+    "pos": 177
+   },
+   {
+    "k": "LCX",
+    "pos": 119
+   },
+   {
+    "k": "RCA",
+    "pos": 114
+   }
+  ]
+ },
+ "validation": {
+  "holdout": 0.2,
+  "outer_cv": "5x5 repeated stratified",
+  "inner_cv": "3-fold Optuna (30 trials)",
+  "bootstrap": 1000
+ },
+ "tabpfn": "TabPFN requires a one-time license acceptance to download",
+ "results": [
+  {
+   "key": "cad",
+   "name": "CAD",
+   "model": "stack(svm+lr+xgb)",
+   "auc": 0.895,
+   "lo": 0.806,
+   "hi": 0.966,
+   "acc": 0.852,
+   "prec": 0.827,
+   "rec": 1.0,
+   "f1": 0.905,
+   "brier": 0.118,
+   "cv": "0.946 ± 0.035"
+  },
+  {
+   "key": "lad",
+   "name": "LAD",
+   "model": "svm",
+   "auc": 0.832,
+   "lo": 0.725,
+   "hi": 0.93,
+   "acc": 0.754,
+   "prec": 0.721,
+   "rec": 0.912,
+   "f1": 0.805,
+   "brier": 0.166,
+   "cv": "0.869 ± 0.053"
+  },
+  {
+   "key": "lcx",
+   "name": "LCX",
+   "model": "rf",
+   "auc": 0.768,
+   "lo": 0.647,
+   "hi": 0.878,
+   "acc": 0.672,
+   "prec": 0.568,
+   "rec": 0.962,
+   "f1": 0.714,
+   "brier": 0.193,
+   "cv": "0.740 ± 0.069"
+  },
+  {
+   "key": "rca",
+   "name": "RCA",
+   "model": "vote(lr+svm+et)",
+   "auc": 0.741,
+   "lo": 0.598,
+   "hi": 0.868,
+   "acc": 0.623,
+   "prec": 0.459,
+   "rec": 0.85,
+   "f1": 0.596,
+   "brier": 0.191,
+   "cv": "0.737 ± 0.054"
+  }
+ ],
+ "thresholds": {
+  "cad": 0.195,
+  "lad": 0.465,
+  "lcx": 0.29,
+  "rca": 0.275
+ },
+ "cad_tier_observed": {
+  "High": 0.953,
+  "Low": 0.171,
+  "Moderate": 0.562
+ },
+ "tiers": {
+  "low": 0.077,
+  "high": 0.82
+ },
+ "strategies": [
+  {
+   "k": "A",
+   "name": "Independent",
+   "auc": 0.783
+  },
+  {
+   "k": "B",
+   "name": "Classifier chain",
+   "auc": 0.786
+  },
+  {
+   "k": "C",
+   "name": "Hierarchical P(CAD)·P(vessel|CAD)",
+   "auc": 0.773
+  }
+ ],
+ "lime_overlap": 3.1,
+ "latency_ms": {
+  "mean": 149,
+  "p95": 150
+ },
+ "colour_stops": [
+  [
+   0.0,
+   "#E8E2D8"
+  ],
+  [
+   0.3,
+   "#F2B45A"
+  ],
+  [
+   0.6,
+   "#E4572E"
+  ],
+  [
+   1.0,
+   "#8E1B1B"
+  ]
+ ],
+ "reliability_rule": [
+  {
+   "badge": "High",
+   "min_auc": 0.85
+  },
+  {
+   "badge": "Moderate",
+   "min_auc": 0.75
+  },
+  {
+   "badge": "Limited",
+   "min_auc": 0.0
+  }
+ ],
+ "asset": {
+  "full_tris": 107649,
+  "lite_tris": 45507,
+  "full_mb": 1.58,
+  "lite_mb": 0.6,
+  "base_to_apex_cm": 12,
+  "lm_mm": 10.0
+ },
+ "tests": {
+  "pytest": 49,
+  "vitest": 22,
+  "playwright": 34
+ },
+ "quality": {
+  "fps_full": 59.5,
+  "fps_lite": 58.7,
+  "axe_serious": 0,
+  "lighthouse": {
+   "performance": 88,
+   "accessibility": 100,
+   "best-practices": 100,
+   "seo": 100
+  }
+ },
+ "endpoints": [
+  "/api/anatomy-map",
+  "/api/education",
+  "/api/examples",
+  "/api/health",
+  "/api/model-card",
+  "/api/predict",
+  "/api/schema",
+  "/api/sensitivity",
+  "/api/viewer-look",
+  "/api/what-if"
+ ],
+ "ps_table": [
+  {
+   "ref": "1a–e",
+   "req": "Models, leakage rule, metrics",
+   "where": "Steps 1–4 (cardio_ml/, artifacts/metrics.json); surfaced in the Model card (hold-out metrics with 95% CIs, nested CV, calibration); the API rejects label columns (400)"
+  },
+  {
+   "ref": "2a",
+   "req": "Interactive 3D torso/heart (R3F)",
+   "where": "app/frontend/src/three/ (React Three Fiber viewer, heart + body mode)"
+  },
+  {
+   "ref": "2b",
+   "req": "LAD/LCX/RCA colours update from probabilities",
+   "where": "useSceneBinding.ts copies scene_state colours (e2e: equal to the API ±1/255)"
+  },
+  {
+   "ref": "2c",
+   "req": "Rotate / zoom / select → vessel risk detail",
+   "where": "OrbitControls, picking + tooltips, fly-to anchors, vessel cards (two-way selection)"
+  },
+  {
+   "ref": "3a",
+   "req": "CAD status + vessel probabilities beside the canvas",
+   "where": "Right panel: risk summary + vessel cards"
+  },
+  {
+   "ref": "3b",
+   "req": "Interpretable breakdown (SHAP)",
+   "where": "\"Why?\" section: SHAP waterfall for CAD / LAD / LCX / RCA"
+  },
+  {
+   "ref": "3c",
+   "req": "Measurements + relative contribution",
+   "where": "Physiological breakdown (6 groups) + sortable measurement table with typical ranges"
+  },
+  {
+   "ref": "4a",
+   "req": "Open-source meshes",
+   "where": "Sketchfab \"Realistic Human Heart\" (CC BY 4.0), credited in the UI, model card, PDF and GLB"
+  },
+  {
+   "ref": "5",
+   "req": "Visible disclaimer",
+   "where": "Persistent, non-dismissible strip; every PDF page; model card"
+  },
+  {
+   "ref": "Tech",
+   "req": "No dedicated GPU needed",
+   "where": "lite model (auto on low-memory/touch), performance mode, demand frame loop"
+  },
+  {
+   "ref": "Tech",
+   "req": "Extensible",
+   "where": "schema-driven UI, anatomy_map-driven 3D, model registry in cardio_ml"
+  },
+  {
+   "ref": "Tech",
+   "req": "Consistent correspondence",
+   "where": "mesh names / colours only from scene_state + anatomy_map"
+  }
+ ],
+ "credits": {
+  "dataset": "Alizadehsani R., Roshanzamir M., Sani Z. Extension of Z-Alizadeh Sani. UCI ML Repository, id 411 (2017)",
+  "heart": "This work is based on \"Realistic Human Heart\" (https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089) by neshallads (https://sketchfab.com/neshallads) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)",
+  "hdri": "HDRI: Poly Haven (CC0)"
+ },
+ "disclaimer": "For decision support and educational purposes only. Not a substitute for formal diagnostic imaging or clinical judgement.",
+ "live": "https://havoc-rho.vercel.app",
+ "repo": "https://github.com/SoAkeD1/cardio-risk-heart-3d",
+ "report_pages": 1
+}

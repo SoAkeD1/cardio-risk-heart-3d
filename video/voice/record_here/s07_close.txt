@@ -1,0 +1,5 @@
+Scene s07_close: Limits and close
+Target length: about 28 s (calm pace, ~145 words/min)
+Save your recording as: s07_close.wav (this folder)
+
+Finally, the limits. This is one hospital's data, 303 patients, with no external validation and no lesion location, and the RCA model is only of limited reliability. CardioLens is for decision support and education only. It is not a substitute for diagnostic imaging or clinical judgement. Thanks to the dataset authors, to neshallads for the heart, and to Poly Haven. From Team HAVOC, thank you.

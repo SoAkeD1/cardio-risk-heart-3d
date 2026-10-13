@@ -1,0 +1,5 @@
+Scene s05b_samples: Sample patients
+Target length: about 11 s (calm pace, ~145 words/min)
+Save your recording as: s05b_samples.wav (this folder)
+
+Sample patients are one click away: six real hold-out patients, from clearly low risk to a deliberate uncertainty example. Each one also has its own link.

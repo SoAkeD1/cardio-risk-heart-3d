@@ -1,0 +1,5 @@
+Scene s06c_deploy: Deployment
+Target length: about 10 s (calm pace, ~145 words/min)
+Save your recording as: s06c_deploy.wav (this folder)
+
+It's live on Vercel, at havoc-rho dot vercel dot app. It also runs in Docker, from a one-click Windows launcher, and everything rebuilds from one command.

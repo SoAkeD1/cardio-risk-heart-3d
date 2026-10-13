@@ -1,0 +1,5 @@
+Scene s02c_models: Models, strategies, calibration
+Target length: about 22 s (calm pace, ~145 words/min)
+Save your recording as: s02c_models.wav (this folder)
+
+Nine model families were compared for every target, from logistic regression to boosting and stacked ensembles. For the arteries, independent models did as well as chained or hierarchical ones, so we kept the simplest. Every model is calibrated, so eighty percent means about eight in ten, with tuned thresholds and three risk tiers.

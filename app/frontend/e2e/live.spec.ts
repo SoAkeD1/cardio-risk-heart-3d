@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import { execSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { freshApp, waitForColours } from "./helpers";
+import { freshApp, waitForColours, openPatientPanel } from "./helpers";
 
 const FIG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../artifacts/figures");
 test.beforeEach(() => test.skip(test.info().project.name !== "desktop", "live-response tests run on the desktop profile"));
@@ -16,6 +16,7 @@ async function loadCase(page: Page, id: string) {
 }
 
 async function reveal(page: Page, label: string) {
+  await openPatientPanel(page);
   await page.getByRole("searchbox", { name: "Search measurements" }).fill(label);
 }
 
@@ -129,6 +130,7 @@ test("backend killed -> banner + stale badge -> restarted automatically -> banne
   await box.fill("150");
   await box.press("Enter");
   await expect(page.getByText(/Can't reach the CardioLens server/)).toBeVisible({ timeout: 20_000 });
+  await page.locator("summary", { hasText: "CAD risk summary" }).click(); // the stale badge lives in the (collapsed) summary
   await expect(page.getByTestId("stale-badge")).toBeVisible();
   await page.screenshot({ path: path.join(FIG, "app_stale_state.png") });
   // dev.py's watchdog restarts the API; the app re-checks health every 3 s, clears the banner and re-sends

@@ -1,0 +1,19 @@
+# reproducible / large: rebuilt by `python video/make_video.py`
+node_modules/
+editor/node_modules/
+editor/public/
+raw/
+voice/ai/
+voice/out/
+out/*.mp4
+qa/frames/
+qa/lighthouse.report.*
+test-results/
+capture/explore.mjs
+capture/probe.mjs
+capture/overflow.mjs
+.tts-venv/
+voice/clone/
+voice/record_here/*.wav
+voice/record_here/*.timing.json
+out/render_log.txt

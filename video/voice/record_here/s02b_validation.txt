@@ -1,0 +1,5 @@
+Scene s02b_validation: Features and validation
+Target length: about 18 s (calm pace, ~145 words/min)
+Save your recording as: s02b_validation.wav (this folder)
+
+We add clinical features, such as a pretest probability, kidney function and lipid ratios. Twenty percent of patients are held out until the very end. The rest go through five-by-five cross-validation with nested tuning, and confidence intervals come from a thousand bootstrap resamples.

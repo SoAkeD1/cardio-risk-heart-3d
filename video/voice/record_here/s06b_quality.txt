@@ -1,0 +1,5 @@
+Scene s06b_quality: Quality
+Target length: about 23 s (calm pace, ~145 words/min)
+Save your recording as: s06b_quality.wav (this folder)
+
+Everything is tested: 49 Python tests, 22 unit tests, and 34 browser tests, including one that checks every artery's rendered colour against the API. Accessibility scans find no serious issues, the viewer runs near 60 frames per second, and Lighthouse scores 88 for performance and 100 for accessibility.

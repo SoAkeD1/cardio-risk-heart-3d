@@ -1,0 +1,2 @@
+$ python scripts/check_no_hardcoding.py
+check_no_hardcoding: OK (no hardcoded data in app/frontend/src)

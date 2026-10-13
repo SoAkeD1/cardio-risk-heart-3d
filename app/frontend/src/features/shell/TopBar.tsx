@@ -46,9 +46,12 @@ export function TopBar({
       </div>
       {exportMenu}
       <ThemeToggle />
-      <IconButton label="Help: replay the tour" onClick={onHelp}>
-        <CircleHelp />
-      </IconButton>
+      {/* below 360 px the panel toggle + logo + actions don't fit: the tour replay is the least essential */}
+      <div className="max-[359px]:hidden">
+        <IconButton label="Help: replay the tour" onClick={onHelp}>
+          <CircleHelp />
+        </IconButton>
+      </div>
       <div className="hidden lg:block">
         <IconButton label="Keyboard shortcuts" shortcut="?" onClick={onShortcuts}>
           <Keyboard />

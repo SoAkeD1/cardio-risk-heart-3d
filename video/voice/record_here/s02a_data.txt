@@ -1,0 +1,5 @@
+Scene s02a_data: Dataset and leakage rule
+Target length: about 27 s (calm pace, ~145 words/min)
+Save your recording as: s02a_data.wav (this folder)
+
+We used the extension of the Z-Alizadeh Sani dataset from UCI: 303 patients, 55 features, and four targets: CAD, plus the LAD, LCX and RCA arteries. No values were missing, and a constant column was dropped. The label columns are never model inputs. That's asserted before every fit, and the API rejects them: requirement 1d.
