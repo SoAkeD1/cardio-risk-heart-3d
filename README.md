@@ -8,7 +8,7 @@ interactive 3D heart**, with the reasons why and what-if exploration. Decision s
 **Live website:** [havoc · CardioLens](https://havoc-rho.vercel.app/) ·
 [Open the LAD sample](https://havoc-rho.vercel.app/?case=lad)
 
-![Current CardioLens dashboard: dark theme, unchanged 3D heart and artery estimates](docs/images/cardiolens-dark-dashboard.png)
+![Current CardioLens dashboard: open patient sidebar, dark theme, unchanged 3D heart and artery estimates](docs/images/cardiolens-dark-dashboard.png)
 
 The current interface includes dark and light themes, a smoothly expanding patient sidebar,
 a resizable cardiac viewer, and a two-second opening animation that plays once per browser-tab session.
