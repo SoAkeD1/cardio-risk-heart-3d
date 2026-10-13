@@ -354,7 +354,7 @@ export class Director {
     fs.writeFileSync(list, lines.join("\n"));
     const out = path.join(VIDEO, "raw", `${this.clip}.mp4`);
     execFileSync("ffmpeg", ["-v", "error", "-y", "-f", "concat", "-safe", "0", "-i", list, "-vf", "fps=30,format=yuv420p",
-      "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-movflags", "+faststart", out]);
+      "-c:v", "libx264", "-preset", "slow", "-crf", "14", "-bf", "0", "-g", "15", "-movflags", "+faststart", out]); // no B-frames + short GOP: exact seeking at any playback rate
     const meta = {
       id: this.id, clip: this.clip, file: `raw/${this.clip}.mp4`, handle: HANDLE, lead: this.lead, tail: this.tail,
       voice: this.voice.duration, length: +this.length.toFixed(3), frames: fr.length, marks: this.marks,

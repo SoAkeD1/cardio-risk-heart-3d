@@ -24,19 +24,19 @@ TypeScript · three.js · React Three Fiber · Blender (asset build) · Vercel (
 
 ## Chapters
 0:00 Cold open
-0:15 The problem
-0:47 Data & machine learning
-2:27 From prediction to anatomy
-3:14 Building the 3D heart
-4:01 The app
-7:51 Engineering & quality
-8:49 Honesty & close
+0:13 The problem
+0:43 Data & machine learning
+2:03 From prediction to anatomy
+2:48 Building the 3D heart
+3:30 The app
+7:08 Engineering & quality
+7:59 Honesty & close
 
 ## Credits & licences
 - Dataset: Alizadehsani R., Roshanzamir M., Sani Z. Extension of Z-Alizadeh Sani. UCI ML Repository, id 411 (2017). DOI 10.24432/C5Q31M.
 - 3D heart: This work is based on "Realistic Human Heart" (https://sketchfab.com/3d-models/realistic-human-heart-3f8072336ce94d18b3d0d055a1ece089) by neshallads (https://sketchfab.com/neshallads) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 - HDRI: Poly Haven (CC0)
-- Narration: AI voice (Microsoft Edge neural TTS, en-US-AndrewNeural). No music.
+- Narration: recorded by the presenter (Team HAVOC). No music.
 
 ## Disclaimer
 For decision support and educational purposes only. Not a substitute for formal diagnostic imaging or clinical judgement.

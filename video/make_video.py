@@ -89,6 +89,8 @@ def main() -> None:
     if not health():
         sys.exit("The app is not running on http://localhost:8000 (see the docstring).")
 
+    if a.own_voice and (VIDEO / "voice" / "clone" / "transcript.json").exists():
+        run([PY, "video/pipeline/split_own.py"])  # one continuous reading -> per-scene WAVs with real word timings
     run([PY, "video/pipeline/tts.py", *(["--own"] if a.own_voice else [])])
     if not a.skip_capture:
         run([NPX, "playwright", "test", "-c", "capture/playwright.config.ts"], cwd=VIDEO)
@@ -96,7 +98,7 @@ def main() -> None:
         terminals()
     if BLENDER and not (VIDEO / "assets" / "procedural_front.png").exists():
         run([BLENDER, "-b", "--factory-startup", "-P", "video/pipeline/render_procedural.py"])
-    run([PY, "video/pipeline/assemble.py"])
+    run([PY, "video/pipeline/assemble.py", *(["--pad", "0.6"] if a.own_voice else [])])
     raw = OUT / "master_raw.mp4"
     run([NPX, "remotion", "render", "src/index.ts", "Master", str(raw), "--codec=h264", "--crf=16", "--audio-bitrate=320k",
          "--pixel-format=yuv420p", "--x264-preset=slow"], cwd=VIDEO / "editor")

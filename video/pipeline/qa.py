@@ -102,7 +102,8 @@ def audio(duration: float) -> dict:
                        capture_output=True, text=True)
     sil = [(float(a), float(b)) for a, b in re.findall(r"silence_start: ([\d.]+)[\s\S]*?silence_end: ([\d.]+)", r.stderr)]
     end_card = duration - 6.5
-    bad = [(a, b) for a, b in sil if not (b <= 5.0 or a >= end_card)]
+    cold = TL['scenes'][0]['lead'] + 0.6  # the silent cold open (the app's opening animation) is intended
+    bad = [(a, b) for a, b in sil if not (b <= cold or a >= end_card)]
     return {"lufs": i, "true_peak": tp, "long_silences": bad}
 
 
@@ -119,6 +120,8 @@ def youtube(chs: list[tuple[float, str]]) -> None:
     r = {x["key"]: x for x in d["results"]}
     title = "CardioLens: cardiac risk on an interactive 3D heart · Team HAVOC"
     assert len(title) <= 70, len(title)
+    srcs = {json.loads(p.read_text(encoding="utf-8")).get("source", "") for p in (VIDEO / "voice" / "out").glob("*.json")}
+    narr = "recorded by the presenter (Team HAVOC)" if srcs == {"own"} else "AI voice (Microsoft Edge neural TTS, en-US-AndrewNeural)"
     body = f"""# {title}
 
 **Title ({len(title)} chars):** {title}
@@ -150,7 +153,7 @@ TypeScript · three.js · React Three Fiber · Blender (asset build) · Vercel (
 - Dataset: {d['credits']['dataset']}. DOI 10.24432/C5Q31M.
 - 3D heart: {d['credits']['heart']}
 - {d['credits']['hdri']}
-- Narration: AI voice (Microsoft Edge neural TTS, en-US-AndrewNeural). No music.
+- Narration: {narr}. No music.
 
 ## Disclaimer
 {d['disclaimer']}

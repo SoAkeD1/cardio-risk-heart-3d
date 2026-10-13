@@ -7,7 +7,7 @@
   "height": 1080,
   "pix_fmt": "yuv420p",
   "r_frame_rate": "30/1",
-  "bit_rate": "1792493",
+  "bit_rate": "2053928",
   "side_data_list": [
    {}
   ]
@@ -16,7 +16,7 @@
   "codec_name": "aac",
   "profile": "LC",
   "r_frame_rate": "0/0",
-  "bit_rate": "161861"
+  "bit_rate": "156389"
  },
  "chapters": [
   [
@@ -24,38 +24,38 @@
    "Cold open"
   ],
   [
-   "0:15",
+   "0:13",
    "The problem"
   ],
   [
-   "0:47",
+   "0:43",
    "Data & machine learning"
   ],
   [
-   "2:27",
+   "2:03",
    "From prediction to anatomy"
   ],
   [
-   "3:14",
+   "2:48",
    "Building the 3D heart"
   ],
   [
-   "4:01",
+   "3:30",
    "The app"
   ],
   [
-   "7:51",
+   "7:08",
    "Engineering & quality"
   ],
   [
-   "8:49",
+   "7:59",
    "Honesty & close"
   ]
  ],
  "gates": {
   "1 duration 8:30-9:45": {
    "pass": true,
-   "value": "9:25 (565.7 s)"
+   "value": "8:32 (512.0 s)"
   },
   "2 coverage A/B": {
    "pass": true,
@@ -67,7 +67,7 @@
   },
   "4 true peak <= -1 dBTP": {
    "pass": true,
-   "value": "-1.4 dBTP"
+   "value": "-1.5 dBTP"
   },
   "4 no silence > 4 s": {
    "pass": true,

@@ -11,6 +11,7 @@ from __future__ import annotations
 import json
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -185,9 +186,17 @@ def data_gen() -> dict:
 
 
 def main() -> None:
+    import argparse
     import urllib.request
 
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pad", type=float, default=0.0,
+                    help="extra seconds after each scene that is not the last of its chapter (a faster own-voice read)")
+    args = ap.parse_args()
     scenes = parse()
+    for i, sc in enumerate(scenes):
+        if args.pad and i + 1 < len(scenes) and scenes[i + 1].chapter == sc.chapter:
+            sc.tail += args.pad
     (ED / "src").mkdir(parents=True, exist_ok=True)
     # ------------- data
     data = data_gen()
@@ -249,8 +258,18 @@ def main() -> None:
                 # own-voice recordings change the scene length: play the clip slightly faster/slower to fit
                 rate = max(0.8, min(1.25, cm["length"] / length))
                 marks = [{**mk, "t": round(mk["t"] / rate, 3)} for mk in cm["marks"]]
-                clips.append({"clip": cm["clip"], "src": f"clips/{Path(cm['file']).name}", "handle": cm["handle"],
-                              "marks": marks, "length": cm["length"], "rate": round(rate, 4)})
+                src, handle = f"clips/{Path(cm['file']).name}", cm["handle"]
+                if abs(rate - 1) > 0.005:
+                    # pre-time the clip with ffmpeg (Remotion's frame lookup is unreliable at non-1.0 playback rates)
+                    name_r = f"{cm['clip']}_x{rate:.4f}.mp4"
+                    dst = PUB / "clips" / name_r
+                    if not dst.exists() or dst.stat().st_mtime < (VIDEO / cm["file"]).stat().st_mtime:
+                        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(VIDEO / cm["file"]), "-vf",
+                                        f"setpts=(PTS-STARTPTS)/{rate:.6f},fps=30", "-c:v", "libx264", "-preset", "medium",
+                                        "-crf", "14", "-bf", "0", "-g", "15", "-pix_fmt", "yuv420p", "-an", str(dst)], check=True)
+                    src, handle = f"clips/{name_r}", cm["handle"] / rate
+                clips.append({"clip": cm["clip"], "src": src, "handle": round(handle, 4),
+                              "marks": marks, "length": round(cm["length"] / rate, 3), "rate": 1})
         caps = captions_for(v.get("text") or sc.text, v["words"], sc.lead)
         out.append({
             "id": sc.id, "title": sc.title, "chapter": sc.chapter, "kind": kind, "name": name,

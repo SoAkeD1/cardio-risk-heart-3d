@@ -52,23 +52,38 @@ async def synth(text: str, mp3: Path) -> list:
     raise RuntimeError("TTS failed")
 
 
+# own voice: the presenter's opening line, cut straight from their reading (record_here/s00_cold.wav)
+SCRIPT_OWN = ("{heart}This is CardioLens. Routine clinical data goes in, and a 3D heart shows where coronary risk is "
+              "likely to be, {lad}artery by artery.")
+
+
 def main() -> None:
+    import shutil
+
+    own = "--own" in sys.argv
+    script = SCRIPT_OWN if own else SCRIPT
     cues, out, pos = {}, [], 0
-    for m in re.finditer(r"\{(\w+)\}", SCRIPT):
-        out.append(SCRIPT[pos:m.start()])
+    for m in re.finditer(r"\{(\w+)\}", script):
+        out.append(script[pos:m.start()])
         cues[m.group(1)] = len("".join(out))
         pos = m.end()
-    out.append(SCRIPT[pos:])
+    out.append(script[pos:])
     text = re.sub(r"\s+", " ", "".join(out)).strip()
 
-    tmp = VIDEO / "voice" / "ai"
-    tmp.mkdir(parents=True, exist_ok=True)
-    mp3 = tmp / "intro.mp3"
-    words = asyncio.run(synth(text, mp3))
     (PUB / "voice").mkdir(parents=True, exist_ok=True)
-    subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(mp3), "-ar", "48000", "-ac", "1", str(PUB / "voice" / "intro.wav")], check=True)
-    dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(mp3)],
-                               capture_output=True, text=True, check=True).stdout)
+    if own:
+        v = json.loads((VIDEO / "voice" / "out" / "s00_cold.json").read_text(encoding="utf-8"))
+        assert v.get("source") == "own", "run tts.py --own first"
+        shutil.copy2(VIDEO / "voice" / "out" / "s00_cold.wav", PUB / "voice" / "intro.wav")
+        words, dur = v["words"], v["duration"]
+    else:
+        tmp = VIDEO / "voice" / "ai"
+        tmp.mkdir(parents=True, exist_ok=True)
+        mp3 = tmp / "intro.mp3"
+        words = asyncio.run(synth(text, mp3))
+        subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(mp3), "-ar", "48000", "-ac", "1", str(PUB / "voice" / "intro.wav")], check=True)
+        dur = float(subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(mp3)],
+                                   capture_output=True, text=True, check=True).stdout)
 
     # cue -> time of the first word at/after the cue's character offset (picture time = LEAD + voice time)
     starts, p = [], 0
@@ -78,7 +93,12 @@ def main() -> None:
         p = (i + len(w[2])) if i >= 0 else p
     ct = {n: LEAD + next(w[0] for w, c in zip(words, starts) if c >= off) for n, off in cues.items()}
     ct["heart"] = 0.0
-    end_card = min(TOTAL - 2.0, LEAD + dur + 0.45)
+    if own:  # one sentence of voice: the last two shots follow it, carried by their lower-thirds
+        ct["why"] = LEAD + dur + 0.25
+        ct["live"] = ct["why"] + (TOTAL - 2.0 - ct["why"]) / 2
+        end_card = TOTAL - 2.0
+    else:
+        end_card = min(TOTAL - 2.0, LEAD + dur + 0.45)
     shots = []
     for i, (cue, clip, (mark, off), lower, zoom) in enumerate(SHOTS):
         meta = json.loads((VIDEO / "raw" / f"{clip}.json").read_text(encoding="utf-8"))

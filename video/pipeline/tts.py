@@ -99,9 +99,14 @@ def main() -> None:
         if a.own and own.exists():
             clean_own(own, wav)
             d = probe_duration(wav)
-            k = d / m["duration"]
-            info = {"duration": round(d, 3), "cues": {n: round(t * k, 3) for n, t in m["cues"].items()},
-                    "words": [[s * k, e * k, w] for s, e, w in m["words"]], "source": "own"}
+            timing = REC / f"{sc.id}.timing.json"  # real word timings (split_own.py) beat proportional re-mapping
+            if timing.exists():
+                tj = json.loads(timing.read_text(encoding="utf-8"))
+                info = {"duration": round(d, 3), "cues": tj["cues"], "words": tj["words"], "source": "own"}
+            else:
+                k = d / m["duration"]
+                info = {"duration": round(d, 3), "cues": {n: round(t * k, 3) for n, t in m["cues"].items()},
+                        "words": [[s * k, e * k, w] for s, e, w in m["words"]], "source": "own"}
         else:
             subprocess.run(["ffmpeg", "-v", "error", "-y", "-i", str(AI / f"{sc.id}.mp3"), "-ar", "48000", "-ac", "1",
                             str(wav)], check=True)

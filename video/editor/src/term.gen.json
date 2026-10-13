@@ -32,7 +32,7 @@
  "pytest": {
   "cmd": "python -m pytest -q",
   "lines": [
-   "49 passed, 3 warnings in 36.30s"
+   "49 passed, 3 warnings in 35.14s"
   ]
  },
  "vitest": {

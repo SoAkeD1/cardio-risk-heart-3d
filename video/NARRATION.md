@@ -135,7 +135,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 - chapter: 5
 - visual: capture:s05d_live
 - lead: 0.6
-- tail: 2.9
+- tail: 2.4
 
 > Every change updates the estimate live.
 > {htn}Switch hypertension off, and a toast reports exactly what moved: CAD down 21 points.
@@ -183,7 +183,7 @@ Machine-readable: `video/pipeline/tts.py` parses this file. One `##` block per s
 - chapter: 5
 - visual: capture:s05i_why
 - lead: 0.4
-- tail: 2.5
+- tail: 2.1
 
 > Why is requirement 3b: a SHAP waterfall in probability points, for CAD and for each artery.
 > {table}The breakdown groups the reasons, and the table puts each measurement beside its typical range and contribution. That's 3c.

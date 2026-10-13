@@ -2,14 +2,14 @@
  "fps": 30,
  "duration": 15.0,
  "lead": 0.35,
- "voice": 11.904,
- "endCard": 12.704,
+ "voice": 7.99,
+ "endCard": 13.0,
  "audio": "voice/intro.wav",
  "shots": [
   {
    "clip": "clips/s00_cold.mp4",
    "from": 0.0,
-   "to": 4.995,
+   "to": 6.99,
    "src": 6.267,
    "lower": "55 routine measurements → calibrated CAD + LAD / LCX / RCA risk",
    "zoom": {
@@ -20,8 +20,8 @@
   },
   {
    "clip": "clips/s05f_3d.mp4",
-   "from": 4.995,
-   "to": 7.876,
+   "from": 6.99,
+   "to": 8.59,
    "src": 7.668,
    "lower": "Hover or click an artery: probability · threshold · reliability",
    "zoom": {
@@ -32,8 +32,8 @@
   },
   {
    "clip": "clips/s05i_why.mp4",
-   "from": 7.876,
-   "to": 9.758,
+   "from": 8.59,
+   "to": 10.795,
    "src": 2.94,
    "lower": "Why? SHAP in probability points, for each artery",
    "zoom": {
@@ -44,8 +44,8 @@
   },
   {
    "clip": "clips/s05d_live.mp4",
-   "from": 9.758,
-   "to": 12.704,
+   "from": 10.795,
+   "to": 13.0,
    "src": 4.106,
    "lower": "Live: Hypertension off → CAD −21 pts",
    "zoom": {
@@ -57,28 +57,27 @@
  ],
  "captions": [
   {
-   "start": 0.455,
-   "end": 4.81,
+   "start": 0.35,
+   "end": 2.04,
    "lines": [
-    "CardioLens turns routine clinical data",
-    "into a 3D heart."
+    "This is CardioLens."
    ]
   },
   {
-   "start": 4.995,
-   "end": 9.639,
+   "start": 2.35,
+   "end": 6.5,
    "lines": [
-    "Each artery gets its own calibrated risk,",
-    "explained with SHAP,"
+    "Routine clinical data goes in, and a 3D",
+    "heart shows where coronary risk is likely"
    ]
   },
   {
-   "start": 9.758,
-   "end": 12.113,
+   "start": 6.55,
+   "end": 8.34,
    "lines": [
-    "and updated live as you change an input."
+    "to be, artery by artery."
    ]
   }
  ],
- "text": "CardioLens turns routine clinical data into a 3D heart. Each artery gets its own calibrated risk, explained with SHAP, and updated live as you change an input."
+ "text": "This is CardioLens. Routine clinical data goes in, and a 3D heart shows where coronary risk is likely to be, artery by artery."
 }
