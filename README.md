@@ -12,6 +12,7 @@ interactive 3D heart**, with the reasons why and what-if exploration. Decision s
 
 The current interface includes dark and light themes, a smoothly expanding patient sidebar,
 a resizable cardiac viewer, and a two-second opening animation that plays once per browser-tab session.
+The patient sidebar starts open on desktop (960 px and wider) and closed on smaller screens.
 The heart model and trained prediction models remain unchanged.
 
 **Dataset:** Alizadehsani R., Roshanzamir M., Sani Z. *Extension of Z-Alizadeh Sani*. UCI ML Repository, id 411.

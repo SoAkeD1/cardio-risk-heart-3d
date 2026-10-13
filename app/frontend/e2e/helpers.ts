@@ -53,7 +53,7 @@ export function hexDiff(a: string, b: string): number {
   return Math.max(...x.map((v, i) => Math.abs(v - y[i]!)));
 }
 
-/** The patient overview is a dock that starts closed on every load: open it before using its fields. */
+/** Desktop starts with the patient dock open; smaller layouts need it opened before using fields. */
 export async function openPatientPanel(page: Page) {
   const toggle = page.getByRole("button", { name: "Toggle patient overview" });
   if ((await toggle.count()) && (await toggle.getAttribute("aria-expanded")) !== "true") await toggle.click();
