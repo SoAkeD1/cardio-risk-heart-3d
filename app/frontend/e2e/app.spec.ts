@@ -2,7 +2,7 @@ import { expect, test, type Page } from "@playwright/test";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { freshApp, hexDiff, hook, VESSEL_MESHES, waitForColours } from "./helpers";
+import { freshApp, hexDiff, hook, openPatientPanel, VESSEL_MESHES, waitForColours } from "./helpers";
 
 const FIG = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../artifacts/figures");
 const REPORT: Record<string, unknown> = {};
@@ -172,6 +172,7 @@ test("backend offline -> banner shown, 3D still interactive", async ({ page }) =
   test.skip(isMobile(test.info().project.name), "desktop layout");
   await freshApp(page, "/");
   await loadCase(page, "lad");
+  await openPatientPanel(page);
   await page.route("**/api/**", (r) => r.abort("connectionrefused"));
   // trigger a refetch
   const age = page.getByRole("textbox", { name: /^Age/ }).first();

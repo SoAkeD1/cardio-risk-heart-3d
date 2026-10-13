@@ -36,7 +36,7 @@ export function ResultsPanel({ only }: { only?: "risk" | "why" | "whatif" }) {
           {show("risk") && (
             <>
               <div className="estimate-glance" aria-label="CAD estimate overview">
-                <div><span className="glance-label">Overall CAD estimate</span><strong className="num">{Math.round(prediction.scene.heart.cad_prob * 100)}<span>%</span></strong></div>
+                <div><span className="glance-label">Overall CAD estimate</span><strong className="num" data-testid="cad-glance">{Math.round(prediction.scene.heart.cad_prob * 100)}<span>%</span></strong></div>
                 <div className="glance-tier"><RiskTierChip tier={prediction.scene.heart.risk_tier} /><span>Probability of coronary artery disease</span></div>
               </div>
               <VesselCards />

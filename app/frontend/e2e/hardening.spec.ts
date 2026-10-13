@@ -1,10 +1,11 @@
 import { expect, test, type Page } from "@playwright/test";
-import { freshApp, hook, waitForColours } from "./helpers";
+import { freshApp, hook, waitForColours, openPatientPanel } from "./helpers";
 
 test.beforeEach(() => test.skip(test.info().project.name !== "desktop", "hardening runs on the desktop profile"));
 
 /** Patient field by label: searching reveals it even when its group is collapsed. */
 async function field(page: Page, search: string, label: RegExp) {
+  await openPatientPanel(page);
   await page.getByRole("searchbox", { name: "Search measurements" }).fill(search);
   return page.getByRole("textbox", { name: label }).first();
 }
@@ -46,12 +47,12 @@ test("extreme and invalid values: field messages, last result kept, no crash", a
   await freshApp(page, "/");
   await page.goto("/?case=lad");
   await waitForColours(page);
-  const before = await page.getByTestId("cad-prob").innerText();
+  const before = await page.getByTestId("cad-glance").innerText();
   const age = await field(page, "Age", /^Age/);
   await age.fill("300");
   await age.press("Enter");
   await expect(page.getByRole("alert").filter({ hasText: "between 18 and 110" }).first()).toBeVisible();
-  await expect(page.getByTestId("cad-prob")).toHaveText(before); // previous estimate still shown
+  await expect(page.getByTestId("cad-glance")).toHaveText(before); // previous estimate still shown
   await age.fill("abc"); // not a number -> field reverts, nothing sent
   await age.press("Enter");
   await expect(age).toHaveValue("300");
@@ -71,6 +72,7 @@ test("rapid slider drags: stale requests are cancelled, the last value wins", as
   await waitForColours(page);
   let sent = 0;
   page.on("request", (r) => r.url().endsWith("/api/predict") && sent++);
+  await openPatientPanel(page);
   const thumb = page.getByRole("slider", { name: "Age" });
   await thumb.focus();
   for (let i = 0; i < 40; i++) await page.keyboard.press(i % 3 ? "ArrowLeft" : "ArrowRight");
@@ -82,6 +84,7 @@ test("rapid slider drags: stale requests are cancelled, the last value wins", as
   );
   void echoed;
   // the summary reflects the final age
+  await page.locator("summary", { hasText: "CAD risk summary" }).click(); // the summary is collapsed by default
   await expect(page.getByTestId("summary-text")).toBeVisible();
   expect(Number(val)).toBeGreaterThan(30);
   // burst of typed changes while a request is in flight -> aborted requests are tolerated, UI never blanks
@@ -99,7 +102,7 @@ test("rapid slider drags: stale requests are cancelled, the last value wins", as
     await page.waitForTimeout(300); // > debounce, < request time -> forces in-flight cancellation
   }
   await expect.poll(async () => (await hook(page, (h) => h.getState())).pending, { timeout: 10_000 }).toBe(false);
-  await expect(page.getByTestId("cad-prob")).toBeVisible();
+  await expect(page.getByTestId("cad-glance")).toBeVisible();
   console.log(`rapid edits: ${aborted.length} stale /api/predict requests aborted`);
   expect(aborted.length).toBeGreaterThanOrEqual(2);
   await expect(bp).toHaveValue("140");
@@ -115,7 +118,7 @@ test("backend killed mid-session: banner + retry; 3D stays interactive", async (
   await fbs.fill("200");
   await fbs.press("Enter");
   await expect(page.getByText("Can't reach the CardioLens server").first()).toBeVisible({ timeout: 20_000 });
-  await expect(page.getByTestId("cad-prob")).toBeVisible(); // last result stays
+  await expect(page.getByTestId("cad-glance")).toBeVisible(); // last result stays
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.keyboard.press("3");
   await page.waitForTimeout(700);
@@ -137,7 +140,7 @@ test("slow 3G: lite model re-download shows the progress overlay, predictions ke
   const bp = await field(page, "blood pressure", /^Systolic blood pressure/);
   await bp.fill("150");
   await bp.press("Enter");
-  await expect(page.getByTestId("cad-prob")).toBeVisible(); // never blanks while the slow request runs
+  await expect(page.getByTestId("cad-glance")).toBeVisible(); // never blanks while the slow request runs
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.getByRole("button", { name: "Display quality" }).click();
   await page.getByRole("radio", { name: "Lite" }).click();
@@ -207,7 +210,7 @@ test("WebGL disabled: 2D fallback coloured by the API + full dashboard", async (
   await freshApp(page, "/?nowebgl&case=multi");
   await expect(page.getByTestId("fallback-2d")).toBeVisible();
   await expect(page.getByText(/WebGL\) are not available/)).toBeVisible();
-  await expect(page.getByTestId("cad-prob")).toBeVisible();
+  await expect(page.getByTestId("cad-glance")).toBeVisible();
   const ex = (await (await request.get("/api/examples")).json()).examples.find((e: { id: string }) => e.id === "multi");
   const api = await (await request.post("/api/predict", { data: { features: ex.features } })).json();
   const strokes = await page.locator('[data-testid="fallback-2d"] path[stroke-width="8"]').evaluateAll((els) => els.map((e) => e.getAttribute("stroke")));
