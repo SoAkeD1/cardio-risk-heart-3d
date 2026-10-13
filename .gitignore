@@ -13,3 +13,5 @@ artifacts/review/
 # secrets / local env
 .env
 .env.*
+.vercel
+.env*
