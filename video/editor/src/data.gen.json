@@ -173,8 +173,8 @@
   "playwright": 34
  },
  "quality": {
-  "fps_full": 59.5,
-  "fps_lite": 58.7,
+  "fps_full": 59.2,
+  "fps_lite": 58.8,
   "axe_serious": 0,
   "lighthouse": {
    "performance": 88,
