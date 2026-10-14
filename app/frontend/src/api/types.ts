@@ -59,7 +59,7 @@ export type AnatomyMap = {
   style: {
     color_scale: { stops: [number, string][]; meaning: string };
     vessel: { outline_color: string; badge_text: string };
-    territory: { opacity: number };
+    territory: { opacity: number; glow: number; edge_color: string; edge_opacity: number };
     heart_tiers: Record<string, { color: string; emissive: number; pulse_hz: number }>;
     reliability: { badge: string; min_auc: number }[];
     regions: { raises_color: string; lowers_color: string };

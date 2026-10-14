@@ -29,7 +29,9 @@ vessel models from being over-trusted.
 **Territory assumption.** The optional overlay (off by default) shades the standard AHA 17-segment perfusion
 territories (Cerqueira et al., *Circulation* 2002;105:539–42), assuming right-dominant circulation:
 LAD 1, 2, 7, 8, 13, 14, 17; RCA 3, 4, 9, 10, 15; LCX 5, 6, 11, 12, 16. The territory colour is the vessel's colour
-at 35% opacity. It is derived from the vessel prediction, never from RWMA. Its tooltip states that individual
+at 60% opacity with a soft glow, and each territory has a thin light outline so the regions stay readable when
+their colours are close to each other or to the heart's own (all values in `anatomy_map.json → style.territory`).
+It is derived from the vessel prediction, never from RWMA. Its tooltip states that individual
 anatomy varies.
 
 **Region layer semantics.** Each of the 55 raw features maps to exactly one body region (heart, vessels, lungs,

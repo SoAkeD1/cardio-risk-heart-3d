@@ -9,7 +9,8 @@ export default defineConfig({
   fullyParallel: false,
   reporter: [["list"]],
   use: {
-    channel: "msedge", // Edge plays the app's H.264 opening video; bundled Chromium cannot
+    // Edge plays the app's H.264 opening video (s00, s05a); CAPTURE_CHANNEL=chromium for other scenes if Edge misbehaves
+    channel: process.env.CAPTURE_CHANNEL === "chromium" ? undefined : "msedge",
     headless: true,
     launchOptions: { args: ["--use-angle=d3d11", "--enable-gpu", "--ignore-gpu-blocklist", "--hide-scrollbars", "--force-color-profile=srgb"] },
   },

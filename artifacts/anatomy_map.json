@@ -369,8 +369,11 @@
    "flag_text": " - at/above threshold: STENOSIS LIKELY"
   },
   "territory": {
-   "opacity": 0.35,
-   "default_visible": false
+   "opacity": 0.6,
+   "default_visible": false,
+   "glow": 0.45,
+   "edge_color": "#ECE8E2",
+   "edge_opacity": 0.85
   },
   "heart_tiers_note": "Tier tints are deliberately subtle tissue tones (lighter than the vessel scale mid-points) so coronaries keep contrast; the tier is carried mainly by emissive pulse + HUD text.",
   "heart_tiers": {

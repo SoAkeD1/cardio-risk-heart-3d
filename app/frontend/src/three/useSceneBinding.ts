@@ -33,7 +33,42 @@ type Binding = {
   pulseHz: number;
   flagged: boolean;
   target?: string | null;
+  edges?: THREE.LineSegments; // territory outline (child of the mesh, so it follows its visibility)
 };
+
+/** Outline of an open surface patch: the edges used by exactly one triangle. Vertices are welded by position
+ *  first, so UV / normal seams inside the patch don't show up as false borders. */
+function boundaryEdges(geo: THREE.BufferGeometry): THREE.BufferGeometry {
+  const pos = geo.getAttribute("position");
+  const key = (i: number) => `${pos.getX(i).toFixed(5)},${pos.getY(i).toFixed(5)},${pos.getZ(i).toFixed(5)}`;
+  const weld = new Map<string, number>();
+  const id = new Int32Array(pos.count);
+  for (let i = 0; i < pos.count; i++) {
+    const k = key(i);
+    if (!weld.has(k)) weld.set(k, i);
+    id[i] = weld.get(k)!;
+  }
+  const idx = geo.getIndex();
+  const tri = idx ? idx.count : pos.count;
+  const vert = (n: number) => id[idx ? idx.getX(n) : n]!;
+  const count = new Map<string, [number, number, number]>();
+  for (let t = 0; t < tri; t += 3) {
+    const v = [vert(t), vert(t + 1), vert(t + 2)];
+    for (let e = 0; e < 3; e++) {
+      const a = v[e]!, b = v[(e + 1) % 3]!;
+      const k = a < b ? `${a}_${b}` : `${b}_${a}`;
+      const c = count.get(k);
+      if (c) c[2]++;
+      else count.set(k, [a, b, 1]);
+    }
+  }
+  const out: number[] = [];
+  for (const [a, b, n] of count.values())
+    if (n === 1) out.push(pos.getX(a), pos.getY(a), pos.getZ(a), pos.getX(b), pos.getY(b), pos.getZ(b));
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(out, 3));
+  return g;
+}
 
 const variantIndex = (json: { extensions?: Record<string, unknown> }, name: Look): number => {
   const v = (json.extensions?.KHR_materials_variants as { variants?: { name: string }[] } | undefined)?.variants ?? [];
@@ -183,7 +218,7 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
   // static per-frame-independent material setup (visibility, transparency, outlines, helpers)
   useEffect(() => {
     if (!bindings || !map) return;
-    const terrOpacity = map.style.territory.opacity;
+    const terr = map.style.territory;
     for (const [name, b] of bindings) {
       const m = b.mesh.material as Std;
       const N = names();
@@ -210,12 +245,24 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
         for (const mm of Object.values(b.variants)) {
           if (!mm) continue;
           mm.transparent = true;
-          mm.opacity = terrOpacity;
+          mm.opacity = terr.opacity;
           mm.depthWrite = false;
           mm.polygonOffset = true;
           mm.polygonOffsetFactor = -2;
         }
         b.mesh.renderOrder = 2;
+        // a light outline per territory: the regions stay readable even when their risk colours are close to
+        // each other or to the heart's own colour (colour still = the artery's probability)
+        if (!b.edges) {
+          b.edges = new THREE.LineSegments(
+            boundaryEdges(b.mesh.geometry),
+            new THREE.LineBasicMaterial({ color: terr.edge_color, transparent: true, opacity: terr.edge_opacity, depthWrite: false }),
+          );
+          b.edges.name = `${name}:outline`;
+          b.edges.renderOrder = 3;
+          b.edges.raycast = () => {}; // never pickable
+          b.mesh.add(b.edges);
+        }
       } else if (name === N.bodyShell) {
         m.transparent = true;
         m.opacity = view.xray;
@@ -234,6 +281,7 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
     const N = names();
     const helpers = new Set(N?.vessels.flatMap((v) => [v.hit, v.outline]) ?? []);
     const coronary = new Set([...(N?.vessels.map((v) => v.mesh) ?? []), ...(N?.unmodelledCoronary.flatMap((n) => n.mesh_names) ?? [])]);
+    const territories = new Set(N?.territoryMeshes ?? []);
     const now = performance.now();
     const t = clock.getElapsedTime();
     const regions = view.mode === "body" ? (scene?.regions ?? []) : [];
@@ -269,7 +317,11 @@ export function useSceneBinding(bindings: Map<string, Binding> | null, map: Anat
         }
       }
       const g = glow.get(name);
-      if (g) {
+      if (territories.has(name)) {
+        // territories glow softly in their own (probability) colour so they read on top of the textured heart
+        m.emissive.copy(b.color.cur);
+        m.emissiveIntensity = map?.style.territory.glow ?? 0;
+      } else if (g) {
         m.emissive.set(g.color);
         m.emissiveIntensity = g.k * (reduced ? 0.7 : 0.45 + 0.35 * (0.5 + 0.5 * Math.sin(2 * Math.PI * 0.5 * t)));
         animating = !reduced || animating;

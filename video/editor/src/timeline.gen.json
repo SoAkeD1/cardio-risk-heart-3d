@@ -755,16 +755,16 @@
    "clips": [
     {
      "clip": "s05h_body",
-     "src": "clips/s05h_body_x1.0755.mp4",
-     "handle": 0.9298,
+     "src": "clips/s05h_body_x0.9532.mp4",
+     "handle": 1.0491,
      "marks": [
       {
        "name": "body",
-       "t": 1.173
+       "t": 1.379
       },
       {
        "name": "territories",
-       "t": 7.537
+       "t": 8.336
       }
      ],
      "length": 12.82,

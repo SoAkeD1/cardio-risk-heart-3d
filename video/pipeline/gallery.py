@@ -78,11 +78,13 @@ def main() -> None:
          "Before / after / Δ table, preview on the heart, sensitivity chart; model associations, not treatment effects"),
         ("07_body_mode", frame("s05h_body", "body", 4.5), "Body mode with x-ray",
          "Where contributing factors live (lungs, kidneys, blood…), not where the disease is"),
-        ("08_model_card", frame("s05k_modelcard", "metrics", 1.2), "Model card: honest metrics",
+        ("08_territories", frame("s05h_body", "territories", 2.4), "Perfusion territories",
+         "AHA 17-segment territories (right-dominant), shaded in each artery's risk colour and outlined"),
+        ("09_model_card", frame("s05k_modelcard", "metrics", 1.2), "Model card: honest metrics",
          "Hold-out ROC-AUC with 95% CIs: CAD 0.895 · LAD 0.832 · LCX 0.768 · RCA 0.741, plus validation and limitations"),
-        ("09_samples", frame("s05b_samples", "menu", 1.4), "Six real hold-out sample patients",
+        ("10_samples", frame("s05b_samples", "menu", 1.4), "Six real hold-out sample patients",
          "From clearly low risk to a deliberate model-uncertainty example; each has its own link"),
-        ("10_devices", [frame("s05n_tablet", at=3.0), frame("s05n_phone", at=7.0)], "Tablet and phone layouts",
+        ("11_devices", [frame("s05n_tablet", at=3.0), frame("s05n_phone", at=7.0)], "Tablet and phone layouts",
          "Bottom sheet on tablets, tabs on phones; a lighter 3D model loads automatically on weaker devices"),
     ]
     for name, img, title, sub in shots:
