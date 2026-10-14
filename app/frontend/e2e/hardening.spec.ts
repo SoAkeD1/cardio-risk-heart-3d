@@ -216,3 +216,16 @@ test("WebGL disabled: 2D fallback coloured by the API + full dashboard", async (
   const strokes = await page.locator('[data-testid="fallback-2d"] path[stroke-width="8"]').evaluateAll((els) => els.map((e) => e.getAttribute("stroke")));
   for (const v of ["lad", "lcx", "rca"]) expect(strokes).toContain(api.scene.vessels[v].color);
 });
+
+test("anatomy map arriving after the first prediction (?case= link): no runtime errors", async ({ page }) => {
+  const errors: string[] = [];
+  page.on("pageerror", (e) => errors.push(e.message));
+  await page.route("**/api/anatomy-map", async (r) => {
+    await new Promise((res) => setTimeout(res, 3000)); // the prediction wins the race
+    await r.continue();
+  });
+  await freshApp(page, "/?case=multi");
+  await waitForColours(page);
+  await page.waitForTimeout(1500);
+  expect(errors, errors.join("\n")).toEqual([]);
+});
