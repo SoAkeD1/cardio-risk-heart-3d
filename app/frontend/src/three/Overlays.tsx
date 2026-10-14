@@ -223,8 +223,8 @@ export function OverlayLayout() {
     // ---------------------------------------------------------------- vessel tags (2+ flagged)
     let tags: Tag[] = [];
     const vessels = scene ? Object.entries(scene.vessels) : [];
-    if (mode === "heart" && vessels.filter(([, v]) => v.flagged).length >= 2) {
-      const N = names()!;
+    // the anatomy map can arrive after the first prediction (e.g. a ?case= link): no tags until it has
+    if (N && mode === "heart" && vessels.filter(([, v]) => v.flagged).length >= 2) {
       const occluders = N.occluders.map((n) => reg.meshes.get(n)).filter((m): m is THREE.Mesh => !!m);
       const camPos = camera.getWorldPosition(new THREE.Vector3());
       const centre = new THREE.Vector3(0, 0, 0);
