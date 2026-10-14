@@ -2,6 +2,34 @@
 
 Multimodal AI Hackathon 2026 · Track A · Cardiovascular Risk Visualization & Prediction.
 
+## 🎬 Watch the full project explanation (start here)
+
+> [!IMPORTANT]
+> **The complete walkthrough of CardioLens is on YouTube: <https://youtu.be/GRaESHXPX9A>** (8 min, narrated by Shinjan Sarkar).
+> It shows the live app first, then the data, the machine learning, the 3D heart and the engineering. Watch it before
+> reading the rest of this page.
+
+<p align="center">
+  <a href="https://youtu.be/GRaESHXPX9A" title="Watch the CardioLens demo on YouTube">
+    <img src="docs/images/video-explainer.jpg" alt="Play the CardioLens project explanation video on YouTube" width="860">
+  </a>
+</p>
+
+<p align="center"><b><a href="https://youtu.be/GRaESHXPX9A">▶ Watch on YouTube</a></b> · click the image above to play</p>
+
+| Time | Chapter |
+|---|---|
+| [0:00](https://youtu.be/GRaESHXPX9A?t=0) | Cold open |
+| [0:13](https://youtu.be/GRaESHXPX9A?t=13) | The problem |
+| [0:43](https://youtu.be/GRaESHXPX9A?t=43) | **The app (live demo)** |
+| [4:21](https://youtu.be/GRaESHXPX9A?t=261) | Data & machine learning |
+| [5:41](https://youtu.be/GRaESHXPX9A?t=341) | From prediction to anatomy |
+| [6:25](https://youtu.be/GRaESHXPX9A?t=385) | Building the 3D heart |
+| [7:08](https://youtu.be/GRaESHXPX9A?t=428) | Engineering & quality |
+| [7:59](https://youtu.be/GRaESHXPX9A?t=479) | Honesty & close |
+
+---
+
 Enter routine clinical data and see **calibrated CAD and per-artery (LAD / LCX / RCA) stenosis risk on an
 interactive 3D heart**, with the reasons why and what-if exploration. Decision support and education only.
 
