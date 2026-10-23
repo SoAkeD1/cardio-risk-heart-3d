@@ -33,8 +33,8 @@ Multimodal AI Hackathon 2026 · Track A · Cardiovascular Risk Visualization & P
 Enter routine clinical data and see **calibrated CAD and per-artery (LAD / LCX / RCA) stenosis risk on an
 interactive 3D heart**, with the reasons why and what-if exploration. Decision support and education only.
 
-**Live website:** [havoc · CardioLens](https://havoc-rho.vercel.app/) ·
-[Open the LAD sample](https://havoc-rho.vercel.app/?case=lad)
+**Live website:** [havoc · CardioLens](https://havoc-f6cf.onrender.com/) ·
+[Open the LAD sample](https://havoc-f6cf.onrender.com/?case=lad)
 
 ![Current CardioLens dashboard: open patient sidebar, dark theme, unchanged 3D heart and artery estimates](docs/images/cardiolens-dark-dashboard.png)
 
@@ -78,11 +78,26 @@ Screenshots: [desktop dark](artifacts/figures/app_desktop_dark.png) ·
 
 ## Deployment
 
-**Production:** [https://havoc-rho.vercel.app/](https://havoc-rho.vercel.app/)
+**Production (Render):** [havoc-f6cf.onrender.com](https://havoc-f6cf.onrender.com/)
 
 **Project / service name:** `havoc`.
 
-The React frontend and FastAPI prediction API run together in one Vercel container service.
+### Deploy on Render
+
+The current production deployment runs the React frontend and FastAPI prediction API together
+on Render's Free web service plan, using the existing `Dockerfile.vercel` from the repository root.
+Configure the Docker command as `uvicorn app.backend.main:app --host 0.0.0.0 --port 10000`
+and the health check path as `/api/health`. Set `PORT=10000` and `OMP_NUM_THREADS=1`,
+`OPENBLAS_NUM_THREADS=1`, `MKL_NUM_THREADS=1`, and `NUMEXPR_NUM_THREADS=1`.
+The existing trained models and 3D heart assets are preserved.
+
+Free instances sleep after inactivity; the first visit can take a few minutes while the models load.
+Check [API health](https://havoc-f6cf.onrender.com/api/health) or
+[open the multi-vessel sample](https://havoc-f6cf.onrender.com/?case=multi).
+
+### Alternative hosting: Vercel
+
+The React frontend and FastAPI prediction API can also run together in one Vercel container service.
 `vercel.json` routes all requests to `havoc`, including the website at `/` and API endpoints at `/api/*`.
 `Dockerfile.vercel` builds the frontend with Node.js 22, then serves it with the API on Python 3.12
 and port 80. `requirements-runtime.txt` installs inference dependencies; the existing trained artifacts
